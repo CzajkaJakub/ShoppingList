@@ -18,22 +18,20 @@ class ProductsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubview(productsTable)
+        self.reloadProducts()
         
         productsTable.delegate = self
         productsTable.dataSource = self
         
-        let reloadButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(reloadButtonTapped))
-        navigationItem.rightBarButtonItem = reloadButton
-        self.reloadButtonTapped()
-    }
+        view.addSubview(productsTable)
+        }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         productsTable.frame = view.bounds
     }
     
-    @objc private func reloadButtonTapped() {
+    @objc private func reloadProducts() {
         products = DatabaseManager.shared.fetchProducts()
         productsTable.reloadData()
     }
@@ -52,7 +50,7 @@ class ProductsViewController: UIViewController {
             if let cell = sender.superview?.superview as? UITableViewCell,
                let indexPath = self!.productsTable.indexPath(for: cell) {
                 DatabaseManager.shared.removeProduct(product: self!.products[indexPath.row])
-                self!.reloadButtonTapped()
+                self!.reloadProducts()
             }
         }
         confirmationAlert.addAction(removeAction)
@@ -104,16 +102,6 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
         detailsLabel.text = "Kcal: \(product.kcal ?? 0) Carbs: \(product.carbo ?? 0) Fat: \(product.fat ?? 0) Protein \(product.protein ?? 0)"
         cell.contentView.addSubview(detailsLabel)
         
-        let removeButton: UIButton = {
-            let button = UIButton(type: .system)
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.setImage(UIImage(systemName: "trash"), for: .normal)
-            button.tintColor = .red
-            button.addTarget(self, action: #selector(removeButtonTapped(_:)), for: .touchUpInside) // Modify the target action
-            return button
-        }()
-        cell.contentView.addSubview(removeButton)
-        
         NSLayoutConstraint.activate([
                 productImageView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
                 productImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
@@ -124,12 +112,58 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
                 nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
                 
                 detailsLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
-                detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10),
-                
-                removeButton.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
-                removeButton.rightAnchor.constraint(equalTo: cell.contentView.rightAnchor, constant: -10)
+                detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10)
             ])
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let addProductToShoppingListAction = UIContextualAction(style: .normal, title: "Add product to shopping list") { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to add this product to list?", preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let addAction = UIAlertAction(title: "Add", style: .destructive) { (_) in
+                self?.addProductToShoppingList(at: indexPath)
+            }
+            confirmationAlert.addAction(cancelAction)
+            confirmationAlert.addAction(addAction)
+            self?.present(confirmationAlert, animated: true, completion: nil)
+            completionHandler(true) // Call the completion handler to indicate that the action was performed
+        }
+        addProductToShoppingListAction.backgroundColor = .blue // Customize the action button background color
+
+        let configuration = UISwipeActionsConfiguration(actions: [addProductToShoppingListAction])
+        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        return configuration
+    }
+
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+
+        let removeDishAction = UIContextualAction(style: .normal, title: "Remove product") { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to remove this product?", preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let removeAction = UIAlertAction(title: "Remove", style: .destructive) { (_) in
+                self?.removeProduct(at: indexPath)
+            }
+            confirmationAlert.addAction(cancelAction)
+            confirmationAlert.addAction(removeAction)
+            self?.present(confirmationAlert, animated: true, completion: nil)
+            completionHandler(true) // Call the completion handler to indicate that the action was performed
+        }
+        removeDishAction.backgroundColor = .red // Customize the action button background color
+        
+        let configuration = UISwipeActionsConfiguration(actions: [removeDishAction])
+        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        return configuration
+    }
+
+    func removeProduct(at indexPath: IndexPath) {
+        DatabaseManager.shared.removeProduct(product: products[indexPath.row])
+        products.remove(at: indexPath.row)
+        reloadProducts()
+    }
+    
+    func addProductToShoppingList(at indexPath: IndexPath) {
+        DatabaseManager.shared.addProductToShoppingList(product: products[indexPath.row])
     }
 }

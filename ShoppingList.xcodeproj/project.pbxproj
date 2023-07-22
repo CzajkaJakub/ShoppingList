@@ -80,6 +80,25 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		0CA88C662A6BEEA200838222 /* Tables */ = {
+			isa = PBXGroup;
+			children = (
+				0CC7D1992A5B2CCF005DB139 /* ShoppingListViewController.swift */,
+				0CC7D19D2A5B2D0F005DB139 /* ProductsViewController.swift */,
+				0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */,
+			);
+			path = Tables;
+			sourceTree = "<group>";
+		};
+		0CA88C672A6BEEAD00838222 /* Forms */ = {
+			isa = PBXGroup;
+			children = (
+				0CC7D19B2A5B2CFF005DB139 /* AddProductViewController.swift */,
+				0CC7D19F2A5B2D22005DB139 /* AddDishViewController.swift */,
+			);
+			path = Forms;
+			sourceTree = "<group>";
+		};
 		0CC7D1722A5AE2E7005DB139 = {
 			isa = PBXGroup;
 			children = (
@@ -123,11 +142,8 @@
 		0CC7D1972A5B2AF8005DB139 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				0CC7D1992A5B2CCF005DB139 /* ShoppingListViewController.swift */,
-				0CC7D19B2A5B2CFF005DB139 /* AddProductViewController.swift */,
-				0CC7D19D2A5B2D0F005DB139 /* ProductsViewController.swift */,
-				0CC7D19F2A5B2D22005DB139 /* AddDishViewController.swift */,
-				0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */,
+				0CA88C672A6BEEAD00838222 /* Forms */,
+				0CA88C662A6BEEA200838222 /* Tables */,
 				0CC7D1A32A5B3360005DB139 /* MainTabViewController.swift */,
 			);
 			path = Controllers;

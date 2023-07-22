@@ -405,6 +405,9 @@ class DatabaseManager {
         let deleteQueryDish = dishTable.filter(dishId == dish.id).delete()
         let deleteQueryProductAmount = productAmountTable.filter(dishId == dish.id).delete()
         
+        print(deleteQueryDish)
+        print(deleteQueryProductAmount)
+        
         do {
             try dbConnection.run(deleteQueryDish)
             try dbConnection.run(deleteQueryProductAmount)
@@ -414,6 +417,10 @@ class DatabaseManager {
     }
     
     func addDishToShoppingList(dish: Dish){
+        
+    }
+    
+    func addProductToShoppingList(product: Product){
         
     }
 }

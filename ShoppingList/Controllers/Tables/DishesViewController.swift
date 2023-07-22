@@ -1,10 +1,3 @@
-//
-//  DishesViewController.swift
-//  ShoppingList
-//
-//  Created by Patrycja on 09/07/2023.
-//
-
 import UIKit
 
 class DishesViewController: UIViewController {
@@ -136,12 +129,11 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
 
     func removeDish(at indexPath: IndexPath) {
         DatabaseManager.shared.removeDish(dish: dishes[indexPath.row])
-        dishesTable.deleteRows(at: [indexPath], with: .left)
         dishes.remove(at: indexPath.row)
         reloadDishes()
     }
     
     func addDishToShoppingList(at indexPath: IndexPath) {
-        DatabaseManager.shared.addDishToShoppingList(dish: dishes[indexPath.row])
+//        DatabaseManager.shared.addDishToShoppingList(dish: dishes[indexPath.row])
     }
 }
