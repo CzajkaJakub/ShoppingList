@@ -7,10 +7,9 @@
 
 import UIKit
 
-class HomeViewController: UIViewController {
+class ShoppingListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Home"
     }
 }

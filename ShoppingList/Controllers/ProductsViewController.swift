@@ -11,15 +11,13 @@ class ProductsViewController: UIViewController {
     
     private var products: [Product] = []
     private let productsTable: UITableView = {
-        let table = UITableView()
-        table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        return table
+        let productsTable = UITableView()
+        productsTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        return productsTable
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        title = "Products"
         view.addSubview(productsTable)
         
         productsTable.delegate = self

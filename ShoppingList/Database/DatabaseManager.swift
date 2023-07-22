@@ -412,5 +412,9 @@ class DatabaseManager {
             print("Error removing product: \(error)")
         }
     }
+    
+    func addDishToShoppingList(dish: Dish){
+        
+    }
 }
         

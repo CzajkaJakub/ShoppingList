@@ -11,20 +11,19 @@ class DishesViewController: UIViewController {
 
     private var dishes: [Dish] = []
     private let dishesTable: UITableView = {
-        let table = UITableView()
-        table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        return table
+        let dishesTable = UITableView()
+        dishesTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        return dishesTable
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        title = "Dishes"
-        view.addSubview(dishesTable)
         reloadDishes()
         
         dishesTable.delegate = self
         dishesTable.dataSource = self
+        
+        view.addSubview(dishesTable)
     }
     
     override func viewDidLayoutSubviews() {
@@ -93,46 +92,43 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
                 detailsLabel.leadingAnchor.constraint(equalTo: dishImageView.trailingAnchor, constant: 10),
                 detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10),
             ])
-        
         return cell
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        // Handle right swipe actions here
-        let customAction = UIContextualAction(style: .normal, title: "Custom Action") { (action, view, completionHandler) in
-            // Your custom code for the right swipe action
+        let addDishToShoppingListAction = UIContextualAction(style: .normal, title: "Add meal to shopping list") { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to add this dish to list?", preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let addAction = UIAlertAction(title: "Add", style: .destructive) { (_) in
+                self?.addDishToShoppingList(at: indexPath)
+            }
+            confirmationAlert.addAction(cancelAction)
+            confirmationAlert.addAction(addAction)
+            self?.present(confirmationAlert, animated: true, completion: nil)
             completionHandler(true) // Call the completion handler to indicate that the action was performed
         }
-        customAction.backgroundColor = .blue // Customize the action button background color
+        addDishToShoppingListAction.backgroundColor = .blue // Customize the action button background color
 
-        let configuration = UISwipeActionsConfiguration(actions: [customAction])
+        let configuration = UISwipeActionsConfiguration(actions: [addDishToShoppingListAction])
         configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
         return configuration
     }
 
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        // Handle left swipe actions here
+
         let removeDishAction = UIContextualAction(style: .normal, title: "Remove dish") { [weak self] (action, view, completionHandler) in
-            // Create a confirmation alert
             let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to remove this dish?", preferredStyle: .alert)
-            
-            // Add a cancel action
             let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-            confirmationAlert.addAction(cancelAction)
-            
-            // Add a remove action
             let removeAction = UIAlertAction(title: "Remove", style: .destructive) { (_) in
                 self?.removeDish(at: indexPath)
             }
+            confirmationAlert.addAction(cancelAction)
             confirmationAlert.addAction(removeAction)
-            
-            // Present the confirmation alert
             self?.present(confirmationAlert, animated: true, completion: nil)
-            
             completionHandler(true) // Call the completion handler to indicate that the action was performed
         }
         removeDishAction.backgroundColor = .red // Customize the action button background color
-
+        
         let configuration = UISwipeActionsConfiguration(actions: [removeDishAction])
         configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
         return configuration
@@ -143,5 +139,9 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         dishesTable.deleteRows(at: [indexPath], with: .left)
         dishes.remove(at: indexPath.row)
         reloadDishes()
+    }
+    
+    func addDishToShoppingList(at indexPath: IndexPath) {
+        DatabaseManager.shared.addDishToShoppingList(dish: dishes[indexPath.row])
     }
 }

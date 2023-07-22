@@ -46,8 +46,6 @@ class AddDishViewController: UIViewController, UIPickerViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Add Dish"
                 
         setupViews()
         setupConstraints()
