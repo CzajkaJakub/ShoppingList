@@ -187,7 +187,6 @@ class AddDishViewController: UIViewController {
     @objc private func addProductButtonTapped() {
         let productSelectionVC = ProductSelectionViewController()
         productSelectionVC.delegate = self
-        productSelectionVC.products = Product.products
         navigationController?.pushViewController(productSelectionVC, animated: true)
     }
     
@@ -267,9 +266,13 @@ protocol ProductSelectionDelegate: AnyObject {
 }
 
 class ProductSelectionViewController: UIViewController {
-    internal var products: [Product] = []
     private weak var tableView: UITableView!
     weak var delegate: ProductSelectionDelegate?
+    
+    private var productsGroupedByCategory: [[Product]] {
+        let groupedProducts = Dictionary(grouping: Product.products, by: { $0.category.categoryName })
+        return groupedProducts.values.sorted(by: { $0[0].category.categoryName < $1[0].category.categoryName })
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -290,20 +293,34 @@ class ProductSelectionViewController: UIViewController {
 
 
 extension ProductSelectionViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return products.count
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+         return productsGroupedByCategory.count
+     }
+
+     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+         return productsGroupedByCategory[section].count
+     }
+
+     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+         return productsGroupedByCategory[section][0].category.categoryName
+     }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 64
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "productCell", for: indexPath)
-        let product = products[indexPath.row]
+        cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+        let product = productsGroupedByCategory[indexPath.section][indexPath.row]
         cell.textLabel?.text = "\(product.name)"
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let product = products[indexPath.row]
-        
+        let product = productsGroupedByCategory[indexPath.section][indexPath.row]
+
         // Present an alert to enter the amount of the selected product
         let amountAlert = UIAlertController(title: "Enter Amount", message: nil, preferredStyle: .alert)
         amountAlert.addTextField { textField in

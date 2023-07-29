@@ -15,17 +15,27 @@ class ProductDetailViewController: UIViewController {
         view.backgroundColor = .white
         view.layer.cornerRadius = 16
 
-        // Create UI elements for displaying the photo and details
         let productImageView = UIImageView()
         productImageView.translatesAutoresizingMaskIntoConstraints = false
         productImageView.contentMode = .scaleAspectFit
         productImageView.layer.cornerRadius = 8
         productImageView.clipsToBounds = true
+
         if let productPhoto = product?.photo {
-            let photoData = Data.fromDatatypeValue(productPhoto)
-            let photo = UIImage(data: photoData)
-            productImageView.image = photo
-        }
+              let photoData = Data.fromDatatypeValue(productPhoto)
+              let photo = UIImage(data: photoData)
+              productImageView.image = photo
+              
+              if let image = productImageView.image {
+                  // Calculate the aspect ratio to maintain the image's scale
+                  let aspectRatio = image.size.width / image.size.height
+                  // Calculate the height based on the width of the view and the aspect ratio
+                  let imageViewHeight = view.frame.width / aspectRatio
+                  // Set the height constraint of the productImageView
+                  productImageView.heightAnchor.constraint(equalToConstant: imageViewHeight).isActive = true
+              }
+          }
+        
         view.addSubview(productImageView)
 
         let nameLabel = UILabel()
@@ -55,7 +65,8 @@ class ProductDetailViewController: UIViewController {
              productImageView.topAnchor.constraint(equalTo: detailsLabel.bottomAnchor, constant: 20),
              productImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
              productImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-             productImageView.heightAnchor.constraint(equalToConstant: 150),
+
+             productImageView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40),
          ])
     }
 }
