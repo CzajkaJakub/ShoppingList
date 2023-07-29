@@ -72,14 +72,14 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
 
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        nameLabel.text = "\(product.name) (\(product.category.categoryName))"
+        nameLabel.text = "\(product.name)"
         cell.contentView.addSubview(nameLabel)
         
         let detailsLabel = UILabel()
         detailsLabel.translatesAutoresizingMaskIntoConstraints = false
         detailsLabel.font = UIFont.systemFont(ofSize: 12)
         detailsLabel.textColor = .gray
-        detailsLabel.text = "Kcal: \(product.calories ?? 0) Carbs: \(product.carbo ?? 0) Fat: \(product.fat ?? 0) Protein \(product.protein ?? 0)"
+        detailsLabel.text = "Kcal: \(product.calories) Carbs: \(product.carbo) Fat: \(product.fat) Protein \(product.protein)"
         cell.contentView.addSubview(detailsLabel)
         
         NSLayoutConstraint.activate([
