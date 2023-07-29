@@ -1,10 +1,3 @@
-//
-//  AddProductViewController.swift
-//  ShoppingList
-//
-//  Created by Patrycja on 09/07/2023.
-//
-
 import UIKit
 
 class AddProductViewController: UIViewController {
@@ -86,12 +79,15 @@ class AddProductViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.selectOptions = DatabaseManager.shared.fetchCategories()
+        self.selectedOption = Category.productCategories.first
+        self.selectListTextField.text = selectedOption.categoryName
         
         setupViews()
         setupConstraints()
         
-        // Add the tap gesture recognizer to selectListTextField
+        let tapGestureKeyboard = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGestureKeyboard)
+        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showSelectList))
         selectListTextField.addGestureRecognizer(tapGesture)
         selectListTextField.isUserInteractionEnabled = true
@@ -110,39 +106,40 @@ class AddProductViewController: UIViewController {
     
     private func setupConstraints() {
         let margin: CGFloat = 16
-        
+        let photoTextFieldMaxWidth = view.bounds.width * 0.5
+
         NSLayoutConstraint.activate([
-            nameTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin),
+            photoTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin),
+            photoTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            photoTextField.widthAnchor.constraint(lessThanOrEqualToConstant: photoTextFieldMaxWidth),
+            photoTextField.heightAnchor.constraint(equalToConstant: 64),
+            
+            nameTextField.topAnchor.constraint(equalTo: photoTextField.bottomAnchor, constant: margin),
             nameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
             nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             nameTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            photoTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: margin),
-            photoTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            photoTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            photoTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            kcalTextField.topAnchor.constraint(equalTo: photoTextField.bottomAnchor, constant: margin),
+            kcalTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: margin),
             kcalTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
             kcalTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             kcalTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            carboTextField.topAnchor.constraint(equalTo: kcalTextField.bottomAnchor, constant: margin),
-            carboTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            carboTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            carboTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            fatTextField.topAnchor.constraint(equalTo: carboTextField.bottomAnchor, constant: margin),
-            fatTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            fatTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            fatTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            proteinTextField.topAnchor.constraint(equalTo: fatTextField.bottomAnchor, constant: margin),
+            proteinTextField.topAnchor.constraint(equalTo: kcalTextField.bottomAnchor, constant: margin),
             proteinTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
             proteinTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             proteinTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            selectListTextField.topAnchor.constraint(equalTo: proteinTextField.bottomAnchor, constant: margin),
+            fatTextField.topAnchor.constraint(equalTo: proteinTextField.bottomAnchor, constant: margin),
+            fatTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
+            fatTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
+            fatTextField.heightAnchor.constraint(equalToConstant: 40),
+            
+            carboTextField.topAnchor.constraint(equalTo: fatTextField.bottomAnchor, constant: margin),
+            carboTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
+            carboTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
+            carboTextField.heightAnchor.constraint(equalToConstant: 40),
+            
+            selectListTextField.topAnchor.constraint(equalTo: carboTextField.bottomAnchor, constant: margin),
             selectListTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
             selectListTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             selectListTextField.heightAnchor.constraint(equalToConstant: 40),
@@ -173,7 +170,7 @@ class AddProductViewController: UIViewController {
         ])
         
         // Add a "Cancel" button to dismiss the action sheet
-        selectListActionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        selectListActionSheet.addAction(UIAlertAction(title: "Chose", style: .cancel, handler: nil))
         
         // Present the action sheet
         present(selectListActionSheet, animated: true, completion: nil)
@@ -196,17 +193,17 @@ class AddProductViewController: UIViewController {
 
     
     @objc private func saveProduct() {
-        // Get the values from text fields
+        
         guard let name = nameTextField.text,
               let photo = selectedPhoto,
               let kcalText = kcalTextField.text,
               let carboText = carboTextField.text,
               let fatText = fatTextField.text,
               let proteinText = proteinTextField.text,
-              let kcal = Double(kcalText),
-              let carbo = Double(carboText),
-              let fat = Double(fatText),
-              let protein = Double(proteinText)
+              let kcal = Double(kcalText.replacingOccurrences(of: ",", with: ".")),
+              let carbo = Double(carboText.replacingOccurrences(of: ",", with: ".")),
+              let fat = Double(fatText.replacingOccurrences(of: ",", with: ".")),
+              let protein = Double(proteinText.replacingOccurrences(of: ",", with: "."))
         else {
             let message = "Invalid input"
             let font = UIFont.systemFont(ofSize: 16)
@@ -220,6 +217,7 @@ class AddProductViewController: UIViewController {
         
         // Perform your desired action with the product object (e.g., save to a database)
         DatabaseManager.shared.insertProduct(product: product)
+        Product.products.append(product)
         
         // Show an alert or perform any other UI update to indicate successful save
         let alertController = UIAlertController(title: "Success", message: "Product saved successfully.", preferredStyle: .alert)
@@ -228,6 +226,9 @@ class AddProductViewController: UIViewController {
         present(alertController, animated: true, completion: nil)
         
         // Clear the text fields after saving
+        photoTextField.setTitle("Take photo", for: .normal)
+        photoTextField.setBackgroundImage(nil, for: .normal)
+        
         nameTextField.text = nil
         carboTextField.text = nil
         fatTextField.text = nil
@@ -236,6 +237,10 @@ class AddProductViewController: UIViewController {
             .text = nil
         selectedPhoto = nil
     }
+    
+    @objc func dismissKeyboard() {
+         view.endEditing(true)
+     }
 }
 
 extension AddProductViewController: UIPickerViewDelegate, UIPickerViewDataSource {
@@ -249,18 +254,18 @@ extension AddProductViewController: UIPickerViewDelegate, UIPickerViewDataSource
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         // Return the number of rows in the select list
-        return selectOptions.count // Replace with your actual array of select options
+        return Category.productCategories.count // Replace with your actual array of select options
     }
     
     // Example UIPickerViewDelegate method:
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         // Return the title for each row in the select list
-        return selectOptions[row].categoryName // Replace with your actual array of select options
+        return Category.productCategories[row].categoryName // Replace with your actual array of select options
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         // Handle the selection of a row in the select list
-        selectedOption = selectOptions[row] // Replace with your actual array of select options
+        selectedOption = Category.productCategories[row] // Replace with your actual array of select options
         selectListTextField.text = selectedOption.categoryName
     }
 }
@@ -270,6 +275,22 @@ extension AddProductViewController: UIImagePickerControllerDelegate, UINavigatio
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let image = info[.originalImage] as? UIImage {
             selectedPhoto = image
+            // Set the selected photo as the background image of the photoTextField
+            photoTextField.setTitle(nil, for: .normal)
+            photoTextField.setBackgroundImage(image, for: .normal)
+            
+            // Calculate the adjusted width and height based on the photo's aspect ratio
+            let photoAspectRatio = image.size.width / image.size.height
+            let photoTextFieldMaxWidth = view.bounds.width * 0.5
+            let photoTextFieldHeight = min(photoTextFieldMaxWidth / photoAspectRatio, photoTextFieldMaxWidth)
+            let photoTextFieldWidth = min(photoTextFieldMaxWidth, photoTextFieldMaxWidth * photoAspectRatio)
+            photoTextField.constraints.forEach { constraint in
+                if constraint.firstAttribute == .height {
+                    constraint.constant = photoTextFieldHeight
+                } else if constraint.firstAttribute == .width {
+                    constraint.constant = photoTextFieldWidth
+                }
+            }
         }
         picker.dismiss(animated: true, completion: nil)
     }

@@ -11,6 +11,7 @@
 		0C0554022A5C3AB100DFECAB /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0554012A5C3AB100DFECAB /* Category.swift */; };
 		0C0554052A5C3E4E00DFECAB /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0554042A5C3E4E00DFECAB /* Toast.swift */; };
 		0C0624D22A60680D00E5E36F /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 0C0624D12A60680D00E5E36F /* SQLite */; };
+		0C19A2F92A74FA59002D15F8 /* ProductDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C19A2F82A74FA59002D15F8 /* ProductDetailViewController.swift */; };
 		0C5FB0E42A631D5B00B609CF /* Dish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5FB0E32A631D5B00B609CF /* Dish.swift */; };
 		0C5FB0E62A631F2100B609CF /* ProductAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5FB0E52A631F2100B609CF /* ProductAmount.swift */; };
 		0CC7D17F2A5AE2E7005DB139 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D17E2A5AE2E7005DB139 /* AppDelegate.swift */; };
@@ -31,6 +32,7 @@
 		0C0553FF2A5C3A4B00DFECAB /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
 		0C0554012A5C3AB100DFECAB /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		0C0554042A5C3E4E00DFECAB /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
+		0C19A2F82A74FA59002D15F8 /* ProductDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductDetailViewController.swift; sourceTree = "<group>"; };
 		0C5FB0E32A631D5B00B609CF /* Dish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dish.swift; sourceTree = "<group>"; };
 		0C5FB0E52A631F2100B609CF /* ProductAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductAmount.swift; sourceTree = "<group>"; };
 		0CC7D17B2A5AE2E7005DB139 /* ShoppingList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShoppingList.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -86,6 +88,7 @@
 				0CC7D1992A5B2CCF005DB139 /* ShoppingListViewController.swift */,
 				0CC7D19D2A5B2D0F005DB139 /* ProductsViewController.swift */,
 				0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */,
+				0C19A2F82A74FA59002D15F8 /* ProductDetailViewController.swift */,
 			);
 			path = Tables;
 			sourceTree = "<group>";
@@ -237,6 +240,7 @@
 			files = (
 				0CC7D19A2A5B2CCF005DB139 /* ShoppingListViewController.swift in Sources */,
 				0C0554052A5C3E4E00DFECAB /* Toast.swift in Sources */,
+				0C19A2F92A74FA59002D15F8 /* ProductDetailViewController.swift in Sources */,
 				0CC7D1A22A5B2D2F005DB139 /* DishesViewController.swift in Sources */,
 				0CC7D1962A5AE32D005DB139 /* DatabaseManager.swift in Sources */,
 				0CC7D19E2A5B2D0F005DB139 /* ProductsViewController.swift in Sources */,
@@ -391,15 +395,16 @@
 		0CC7D1902A5AE2E8005DB139 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = FitForYouIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LD3676XBTX;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShoppingList/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -419,15 +424,16 @@
 		0CC7D1912A5AE2E8005DB139 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = FitForYouIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LD3676XBTX;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShoppingList/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

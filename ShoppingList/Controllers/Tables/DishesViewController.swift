@@ -2,12 +2,21 @@ import UIKit
 
 class DishesViewController: UIViewController {
 
-    private var dishes: [Dish] = []
     private let dishesTable: UITableView = {
         let dishesTable = UITableView()
         dishesTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         return dishesTable
     }()
+    
+    private var dishesGroupedByCategory: [[Dish]] {
+        let groupedDishes = Dictionary(grouping: Dish.dishes, by: { $0.category.categoryName })
+        return groupedDishes.values.sorted(by: { $0[0].category.categoryName < $1[0].category.categoryName })
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reloadDishes()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,26 +34,33 @@ class DishesViewController: UIViewController {
     }
     
     private func reloadDishes() {
-        dishes = DatabaseManager.shared.fetchDishes()
         dishesTable.reloadData()
     }
 }
 
 extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return dishes.count
-    }
+    func numberOfSections(in tableView: UITableView) -> Int {
+         return dishesGroupedByCategory.count
+     }
+
+     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+         return dishesGroupedByCategory[section].count
+     }
+
+     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+         return dishesGroupedByCategory[section][0].category.categoryName
+     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 64
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = dishesTable.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-        let dish = dishes[indexPath.row]
-        
+        let dish = dishesGroupedByCategory[indexPath.section][indexPath.row]
+
         let dishImageView: UIImageView = {
                 let imageView = UIImageView()
                 imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -69,7 +85,7 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         detailsLabel.translatesAutoresizingMaskIntoConstraints = false
         detailsLabel.font = UIFont.systemFont(ofSize: 12)
         detailsLabel.textColor = .gray
-        detailsLabel.text = "Kcal: \(dish.calories ?? 0) Carbs: \(dish.carbo ?? 0) Fat: \(dish.fat ?? 0) Protein \(dish.proteins ?? 0)"
+        detailsLabel.text = "Calories: \(dish.calories) Carbs: \(dish.carbo) Fat: \(dish.fat) Protein \(dish.proteins)"
         cell.contentView.addSubview(detailsLabel)
     
         
@@ -128,12 +144,15 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func removeDish(at indexPath: IndexPath) {
-        DatabaseManager.shared.removeDish(dish: dishes[indexPath.row])
-        dishes.remove(at: indexPath.row)
+        let dish = dishesGroupedByCategory[indexPath.section][indexPath.row]
+        DatabaseManager.shared.removeDish(dish: dish)
+        Dish.removeDish(dish: dish)
         reloadDishes()
     }
     
     func addDishToShoppingList(at indexPath: IndexPath) {
-//        DatabaseManager.shared.addDishToShoppingList(dish: dishes[indexPath.row])
+        let dish = dishesGroupedByCategory[indexPath.section][indexPath.row]
+        ProductAmount.addProductToBuy(dish: dish)
+        DatabaseManager.shared.addDishToShoppingList(dish: dish)
     }
 }

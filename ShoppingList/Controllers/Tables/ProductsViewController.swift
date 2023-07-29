@@ -9,12 +9,21 @@ import UIKit
 
 class ProductsViewController: UIViewController {
     
-    private var products: [Product] = []
     private let productsTable: UITableView = {
         let productsTable = UITableView()
         productsTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         return productsTable
     }()
+    
+    private var productsGroupedByCategory: [[Product]] {
+        let groupedProducts = Dictionary(grouping: Product.products, by: { $0.category.categoryName })
+        return groupedProducts.values.sorted(by: { $0[0].category.categoryName < $1[0].category.categoryName })
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reloadProducts()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,64 +41,35 @@ class ProductsViewController: UIViewController {
     }
     
     @objc private func reloadProducts() {
-        products = DatabaseManager.shared.fetchProducts()
         productsTable.reloadData()
-    }
-    
-    @objc func removeButtonTapped(_ sender: UIButton) {
-        // Create a confirmation alert
-        let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to remove this product?", preferredStyle: .alert)
-        
-        // Add a cancel action
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        confirmationAlert.addAction(cancelAction)
-        
-        // Add a remove action
-        let removeAction = UIAlertAction(title: "Remove", style: .destructive) { [weak self] (_) in
-            // Remove the product
-            if let cell = sender.superview?.superview as? UITableViewCell,
-               let indexPath = self!.productsTable.indexPath(for: cell) {
-                DatabaseManager.shared.removeProduct(product: self!.products[indexPath.row])
-                self!.reloadProducts()
-            }
-        }
-        confirmationAlert.addAction(removeAction)
-        
-        // Present the confirmation alert
-        present(confirmationAlert, animated: true, completion: nil)
     }
 }
 
 extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return products.count
+        return productsGroupedByCategory[section].count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 64
     }
     
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return productsGroupedByCategory.count
+    }
+
+
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return productsGroupedByCategory[section][0].category.categoryName
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = productsTable.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-        let product = products[indexPath.row]
-        
-        let productImageView: UIImageView = {
-                let imageView = UIImageView()
-                imageView.translatesAutoresizingMaskIntoConstraints = false
-                imageView.contentMode = .scaleAspectFit
-                imageView.layer.cornerRadius = 16
-                imageView.clipsToBounds = true
-                if let productPhoto = product.photo {
-                    let photoData = Data.fromDatatypeValue(productPhoto)
-                    let photo = UIImage(data: photoData)
-                    imageView.image = photo
-                }
-                return imageView
-            }()
-        cell.contentView.addSubview(productImageView)
-        
+        let product = productsGroupedByCategory[indexPath.section][indexPath.row]
+
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.text = "\(product.name) (\(product.category.categoryName))"
@@ -99,19 +79,15 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
         detailsLabel.translatesAutoresizingMaskIntoConstraints = false
         detailsLabel.font = UIFont.systemFont(ofSize: 12)
         detailsLabel.textColor = .gray
-        detailsLabel.text = "Kcal: \(product.kcal ?? 0) Carbs: \(product.carbo ?? 0) Fat: \(product.fat ?? 0) Protein \(product.protein ?? 0)"
+        detailsLabel.text = "Kcal: \(product.calories ?? 0) Carbs: \(product.carbo ?? 0) Fat: \(product.fat ?? 0) Protein \(product.protein ?? 0)"
         cell.contentView.addSubview(detailsLabel)
         
         NSLayoutConstraint.activate([
-                productImageView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
-                productImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-                productImageView.widthAnchor.constraint(equalToConstant: 32),
-                productImageView.heightAnchor.constraint(equalToConstant: 32),
                 
-                nameLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
+                nameLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
                 nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
                 
-                detailsLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
+                detailsLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
                 detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10)
             ])
         
@@ -121,10 +97,18 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let addProductToShoppingListAction = UIContextualAction(style: .normal, title: "Add product to shopping list") { [weak self] (action, view, completionHandler) in
             let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to add this product to list?", preferredStyle: .alert)
+            confirmationAlert.addTextField { textField in
+                textField.placeholder = "Enter Amount"
+                textField.keyboardType = .decimalPad
+            }
             let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
             let addAction = UIAlertAction(title: "Add", style: .destructive) { (_) in
-                self?.addProductToShoppingList(at: indexPath)
+                if let amountText = confirmationAlert.textFields?.first?.text,
+                   let amount = Double(amountText) {
+                    self?.addProductToShoppingList(at: indexPath, amount: amount)
+                }
             }
+            
             confirmationAlert.addAction(cancelAction)
             confirmationAlert.addAction(addAction)
             self?.present(confirmationAlert, animated: true, completion: nil)
@@ -156,14 +140,29 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
         configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
         return configuration
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        showProductDetail(for: indexPath)
+    }
+    
+    private func showProductDetail(for indexPath: IndexPath) {
+        let selectedProduct = productsGroupedByCategory[indexPath.section][indexPath.row]
+        let productDetailViewController = ProductDetailViewController()
+        productDetailViewController.product = selectedProduct
+        navigationController?.pushViewController(productDetailViewController, animated: true)
+    }
 
-    func removeProduct(at indexPath: IndexPath) {
-        DatabaseManager.shared.removeProduct(product: products[indexPath.row])
-        products.remove(at: indexPath.row)
+    private func removeProduct(at indexPath: IndexPath) {
+        let product = productsGroupedByCategory[indexPath.section][indexPath.row]
+        DatabaseManager.shared.removeProduct(product: product)
+        Product.removeProduct(product: product)
         reloadProducts()
     }
     
-    func addProductToShoppingList(at indexPath: IndexPath) {
-        DatabaseManager.shared.addProductToShoppingList(product: products[indexPath.row])
+    private func addProductToShoppingList(at indexPath: IndexPath, amount: Double) {
+        let product = productsGroupedByCategory[indexPath.section][indexPath.row]
+        let productAmount = ProductAmount(product: product, amount: amount)
+        ProductAmount.addProductTuBuy(productAmount: productAmount)
+        DatabaseManager.shared.addProductToShoppingList(productToBuy: productAmount)
     }
 }

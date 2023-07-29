@@ -10,4 +10,7 @@ import Foundation
 struct Category {
     var categoryId: Int = 0
     var categoryName: String = ""
+    
+    static var productCategories: [Category] = []
+    static var dishCategories: [Category] = []
 }

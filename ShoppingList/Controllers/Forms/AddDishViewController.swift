@@ -6,10 +6,11 @@
 
 import UIKit
 
-class AddDishViewController: UIViewController, UIPickerViewDelegate {
+class AddDishViewController: UIViewController {
 
     private var selectedPhoto: UIImage!
     private var selectedProducts: [ProductAmount] = []
+    private var selectedOption: Category!
     
     private let nameTextField: UITextField = {
         let textField = UITextField()
@@ -44,11 +45,29 @@ class AddDishViewController: UIViewController, UIPickerViewDelegate {
         return button
     }()
     
+    private let selectListTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "Select an category"
+        textField.textAlignment = .center
+        textField.font = UIFont.systemFont(ofSize: 16)
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-                
+        self.selectedOption = Category.dishCategories.first
+        self.selectListTextField.text = selectedOption.categoryName
+        
         setupViews()
         setupConstraints()
+        
+        let tapGestureKeyboard = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGestureKeyboard)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showSelectList))
+        selectListTextField.addGestureRecognizer(tapGesture)
+        selectListTextField.isUserInteractionEnabled = true
     }
     
     private func setupViews() {
@@ -56,34 +75,65 @@ class AddDishViewController: UIViewController, UIPickerViewDelegate {
         view.addSubview(photoTextField)
         view.addSubview(saveButton)
         view.addSubview(addProductButton)
+        view.addSubview(selectListTextField)
     }
     
     private func setupConstraints() {
         let margin: CGFloat = 16
+        let photoTextFieldMaxWidth = view.bounds.width * 0.5
         
         NSLayoutConstraint.activate([
-            nameTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin),
+            photoTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin),
+            photoTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            photoTextField.widthAnchor.constraint(lessThanOrEqualToConstant: photoTextFieldMaxWidth),
+            photoTextField.heightAnchor.constraint(equalToConstant: 64),
+            
+            nameTextField.topAnchor.constraint(equalTo: photoTextField.bottomAnchor, constant: margin),
             nameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
             nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             nameTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            photoTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: margin),
-            photoTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            photoTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            photoTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            saveButton.topAnchor.constraint(equalTo: photoTextField.bottomAnchor, constant: margin),
-            saveButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            saveButton.heightAnchor.constraint(equalToConstant: 44),
-            
-            addProductButton.topAnchor.constraint(equalTo: saveButton.bottomAnchor, constant: margin),
+            addProductButton.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: margin),
             addProductButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
             addProductButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             addProductButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            selectListTextField.topAnchor.constraint(equalTo: addProductButton.bottomAnchor, constant: margin),
+            selectListTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
+            selectListTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
+            selectListTextField.heightAnchor.constraint(equalToConstant: 40),
+            
+            saveButton.topAnchor.constraint(equalTo: selectListTextField.bottomAnchor, constant: margin),
+            saveButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
+            saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
+            saveButton.heightAnchor.constraint(equalToConstant: 44),
             ])
     }
-
+    
+    @objc private func showSelectList() {
+        let selectList = UIPickerView()
+        selectList.delegate = self // Conform to the UIPickerViewDelegate protocol
+        selectList.dataSource = self // Conform to the UIPickerViewDataSource protocol
+        
+        // Create an action sheet to contain the select list
+        let selectListActionSheet = UIAlertController(title: "Select an option", message: nil, preferredStyle: .actionSheet)
+        selectListActionSheet.view.addSubview(selectList)
+        
+        // Define the constraints for the select list within the action sheet
+        selectList.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            selectList.leadingAnchor.constraint(equalTo: selectListActionSheet.view.leadingAnchor),
+            selectList.trailingAnchor.constraint(equalTo: selectListActionSheet.view.trailingAnchor),
+            selectList.topAnchor.constraint(equalTo: selectListActionSheet.view.topAnchor),
+            selectList.bottomAnchor.constraint(equalTo: selectListActionSheet.view.bottomAnchor, constant: -44) // Adjust the constant as needed
+        ])
+        
+        // Add a "Cancel" button to dismiss the action sheet
+        selectListActionSheet.addAction(UIAlertAction(title: "Choose", style: .cancel, handler: nil))
+        
+        // Present the action sheet
+        present(selectListActionSheet, animated: true, completion: nil)
+    }
     
   
     @objc private func takePhoto() {
@@ -103,7 +153,8 @@ class AddDishViewController: UIViewController, UIPickerViewDelegate {
     @objc private func saveDish() {
         // Get the values from text fields
         guard let name = nameTextField.text,
-              let photo = selectedPhoto
+              let photo = selectedPhoto,
+              let category = selectedOption
         else {
             let message = "Invalid input"
             let font = UIFont.systemFont(ofSize: 16)
@@ -113,10 +164,11 @@ class AddDishViewController: UIViewController, UIPickerViewDelegate {
         }
         
         // Create a dish object with the entered values and selected products
-        let dish = Dish(id: 0,name: name, photo: selectedPhoto, calories: selectedProducts.map {$0.product.kcal * $0.amount / 100}.reduce(0, +),carbo: selectedProducts.map {$0.product.carbo * $0.amount / 100}.reduce(0, +), fat: selectedProducts.map {$0.product.fat * $0.amount / 100}.reduce(0, +), protein: selectedProducts.map {$0.product.protein * $0.amount / 100}.reduce(0, +), productAmounts: selectedProducts)
+        let dish = Dish(id: 0,name: name, photo: photo, calories: selectedProducts.map {$0.product.calories * $0.amount / 100}.reduce(0, +), carbo: selectedProducts.map {$0.product.carbo * $0.amount / 100}.reduce(0, +), fat: selectedProducts.map {$0.product.fat * $0.amount / 100}.reduce(0, +), protein: selectedProducts.map {$0.product.protein * $0.amount / 100}.reduce(0, +), productAmounts: selectedProducts, category: category)
         
         // Perform your desired action with the dish object (e.g., save to a database)
-         DatabaseManager.shared.insertDish(dish: dish) // Implement the DatabaseManager method for inserting dishes
+        DatabaseManager.shared.insertDish(dish: dish) // Implement the DatabaseManager method for inserting dishes
+        Dish.dishes.append(dish)
         
         // Show an alert or perform any other UI update to indicate successful save
         let alertController = UIAlertController(title: "Success", message: "Dish saved successfully.", preferredStyle: .alert)
@@ -125,6 +177,8 @@ class AddDishViewController: UIViewController, UIPickerViewDelegate {
         present(alertController, animated: true, completion: nil)
         
         // Clear the text fields and selected products after saving
+        photoTextField.setTitle("Take photo", for: .normal)
+        photoTextField.setBackgroundImage(nil, for: .normal)
         nameTextField.text = nil
         selectedPhoto = nil
         selectedProducts.removeAll()
@@ -133,15 +187,64 @@ class AddDishViewController: UIViewController, UIPickerViewDelegate {
     @objc private func addProductButtonTapped() {
         let productSelectionVC = ProductSelectionViewController()
         productSelectionVC.delegate = self
+        productSelectionVC.products = Product.products
         navigationController?.pushViewController(productSelectionVC, animated: true)
     }
+    
+    @objc func dismissKeyboard() {
+         view.endEditing(true)
+     }
 }
+
+extension AddDishViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    // Implement the required methods for UIPickerViewDataSource and UIPickerViewDelegate here
+    
+    // Example UIPickerViewDataSource methods:
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        // Return the number of components (columns) in the select list
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        // Return the number of rows in the select list
+        return Category.dishCategories.count // Replace with your actual array of select options
+    }
+    
+    // Example UIPickerViewDelegate method:
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        // Return the title for each row in the select list
+        return Category.dishCategories[row].categoryName // Replace with your actual array of select options
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        // Handle the selection of a row in the select list
+        selectedOption = Category.dishCategories[row] // Replace with your actual array of select options
+        selectListTextField.text = selectedOption.categoryName
+    }
+}
+
 
 // UIImagePickerControllerDelegate method to handle the captured photo
 extension AddDishViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let image = info[.originalImage] as? UIImage {
             selectedPhoto = image
+            // Set the selected photo as the background image of the photoTextField
+            photoTextField.setTitle(nil, for: .normal)
+            photoTextField.setBackgroundImage(image, for: .normal)
+            
+            // Calculate the adjusted width and height based on the photo's aspect ratio
+            let photoAspectRatio = image.size.width / image.size.height
+            let photoTextFieldMaxWidth = view.bounds.width * 0.5
+            let photoTextFieldHeight = min(photoTextFieldMaxWidth / photoAspectRatio, photoTextFieldMaxWidth)
+            let photoTextFieldWidth = min(photoTextFieldMaxWidth, photoTextFieldMaxWidth * photoAspectRatio)
+            photoTextField.constraints.forEach { constraint in
+                if constraint.firstAttribute == .height {
+                    constraint.constant = photoTextFieldHeight
+                } else if constraint.firstAttribute == .width {
+                    constraint.constant = photoTextFieldWidth
+                }
+            }
         }
         picker.dismiss(animated: true, completion: nil)
     }
@@ -164,7 +267,7 @@ protocol ProductSelectionDelegate: AnyObject {
 }
 
 class ProductSelectionViewController: UIViewController {
-    private var products: [Product] = []
+    internal var products: [Product] = []
     private weak var tableView: UITableView!
     weak var delegate: ProductSelectionDelegate?
 
@@ -172,9 +275,6 @@ class ProductSelectionViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "Select Product"
-        
-        products = DatabaseManager.shared.fetchProducts()
-        
         setupTableView()
     }
     
@@ -187,6 +287,7 @@ class ProductSelectionViewController: UIViewController {
         self.tableView = tableView
     }
 }
+
 
 extension ProductSelectionViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
