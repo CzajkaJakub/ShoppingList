@@ -53,12 +53,30 @@ struct Dish {
         self._proteins = protein
     }
     
+    init(name: String, photo: UIImage, productAmounts: [ProductAmount], category: Category) {
+        self.id = 0
+        self.name = name
+        self.photo = photo.jpegData(compressionQuality: 0.8)?.toBlob()
+        self.category = category
+        self.productAmounts = productAmounts
+        self._calories = productAmounts.map {$0.product.calories * $0.amount / 100}.reduce(0, +)
+        self._carbo = productAmounts.map {$0.product.carbo * $0.amount / 100}.reduce(0, +)
+        self._fat = productAmounts.map {$0.product.fat * $0.amount / 100}.reduce(0, +)
+        self._proteins = productAmounts.map {$0.product.protein * $0.amount / 100}.reduce(0, +)
+    }
+    
     static var dishes: [Dish] = []
     
     static func removeDish(dish: Dish) {
         if let index = Dish.dishes.firstIndex(where: { $0.id == dish.id }) {
+            DatabaseManager.shared.removeDish(dish: dish)
             Dish.dishes.remove(at: index)
         }
+    }
+    
+    static func addDish(dish: Dish) {
+        DatabaseManager.shared.insertDish(dish: dish)
+        Dish.dishes.append(dish)
     }
 }
 

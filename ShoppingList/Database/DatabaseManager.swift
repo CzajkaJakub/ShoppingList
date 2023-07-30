@@ -484,7 +484,7 @@ class DatabaseManager {
                 let productProtein = row[productsTable[protein]]
                 let productFat = row[productsTable[fat]]
                 let productCarbo = row[productsTable[carbo]]
-                let productCategoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
+                let productCategoryId = row[productCategoriesTable[id]]
                 let productCategoryName = row[productCategoriesTable[categoryName]]
                 
                 let productToBuyAmount = row[productsToBuyTable[amount]]
@@ -492,7 +492,7 @@ class DatabaseManager {
                 let photoData = Data.fromDatatypeValue(productPhotoBlob)
                 let photo = UIImage(data: photoData)
                 
-                let product = Product(dbId: productId, name: productName, photo: photo!, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: Category(categoryName: productCategoryName))
+                let product = Product(dbId: productId, name: productName, photo: photo!, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: Category(categoryId: productCategoryId, categoryName: productCategoryName))
                 
                 let productAmount = ProductAmount(product: product, amount: productToBuyAmount)
                 productsToBuy.append(productAmount)

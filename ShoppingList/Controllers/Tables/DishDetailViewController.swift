@@ -2,13 +2,13 @@
 
 import UIKit
 
-class ProductDetailViewController: UIViewController {
+class DishDetailViewController: UIViewController {
 
-    var product: Product!
+    var dish: Dish!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = "\(product.name)"
+        self.title = "\(dish.name)"
         setupUI()
     }
 
@@ -16,35 +16,35 @@ class ProductDetailViewController: UIViewController {
         view.backgroundColor = .white
         view.layer.cornerRadius = 16
         
-        let productImageView = UIImageView()
-        productImageView.translatesAutoresizingMaskIntoConstraints = false
-        productImageView.contentMode = .scaleAspectFit
-        productImageView.layer.cornerRadius = 8
-        productImageView.clipsToBounds = true
+        let dishImageView = UIImageView()
+        dishImageView.translatesAutoresizingMaskIntoConstraints = false
+        dishImageView.contentMode = .scaleAspectFit
+        dishImageView.layer.cornerRadius = 8
+        dishImageView.clipsToBounds = true
         
-        if let productPhoto = product?.photo {
-            let photoData = Data.fromDatatypeValue(productPhoto)
+        if let dishPhoto = dish?.photo {
+            let photoData = Data.fromDatatypeValue(dishPhoto)
             let photo = UIImage(data: photoData)
-            productImageView.image = photo
+            dishImageView.image = photo
             
-            if let image = productImageView.image {
+            if let image = dishImageView.image {
                 // Calculate the aspect ratio to maintain the image's scale
                 let aspectRatio = image.size.width / image.size.height
                 // Calculate the height based on the width of the view and the aspect ratio
                 let imageViewHeight = view.frame.width / aspectRatio
                 // Set the height constraint of the productImageView
-                productImageView.heightAnchor.constraint(equalToConstant: imageViewHeight).isActive = true
+                dishImageView.heightAnchor.constraint(equalToConstant: imageViewHeight).isActive = true
             }
         }
         
-        view.addSubview(productImageView)
+        view.addSubview(dishImageView)
         
         let detailsLabel = UILabel()
         detailsLabel.translatesAutoresizingMaskIntoConstraints = false
         detailsLabel.font = UIFont.systemFont(ofSize: 14)
         detailsLabel.textColor = .gray
         detailsLabel.numberOfLines = 0
-        detailsLabel.text = "Kcal: \(product.calories) Carbs: \(product.carbo) Fat: \(product.fat) Protein \(product.protein)"
+        detailsLabel.text = "Kcal: \(dish.calories) Carbs: \(dish.carbo) Fat: \(dish.fat) Protein \(dish.proteins)"
         view.addSubview(detailsLabel)
         
         NSLayoutConstraint.activate([
@@ -53,11 +53,11 @@ class ProductDetailViewController: UIViewController {
             detailsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             detailsLabel.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -20),
             
-            productImageView.topAnchor.constraint(equalTo: detailsLabel.bottomAnchor, constant: 20),
-            productImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            productImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            dishImageView.topAnchor.constraint(equalTo: detailsLabel.bottomAnchor, constant: 20),
+            dishImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            dishImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
-            productImageView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40),
+            dishImageView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40),
         ])
     }
 }

@@ -26,6 +26,7 @@
 		0CC7D1A02A5B2D22005DB139 /* AddDishViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D19F2A5B2D22005DB139 /* AddDishViewController.swift */; };
 		0CC7D1A22A5B2D2F005DB139 /* DishesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */; };
 		0CC7D1A42A5B3360005DB139 /* MainTabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1A32A5B3360005DB139 /* MainTabViewController.swift */; };
+		0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE66F732A76738500971742 /* DishDetailViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 		0CC7D19F2A5B2D22005DB139 /* AddDishViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddDishViewController.swift; sourceTree = "<group>"; };
 		0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishesViewController.swift; sourceTree = "<group>"; };
 		0CC7D1A32A5B3360005DB139 /* MainTabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabViewController.swift; sourceTree = "<group>"; };
+		0CE66F732A76738500971742 /* DishDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishDetailViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,7 @@
 				0CC7D19D2A5B2D0F005DB139 /* ProductsViewController.swift */,
 				0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */,
 				0C19A2F82A74FA59002D15F8 /* ProductDetailViewController.swift */,
+				0CE66F732A76738500971742 /* DishDetailViewController.swift */,
 			);
 			path = Tables;
 			sourceTree = "<group>";
@@ -241,6 +244,7 @@
 				0CC7D19A2A5B2CCF005DB139 /* ShoppingListViewController.swift in Sources */,
 				0C0554052A5C3E4E00DFECAB /* Toast.swift in Sources */,
 				0C19A2F92A74FA59002D15F8 /* ProductDetailViewController.swift in Sources */,
+				0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */,
 				0CC7D1A22A5B2D2F005DB139 /* DishesViewController.swift in Sources */,
 				0CC7D1962A5AE32D005DB139 /* DatabaseManager.swift in Sources */,
 				0CC7D19E2A5B2D0F005DB139 /* ProductsViewController.swift in Sources */,

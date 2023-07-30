@@ -20,7 +20,7 @@ class DishesViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        reloadDishes()
+        self.title = "Dishes"
         
         dishesTable.delegate = self
         dishesTable.dataSource = self
@@ -47,34 +47,36 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
      func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
          return dishesGroupedByCategory[section].count
      }
-
-     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-         return dishesGroupedByCategory[section][0].category.categoryName
-     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 64
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 30))
+        
+        let borderLayer = CALayer()
+        borderLayer.frame = CGRect(x: 0, y: headerView.frame.height - 1, width: headerView.frame.width, height: 1)
+        borderLayer.backgroundColor = UIColor.lightGray.cgColor
+        headerView.layer.addSublayer(borderLayer)
+
+        let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
+        mainLabel.textColor = .systemBlue
+        mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        mainLabel.text = dishesGroupedByCategory[section][0].category.categoryName
+
+        headerView.addSubview(mainLabel)
+        return headerView
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 30
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = dishesTable.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         let dish = dishesGroupedByCategory[indexPath.section][indexPath.row]
-
-        let dishImageView: UIImageView = {
-                let imageView = UIImageView()
-                imageView.translatesAutoresizingMaskIntoConstraints = false
-                imageView.contentMode = .scaleAspectFit
-                imageView.layer.cornerRadius = 16
-                imageView.clipsToBounds = true
-            if let productPhoto = dish.photo {
-                    let photoData = Data.fromDatatypeValue(productPhoto)
-                    let photo = UIImage(data: photoData)
-                    imageView.image = photo
-                }
-                return imageView
-            }()
-        cell.contentView.addSubview(dishImageView)
         
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -90,15 +92,10 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
     
         
         NSLayoutConstraint.activate([
-                dishImageView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
-                dishImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-                dishImageView.widthAnchor.constraint(equalToConstant: 32),
-                dishImageView.heightAnchor.constraint(equalToConstant: 32),
-                
-                nameLabel.leadingAnchor.constraint(equalTo: dishImageView.trailingAnchor, constant: 10),
+                nameLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
                 nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
                 
-                detailsLabel.leadingAnchor.constraint(equalTo: dishImageView.trailingAnchor, constant: 10),
+                detailsLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
                 detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10),
             ])
         return cell
@@ -142,10 +139,20 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
         return configuration
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        showDishDetail(for: indexPath)
+    }
+    
+    private func showDishDetail(for indexPath: IndexPath) {
+        let selectedDish = dishesGroupedByCategory[indexPath.section][indexPath.row]
+        let dishDetailViewController = DishDetailViewController()
+        dishDetailViewController.dish = selectedDish
+        navigationController?.pushViewController(dishDetailViewController, animated: true)
+    }
 
     func removeDish(at indexPath: IndexPath) {
         let dish = dishesGroupedByCategory[indexPath.section][indexPath.row]
-        DatabaseManager.shared.removeDish(dish: dish)
         Dish.removeDish(dish: dish)
         reloadDishes()
     }
@@ -153,6 +160,5 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
     func addDishToShoppingList(at indexPath: IndexPath) {
         let dish = dishesGroupedByCategory[indexPath.section][indexPath.row]
         ProductAmount.addProductToBuy(dish: dish)
-        DatabaseManager.shared.addDishToShoppingList(dish: dish)
     }
 }

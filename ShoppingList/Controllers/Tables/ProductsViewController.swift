@@ -22,13 +22,13 @@ class ProductsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.title = "Products"
         reloadProducts()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.reloadProducts()
-        
+
         productsTable.delegate = self
         productsTable.dataSource = self
         
@@ -59,10 +59,26 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return productsGroupedByCategory.count
     }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 30))
+        
+        let borderLayer = CALayer()
+        borderLayer.frame = CGRect(x: 0, y: headerView.frame.height - 1, width: headerView.frame.width, height: 1)
+        borderLayer.backgroundColor = UIColor.lightGray.cgColor
+        headerView.layer.addSublayer(borderLayer)
 
+        let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
+        mainLabel.textColor = .systemBlue
+        mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        mainLabel.text = productsGroupedByCategory[section][0].category.categoryName
 
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return productsGroupedByCategory[section][0].category.categoryName
+        headerView.addSubview(mainLabel)
+        return headerView
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 30
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -154,7 +170,6 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
 
     private func removeProduct(at indexPath: IndexPath) {
         let product = productsGroupedByCategory[indexPath.section][indexPath.row]
-        DatabaseManager.shared.removeProduct(product: product)
         Product.removeProduct(product: product)
         reloadProducts()
     }
@@ -163,6 +178,5 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
         let product = productsGroupedByCategory[indexPath.section][indexPath.row]
         let productAmount = ProductAmount(product: product, amount: amount)
         ProductAmount.addProductTuBuy(productAmount: productAmount)
-        DatabaseManager.shared.addProductToShoppingList(productToBuy: productAmount)
     }
 }

@@ -55,6 +55,7 @@ struct Product {
     
     static func removeProduct(product: Product) {
         if let index = Product.products.firstIndex(where: { $0.dbId == product.dbId }) {
+            DatabaseManager.shared.removeProduct(product: product)
             Product.products.remove(at: index)
         }
     }

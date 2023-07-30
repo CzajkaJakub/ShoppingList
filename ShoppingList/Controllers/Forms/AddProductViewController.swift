@@ -14,7 +14,7 @@ class AddProductViewController: UIViewController {
         return textField
     }()
     
-    private let photoTextField: UIButton = {
+    private lazy var photoTextField: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Take Photo", for: .normal)
         button.addTarget(self, action: #selector(takePhoto), for: .touchUpInside)
@@ -24,7 +24,7 @@ class AddProductViewController: UIViewController {
     
     private let kcalTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Kcal"
+        textField.placeholder = "Kcal / 100g"
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .decimalPad
@@ -33,7 +33,7 @@ class AddProductViewController: UIViewController {
     
     private let carboTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Carbo"
+        textField.placeholder = "Carbo / 100g"
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .decimalPad
@@ -42,7 +42,7 @@ class AddProductViewController: UIViewController {
     
     private let fatTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Fat"
+        textField.placeholder = "Fat / 100g"
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .decimalPad
@@ -51,20 +51,19 @@ class AddProductViewController: UIViewController {
     
     private let proteinTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Protein"
+        textField.placeholder = "Protein / 100g"
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .decimalPad
         return textField
     }()
     
-    private let saveButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Save", for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(saveProduct), for: .touchUpInside)
-        return button
+    private lazy var saveButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(saveProduct))
+    }()
+    
+    private lazy var clearButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(clearFields))
     }()
     
     private let selectListTextField: UITextField = {
@@ -79,8 +78,12 @@ class AddProductViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.title = "Add product"
         self.selectedOption = Category.productCategories.first
         self.selectListTextField.text = selectedOption.categoryName
+        
+        navigationItem.rightBarButtonItem = saveButton
+        navigationItem.leftBarButtonItem = clearButton
         
         setupViews()
         setupConstraints()
@@ -100,7 +103,6 @@ class AddProductViewController: UIViewController {
         view.addSubview(carboTextField)
         view.addSubview(fatTextField)
         view.addSubview(proteinTextField)
-        view.addSubview(saveButton)
         view.addSubview(selectListTextField)
     }
     
@@ -143,11 +145,6 @@ class AddProductViewController: UIViewController {
             selectListTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
             selectListTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             selectListTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            saveButton.topAnchor.constraint(equalTo: selectListTextField.bottomAnchor, constant: margin),
-            saveButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            saveButton.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
     
@@ -182,16 +179,16 @@ class AddProductViewController: UIViewController {
 
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             let imagePicker = UIImagePickerController()
-            imagePicker.sourceType = .photoLibrary
-            imagePicker.delegate = self // Make sure to conform to the UIImagePickerControllerDelegate
-            present(imagePicker, animated: true, completion: nil)
+            imagePicker.delegate = self
+            imagePicker.sourceType = .camera
+            imagePicker.allowsEditing = false
+            self.present(imagePicker, animated: true, completion: nil)
         } else {
             // Handle the case when the camera is not available
             print("Photo library is not available.")
         }
     }
 
-    
     @objc private func saveProduct() {
         
         guard let name = nameTextField.text,
@@ -205,10 +202,7 @@ class AddProductViewController: UIViewController {
               let fat = Double(fatText.replacingOccurrences(of: ",", with: ".")),
               let protein = Double(proteinText.replacingOccurrences(of: ",", with: "."))
         else {
-            let message = "Invalid input"
-            let font = UIFont.systemFont(ofSize: 16)
-            let parentView = self.view
-            Toast.shared.showToast(message: message, font: font, parentView: parentView!)
+            Toast.shared.showToast(message: "Invalid input", parentView: self.view)
             return
         }
         
@@ -224,8 +218,10 @@ class AddProductViewController: UIViewController {
         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alertController.addAction(okAction)
         present(alertController, animated: true, completion: nil)
-        
-        // Clear the text fields after saving
+        clearFields()
+    }
+    
+    @objc private func clearFields() {
         photoTextField.setTitle("Take photo", for: .normal)
         photoTextField.setBackgroundImage(nil, for: .normal)
         

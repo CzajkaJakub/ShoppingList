@@ -20,7 +20,7 @@ class AddDishViewController: UIViewController {
         return textField
     }()
     
-    private let photoTextField: UIButton = {
+    private lazy var photoTextField: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Select Photo", for: .normal)
         button.addTarget(self, action: #selector(takePhoto), for: .touchUpInside)
@@ -28,16 +28,7 @@ class AddDishViewController: UIViewController {
         return button
     }()
     
-    private let saveButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Save Dish", for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(saveDish), for: .touchUpInside)
-        return button
-    }()
-    
-    private let addProductButton: UIButton = {
+    private lazy var addProductButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Add Product", for: .normal)
         button.addTarget(self, action: #selector(addProductButtonTapped), for: .touchUpInside)
@@ -54,10 +45,22 @@ class AddDishViewController: UIViewController {
         return textField
     }()
     
+    private lazy var saveButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(saveDish))
+    }()
+    
+    private lazy var clearButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(clearFields))
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.title = "Add dish"
         self.selectedOption = Category.dishCategories.first
         self.selectListTextField.text = selectedOption.categoryName
+        
+        navigationItem.rightBarButtonItem = saveButton
+        navigationItem.leftBarButtonItem = clearButton
         
         setupViews()
         setupConstraints()
@@ -73,7 +76,6 @@ class AddDishViewController: UIViewController {
     private func setupViews() {
         view.addSubview(nameTextField)
         view.addSubview(photoTextField)
-        view.addSubview(saveButton)
         view.addSubview(addProductButton)
         view.addSubview(selectListTextField)
     }
@@ -83,7 +85,12 @@ class AddDishViewController: UIViewController {
         let photoTextFieldMaxWidth = view.bounds.width * 0.5
         
         NSLayoutConstraint.activate([
-            photoTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin),
+            selectListTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin),
+            selectListTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
+            selectListTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
+            selectListTextField.heightAnchor.constraint(equalToConstant: 40),
+            
+            photoTextField.topAnchor.constraint(equalTo: selectListTextField.bottomAnchor, constant: margin),
             photoTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             photoTextField.widthAnchor.constraint(lessThanOrEqualToConstant: photoTextFieldMaxWidth),
             photoTextField.heightAnchor.constraint(equalToConstant: 64),
@@ -97,17 +104,7 @@ class AddDishViewController: UIViewController {
             addProductButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
             addProductButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             addProductButton.heightAnchor.constraint(equalToConstant: 44),
-            
-            selectListTextField.topAnchor.constraint(equalTo: addProductButton.bottomAnchor, constant: margin),
-            selectListTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            selectListTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            selectListTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            saveButton.topAnchor.constraint(equalTo: selectListTextField.bottomAnchor, constant: margin),
-            saveButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            saveButton.heightAnchor.constraint(equalToConstant: 44),
-            ])
+        ])
     }
     
     @objc private func showSelectList() {
@@ -137,46 +134,40 @@ class AddDishViewController: UIViewController {
     
   
     @objc private func takePhoto() {
-        // Implement the logic to capture a photo and save it to a variable
-        // Here's a sample implementation using UIImagePickerController
-
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             let imagePicker = UIImagePickerController()
-            imagePicker.sourceType = .photoLibrary
             imagePicker.delegate = self
-            present(imagePicker, animated: true, completion: nil)
+            imagePicker.sourceType = .camera
+            imagePicker.allowsEditing = false
+            self.present(imagePicker, animated: true, completion: nil)
         } else {
-            print("Photo library is not available.")
+            print("Camera is not available.")
         }
     }
 
     @objc private func saveDish() {
-        // Get the values from text fields
+
         guard let name = nameTextField.text,
               let photo = selectedPhoto,
               let category = selectedOption
         else {
-            let message = "Invalid input"
-            let font = UIFont.systemFont(ofSize: 16)
-            let parentView = self.view
-            Toast.shared.showToast(message: message, font: font, parentView: parentView!)
+            Toast.shared.showToast(message: "Invalid input", parentView: self.view)
             return
         }
         
         // Create a dish object with the entered values and selected products
-        let dish = Dish(id: 0,name: name, photo: photo, calories: selectedProducts.map {$0.product.calories * $0.amount / 100}.reduce(0, +), carbo: selectedProducts.map {$0.product.carbo * $0.amount / 100}.reduce(0, +), fat: selectedProducts.map {$0.product.fat * $0.amount / 100}.reduce(0, +), protein: selectedProducts.map {$0.product.protein * $0.amount / 100}.reduce(0, +), productAmounts: selectedProducts, category: category)
-        
-        // Perform your desired action with the dish object (e.g., save to a database)
-        DatabaseManager.shared.insertDish(dish: dish) // Implement the DatabaseManager method for inserting dishes
-        Dish.dishes.append(dish)
+        let dish = Dish(name: name, photo: photo, productAmounts: selectedProducts, category: category)
+        Dish.addDish(dish: dish)
         
         // Show an alert or perform any other UI update to indicate successful save
         let alertController = UIAlertController(title: "Success", message: "Dish saved successfully.", preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alertController.addAction(okAction)
         present(alertController, animated: true, completion: nil)
-        
-        // Clear the text fields and selected products after saving
+        clearFields()
+    }
+    
+    @objc private func clearFields() {
         photoTextField.setTitle("Take photo", for: .normal)
         photoTextField.setBackgroundImage(nil, for: .normal)
         nameTextField.text = nil
@@ -257,7 +248,6 @@ extension AddDishViewController: UIImagePickerControllerDelegate, UINavigationCo
 extension AddDishViewController: ProductSelectionDelegate {
     func didSelectProduct(_ product: Product, amount: Double) {
         selectedProducts.append(ProductAmount(product: product, amount: amount))
-        navigationController?.popViewController(animated: true)
     }
 }
 
@@ -301,13 +291,30 @@ extension ProductSelectionViewController: UITableViewDataSource, UITableViewDele
      func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
          return productsGroupedByCategory[section].count
      }
-
-     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-         return productsGroupedByCategory[section][0].category.categoryName
-     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 64
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 30))
+        
+        let borderLayer = CALayer()
+        borderLayer.frame = CGRect(x: 0, y: headerView.frame.height - 1, width: headerView.frame.width, height: 1)
+        borderLayer.backgroundColor = UIColor.lightGray.cgColor
+        headerView.layer.addSublayer(borderLayer)
+
+        let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
+        mainLabel.textColor = .systemBlue
+        mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        mainLabel.text = productsGroupedByCategory[section][0].category.categoryName
+
+        headerView.addSubview(mainLabel)
+        return headerView
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 30
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -324,7 +331,7 @@ extension ProductSelectionViewController: UITableViewDataSource, UITableViewDele
         // Present an alert to enter the amount of the selected product
         let amountAlert = UIAlertController(title: "Enter Amount", message: nil, preferredStyle: .alert)
         amountAlert.addTextField { textField in
-            textField.placeholder = "Enter Amount"
+            textField.placeholder = "Enter Amount (grams)"
             textField.keyboardType = .decimalPad
         }
         
@@ -333,6 +340,7 @@ extension ProductSelectionViewController: UITableViewDataSource, UITableViewDele
             if let amountText = amountAlert.textFields?.first?.text,
                let amount = Double(amountText) {
                 self?.delegate?.didSelectProduct(product, amount: amount)
+                Toast.shared.showToast(message: "\(product.name) (\(amount) grams) added!", parentView: self!.view)
             }
         }
         
