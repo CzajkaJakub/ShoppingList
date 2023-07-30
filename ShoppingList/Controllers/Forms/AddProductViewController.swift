@@ -63,7 +63,7 @@ class AddProductViewController: UIViewController {
     }()
     
     private lazy var clearButton: UIBarButtonItem = {
-        return UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(clearFields))
+        return UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(clearFields))
     }()
     
     private let selectListTextField: UITextField = {

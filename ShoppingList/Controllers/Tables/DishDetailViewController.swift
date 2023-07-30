@@ -47,8 +47,24 @@ class DishDetailViewController: UIViewController {
         detailsLabel.text = "Kcal: \(dish.calories) Carbs: \(dish.carbo) Fat: \(dish.fat) Protein \(dish.proteins)"
         view.addSubview(detailsLabel)
         
+        let productsList = UILabel()
+        productsList.translatesAutoresizingMaskIntoConstraints = false
+        productsList.font = UIFont.systemFont(ofSize: 14)
+        productsList.textColor = .black
+        productsList.numberOfLines = 0
+        productsList.text = dish.productAmounts.map { productAmount in
+            "\(productAmount.product.name) (\(productAmount.amount) grams)"
+        }.joined(separator: "\n")
+        
+        view.addSubview(productsList)
+        
         NSLayoutConstraint.activate([
-            detailsLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 120),
+            productsList.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            productsList.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            productsList.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            productsList.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -20),
+            
+            detailsLabel.topAnchor.constraint(equalTo: productsList.bottomAnchor, constant: 20),
             detailsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             detailsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             detailsLabel.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -20),
@@ -56,7 +72,6 @@ class DishDetailViewController: UIViewController {
             dishImageView.topAnchor.constraint(equalTo: detailsLabel.bottomAnchor, constant: 20),
             dishImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             dishImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
             dishImageView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40),
         ])
     }

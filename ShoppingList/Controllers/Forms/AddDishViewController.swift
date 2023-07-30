@@ -1,12 +1,6 @@
-//  AddDishViewController.swift
-//  ShoppingList
-//
-//  Created by Patrycja on 09/07/2023.
-//
-
 import UIKit
 
-class AddDishViewController: UIViewController {
+class AddDishViewController: UIViewController, UITableViewDelegate {
 
     private var selectedPhoto: UIImage!
     private var selectedProducts: [ProductAmount] = []
@@ -28,14 +22,6 @@ class AddDishViewController: UIViewController {
         return button
     }()
     
-    private lazy var addProductButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Add Product", for: .normal)
-        button.addTarget(self, action: #selector(addProductButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
     private let selectListTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Select an category"
@@ -46,11 +32,19 @@ class AddDishViewController: UIViewController {
     }()
     
     private lazy var saveButton: UIBarButtonItem = {
-        return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(saveDish))
+        return UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveDish))
+    }()
+    
+    private lazy var addProductButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addProductButtonTapped))
     }()
     
     private lazy var clearButton: UIBarButtonItem = {
-        return UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(clearFields))
+        return UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(clearFields))
+    }()
+    
+    private lazy var showProductsButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editProductsButtonTapped))
     }()
     
     override func viewDidLoad() {
@@ -59,9 +53,9 @@ class AddDishViewController: UIViewController {
         self.selectedOption = Category.dishCategories.first
         self.selectListTextField.text = selectedOption.categoryName
         
-        navigationItem.rightBarButtonItem = saveButton
-        navigationItem.leftBarButtonItem = clearButton
-        
+        navigationItem.rightBarButtonItems = [addProductButton, saveButton]
+        navigationItem.leftBarButtonItems = [clearButton, showProductsButton]
+            
         setupViews()
         setupConstraints()
         
@@ -76,7 +70,6 @@ class AddDishViewController: UIViewController {
     private func setupViews() {
         view.addSubview(nameTextField)
         view.addSubview(photoTextField)
-        view.addSubview(addProductButton)
         view.addSubview(selectListTextField)
     }
     
@@ -90,20 +83,15 @@ class AddDishViewController: UIViewController {
             selectListTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             selectListTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            photoTextField.topAnchor.constraint(equalTo: selectListTextField.bottomAnchor, constant: margin),
-            photoTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            photoTextField.widthAnchor.constraint(lessThanOrEqualToConstant: photoTextFieldMaxWidth),
-            photoTextField.heightAnchor.constraint(equalToConstant: 64),
-            
-            nameTextField.topAnchor.constraint(equalTo: photoTextField.bottomAnchor, constant: margin),
+            nameTextField.topAnchor.constraint(equalTo: selectListTextField.bottomAnchor, constant: margin),
             nameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
             nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             nameTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            addProductButton.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: margin),
-            addProductButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            addProductButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            addProductButton.heightAnchor.constraint(equalToConstant: 44),
+            photoTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: margin),
+            photoTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            photoTextField.widthAnchor.constraint(lessThanOrEqualToConstant: photoTextFieldMaxWidth),
+            photoTextField.heightAnchor.constraint(equalToConstant: 64)
         ])
     }
     
@@ -181,6 +169,13 @@ class AddDishViewController: UIViewController {
         navigationController?.pushViewController(productSelectionVC, animated: true)
     }
     
+    @objc private func editProductsButtonTapped() {
+        let productSelectionVC = ProductListViewController()
+        productSelectionVC.delegate = self
+        productSelectionVC.selectedProducts = selectedProducts
+        navigationController?.pushViewController(productSelectionVC, animated: true)
+    }
+    
     @objc func dismissKeyboard() {
          view.endEditing(true)
      }
@@ -245,9 +240,13 @@ extension AddDishViewController: UIImagePickerControllerDelegate, UINavigationCo
 }
 
 
-extension AddDishViewController: ProductSelectionDelegate {
+extension AddDishViewController: ProductSelectionDelegate, ProductListDelegate {
     func didSelectProduct(_ product: Product, amount: Double) {
         selectedProducts.append(ProductAmount(product: product, amount: amount))
+    }
+    
+    func removeProductFromDishList(productIndex: Int) {
+        selectedProducts.remove(at: productIndex)
     }
 }
 
@@ -280,7 +279,6 @@ class ProductSelectionViewController: UIViewController {
         self.tableView = tableView
     }
 }
-
 
 extension ProductSelectionViewController: UITableViewDataSource, UITableViewDelegate {
     
@@ -347,6 +345,92 @@ extension ProductSelectionViewController: UITableViewDataSource, UITableViewDele
         amountAlert.addAction(cancelAction)
         amountAlert.addAction(addAction)
         present(amountAlert, animated: true, completion: nil)
+    }
+}
+
+protocol ProductListDelegate: AnyObject {
+    func removeProductFromDishList(productIndex: Int)
+}
+
+class ProductListViewController: UIViewController {
+    private weak var tableView: UITableView!
+    weak var delegate: ProductListDelegate?
+    fileprivate var selectedProducts: [ProductAmount] = []
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        title = "Select Product"
+        setupTableView()
+    }
+    
+    private func setupTableView() {
+        let tableView = UITableView(frame: view.bounds, style: .plain)
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "productCell")
+        tableView.dataSource = self
+        tableView.delegate = self
+        view.addSubview(tableView)
+        self.tableView = tableView
+    }
+}
+
+
+extension ProductListViewController: UITableViewDataSource, UITableViewDelegate {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+         return 1
+     }
+
+     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+         return selectedProducts.count
+     }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 64
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 30))
+        
+        let borderLayer = CALayer()
+        borderLayer.frame = CGRect(x: 0, y: headerView.frame.height - 1, width: headerView.frame.width, height: 1)
+        borderLayer.backgroundColor = UIColor.lightGray.cgColor
+        headerView.layer.addSublayer(borderLayer)
+
+        let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
+        mainLabel.textColor = .systemBlue
+        mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        mainLabel.text = "Product list"
+
+        headerView.addSubview(mainLabel)
+        return headerView
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 30
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "productCell", for: indexPath)
+        cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+        let product = selectedProducts[indexPath.row]
+        cell.textLabel?.text = "\(product.product.name) \(product.amount)"
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+
+        let removeProductFromDishAction = UIContextualAction(style: .normal, title: "Remove product") { [weak self] (action, view, completionHandler) in
+            self?.delegate?.removeProductFromDishList(productIndex: indexPath.row)
+            self?.selectedProducts.remove(at: indexPath.row)
+            tableView.reloadData()
+            completionHandler(true) // Call the completion handler to indicate that the action was performed
+        }
+        removeProductFromDishAction.backgroundColor = UIColor.red
+
+        let configuration = UISwipeActionsConfiguration(actions: [removeProductFromDishAction])
+        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        return configuration
     }
 }
 
