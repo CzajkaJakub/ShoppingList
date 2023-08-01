@@ -13,6 +13,10 @@ class DishesViewController: UIViewController {
         return groupedDishes.values.sorted(by: { $0[0].category.categoryName < $1[0].category.categoryName })
     }
     
+    private lazy var addDishButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addDishView))
+    }()
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         reloadDishes()
@@ -25,6 +29,8 @@ class DishesViewController: UIViewController {
         dishesTable.delegate = self
         dishesTable.dataSource = self
         
+        navigationItem.rightBarButtonItem = addDishButton
+        
         view.addSubview(dishesTable)
     }
     
@@ -35,6 +41,10 @@ class DishesViewController: UIViewController {
     
     private func reloadDishes() {
         dishesTable.reloadData()
+    }
+    
+    @objc private func addDishView() {
+        navigationController?.pushViewController(AddDishViewController(), animated: true)
     }
 }
 

@@ -20,6 +20,10 @@ class ProductsViewController: UIViewController {
         return groupedProducts.values.sorted(by: { $0[0].category.categoryName < $1[0].category.categoryName })
     }
     
+    private lazy var addProductButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addProductView))
+    }()
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.title = "Products"
@@ -32,6 +36,7 @@ class ProductsViewController: UIViewController {
         productsTable.delegate = self
         productsTable.dataSource = self
         
+        navigationItem.rightBarButtonItem = addProductButton
         view.addSubview(productsTable)
         }
     
@@ -42,6 +47,10 @@ class ProductsViewController: UIViewController {
     
     @objc private func reloadProducts() {
         productsTable.reloadData()
+    }
+    
+    @objc private func addProductView() {
+        navigationController?.pushViewController(AddProductViewController(), animated: true)
     }
 }
 

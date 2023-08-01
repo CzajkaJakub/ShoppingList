@@ -2,6 +2,7 @@ import UIKit
 
 class AddDishViewController: UIViewController, UITableViewDelegate {
 
+    private var imageViewHeightConstraint: NSLayoutConstraint?
     private var selectedPhoto: UIImage!
     private var selectedProducts: [ProductAmount] = []
     private var selectedOption: Category!
@@ -14,13 +15,15 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         return textField
     }()
     
-    private lazy var photoTextField: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Select Photo", for: .normal)
-        button.addTarget(self, action: #selector(takePhoto), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
+    let dishImageView: UIImageView = {
+        let dishImageView = UIImageView()
+        dishImageView.translatesAutoresizingMaskIntoConstraints = false
+        dishImageView.contentMode = .scaleAspectFit
+        dishImageView.layer.cornerRadius = 8
+        dishImageView.clipsToBounds = true
+        return dishImageView
     }()
+
     
     private let selectListTextField: UITextField = {
         let textField = UITextField()
@@ -47,14 +50,20 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         return UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editProductsButtonTapped))
     }()
     
+    private lazy var selectPhotoButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(selectPhoto))
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = "Add dish"
+        
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 16
+        
         self.selectedOption = Category.dishCategories.first
         self.selectListTextField.text = selectedOption.categoryName
         
-        navigationItem.rightBarButtonItems = [addProductButton, saveButton]
-        navigationItem.leftBarButtonItems = [clearButton, showProductsButton]
+        navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, addProductButton, showProductsButton, saveButton]
             
         setupViews()
         setupConstraints()
@@ -69,13 +78,12 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     
     private func setupViews() {
         view.addSubview(nameTextField)
-        view.addSubview(photoTextField)
+        view.addSubview(dishImageView)
         view.addSubview(selectListTextField)
     }
     
     private func setupConstraints() {
         let margin: CGFloat = 16
-        let photoTextFieldMaxWidth = view.bounds.width * 0.5
         
         NSLayoutConstraint.activate([
             selectListTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin),
@@ -88,10 +96,10 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
             nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
             nameTextField.heightAnchor.constraint(equalToConstant: 40),
             
-            photoTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: margin),
-            photoTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            photoTextField.widthAnchor.constraint(lessThanOrEqualToConstant: photoTextFieldMaxWidth),
-            photoTextField.heightAnchor.constraint(equalToConstant: 64)
+            dishImageView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 20),
+            dishImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            dishImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            dishImageView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40),
         ])
     }
     
@@ -121,16 +129,37 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     }
     
   
-    @objc private func takePhoto() {
-        if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            let imagePicker = UIImagePickerController()
-            imagePicker.delegate = self
-            imagePicker.sourceType = .camera
-            imagePicker.allowsEditing = false
-            self.present(imagePicker, animated: true, completion: nil)
-        } else {
-            print("Camera is not available.")
+    @objc private func selectPhoto() {
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        
+        let imageSourceAlert = UIAlertController(title: "Select source of photo", message: nil, preferredStyle: .alert)
+        
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+            let librarySourceButton = UIAlertAction(title: "Library", style: .default) { [weak self] _ in
+                imagePicker.sourceType = .photoLibrary
+                self?.present(imagePicker, animated: true, completion: nil)
+            }
+            imageSourceAlert.addAction(librarySourceButton)
         }
+        
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            let cameraSourceButton = UIAlertAction(title: "Camera", style: .default) { [weak self] _ in
+                imagePicker.sourceType = .camera
+                self?.present(imagePicker, animated: true, completion: nil)
+            }
+            imageSourceAlert.addAction(cameraSourceButton)
+        }
+        
+        if imageSourceAlert.actions.isEmpty {
+            print("Photo library and camera are not available.")
+            return
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        imageSourceAlert.addAction(cancelAction)
+        
+        self.present(imageSourceAlert, animated: true, completion: nil)
     }
 
     @objc private func saveDish() {
@@ -156,8 +185,8 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     }
     
     @objc private func clearFields() {
-        photoTextField.setTitle("Take photo", for: .normal)
-        photoTextField.setBackgroundImage(nil, for: .normal)
+        dishImageView.image = nil
+        imageViewHeightConstraint?.isActive = false
         nameTextField.text = nil
         selectedPhoto = nil
         selectedProducts.removeAll()
@@ -214,21 +243,15 @@ extension AddDishViewController: UIImagePickerControllerDelegate, UINavigationCo
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let image = info[.originalImage] as? UIImage {
             selectedPhoto = image
-            // Set the selected photo as the background image of the photoTextField
-            photoTextField.setTitle(nil, for: .normal)
-            photoTextField.setBackgroundImage(image, for: .normal)
+            dishImageView.image = selectedPhoto
             
-            // Calculate the adjusted width and height based on the photo's aspect ratio
-            let photoAspectRatio = image.size.width / image.size.height
-            let photoTextFieldMaxWidth = view.bounds.width * 0.5
-            let photoTextFieldHeight = min(photoTextFieldMaxWidth / photoAspectRatio, photoTextFieldMaxWidth)
-            let photoTextFieldWidth = min(photoTextFieldMaxWidth, photoTextFieldMaxWidth * photoAspectRatio)
-            photoTextField.constraints.forEach { constraint in
-                if constraint.firstAttribute == .height {
-                    constraint.constant = photoTextFieldHeight
-                } else if constraint.firstAttribute == .width {
-                    constraint.constant = photoTextFieldWidth
-                }
+            if let image = dishImageView.image {
+                let maxAllowedHeight = UIScreen.main.bounds.height * 0.35
+                let aspectRatio = image.size.width / image.size.height
+                let imageViewHeight = min(view.frame.width / aspectRatio, maxAllowedHeight)
+        
+                imageViewHeightConstraint = dishImageView.heightAnchor.constraint(equalToConstant: imageViewHeight)
+                imageViewHeightConstraint?.isActive = true
             }
         }
         picker.dismiss(animated: true, completion: nil)
