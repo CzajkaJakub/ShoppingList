@@ -40,7 +40,7 @@ class DatabaseManager {
 
     private init() {
         let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appendingPathComponent("fitForYou6.sqlite")
+            .appendingPathComponent("fitForYou.sqlite")
         print(try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false))
         print(fileURL)
         

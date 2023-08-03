@@ -232,7 +232,7 @@ class AddProductViewController: UIViewController {
         }
         
         // Create a product object with the entered values
-        var product = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
+        let product = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
         Product.addProduct(product: product)
         
         // Show an alert or perform any other UI update to indicate successful save

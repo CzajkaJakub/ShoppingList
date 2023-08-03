@@ -68,6 +68,7 @@ class Dish {
     }
     
     static func addDish(dish: Dish) {
+        removeDish(dish: dish)
         DatabaseManager.shared.insertDish(dish: dish)
         Dish.dishes.append(dish)
     }

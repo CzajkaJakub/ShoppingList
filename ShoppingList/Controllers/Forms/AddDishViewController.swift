@@ -3,11 +3,12 @@ import UIKit
 class AddDishViewController: UIViewController, UITableViewDelegate {
 
     private var imageViewHeightConstraint: NSLayoutConstraint?
-    private var selectedPhoto: UIImage!
-    private var selectedProducts: [ProductAmount] = []
-    private var selectedOption: Category!
+    internal var selectedPhoto: UIImage!
+    internal var selectedProducts: [ProductAmount] = []
+    internal var selectedOption: Category!
+    internal var editedDish: Dish!
     
-    private let nameTextField: UITextField = {
+    internal let nameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Dish Name"
         textField.borderStyle = .roundedRect
@@ -163,7 +164,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     }
 
     @objc private func saveDish() {
-
+        
         guard let name = nameTextField.text,
               let photo = selectedPhoto,
               let category = selectedOption
@@ -172,8 +173,10 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
             return
         }
         
-        // Create a dish object with the entered values and selected products
-        let dish = Dish(name: name, photo: photo, productAmounts: selectedProducts, category: category)
+        let dish = editedDish != nil
+            ? Dish(id: editedDish.id!, name: name, photo: photo, productAmounts: selectedProducts, category: category)
+            : Dish(name: name, photo: photo, productAmounts: selectedProducts, category: category)
+
         Dish.addDish(dish: dish)
         
         // Show an alert or perform any other UI update to indicate successful save
@@ -208,6 +211,19 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     @objc func dismissKeyboard() {
          view.endEditing(true)
      }
+    
+    func reloadPhoto(){
+        dishImageView.image = selectedPhoto
+        
+        if let image = dishImageView.image {
+            let maxAllowedHeight = UIScreen.main.bounds.height * 0.35
+            let aspectRatio = image.size.width / image.size.height
+            let imageViewHeight = min(view.frame.width / aspectRatio, maxAllowedHeight)
+    
+            imageViewHeightConstraint = dishImageView.heightAnchor.constraint(equalToConstant: imageViewHeight)
+            imageViewHeightConstraint?.isActive = true
+        }
+    }
 }
 
 extension AddDishViewController: UIPickerViewDelegate, UIPickerViewDataSource {
@@ -243,16 +259,7 @@ extension AddDishViewController: UIImagePickerControllerDelegate, UINavigationCo
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let image = info[.originalImage] as? UIImage {
             selectedPhoto = image
-            dishImageView.image = selectedPhoto
-            
-            if let image = dishImageView.image {
-                let maxAllowedHeight = UIScreen.main.bounds.height * 0.35
-                let aspectRatio = image.size.width / image.size.height
-                let imageViewHeight = min(view.frame.width / aspectRatio, maxAllowedHeight)
-        
-                imageViewHeightConstraint = dishImageView.heightAnchor.constraint(equalToConstant: imageViewHeight)
-                imageViewHeightConstraint?.isActive = true
-            }
+            reloadPhoto()
         }
         picker.dismiss(animated: true, completion: nil)
     }
