@@ -7,6 +7,7 @@
 
 import Foundation
 import SQLite
+import SQLite3
 import UIKit
 
 class DatabaseManager {
@@ -24,6 +25,7 @@ class DatabaseManager {
     //Foreign keys columns
     private var categoryId = Expression<Int>("category_id")
     private var productId = Expression<Int>("product_id")
+    private var dishId = Expression<Int>("dish_id")
     
     //Columns
     private var id = Expression<Int>("id")
@@ -38,21 +40,29 @@ class DatabaseManager {
 
     private init() {
         let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appendingPathComponent("fitForYou.sqlite")
+            .appendingPathComponent("fitForYou6.sqlite")
         print(try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false))
         print(fileURL)
         
         do {
-            dbConnection = try Connection(fileURL.path)
+            dbConnection = try Connection(fileURL.path, readonly: false)
+            sqlite3_exec(dbConnection.handle, "PRAGMA foreign_keys = on", nil, nil, nil)
             createProductCategoriesTableAndInsertData()
+            createDishCategoriesTableAndInsertData()
             createProductTable()
             createDishTable()
             createProductsToBuyTable()
-            createDishCategoriesTableAndInsertData()
+            createProductAmountTable()
         } catch {
             print("Error opening database: \(error)")
             fatalError("Failed to open database")
         }
+    }
+    
+    func reloadProductsDishesFromDatabase() {
+        Product.products = DatabaseManager.shared.fetchProducts()
+        Dish.dishes = DatabaseManager.shared.fetchDishes()
+        ProductAmount.productsToBuy = DatabaseManager.shared.fetchProductsToBuy()
     }
     
     func createProductCategoriesTableAndInsertData() {
@@ -147,7 +157,7 @@ class DatabaseManager {
             table.column(fat)
             table.column(carbo)
             table.column(categoryId)
-            table.foreignKey(categoryId, references: dishCategoriesTable, id, update: .cascade, delete: .setNull)
+            table.foreignKey(categoryId, references: productCategoriesTable, id, update: .cascade, delete: .cascade)
         }
         
         do {
@@ -165,12 +175,8 @@ class DatabaseManager {
             table.column(id, primaryKey: .autoincrement)
             table.column(name, unique: true)
             table.column(photo)
-            table.column(calories)
-            table.column(fat)
-            table.column(carbo)
-            table.column(protein)
             table.column(categoryId)
-            table.foreignKey(categoryId, references: dishCategoriesTable, id, update: .cascade, delete: .setNull)
+            table.foreignKey(categoryId, references: dishCategoriesTable, id, update: .cascade, delete: .cascade)
         }
         
         do {
@@ -178,12 +184,14 @@ class DatabaseManager {
         } catch {
             print("Error creating dish table: \(error)")
         }
-        
+    }
+    
+    func createProductAmountTable(){
         let createProductAmountTableQuery = productAmountTable.create(ifNotExists: true) { table in
-            table.column(id)
+            table.column(dishId)
             table.column(productId)
             table.column(amount)
-            table.foreignKey(id, references: dishTable, id, update: .cascade, delete: .cascade)
+            table.foreignKey(dishId, references: dishTable, id, update: .cascade, delete: .cascade)
             table.foreignKey(productId, references: productsTable, id, update: .cascade, delete: .cascade)
         }
         
@@ -212,16 +220,17 @@ class DatabaseManager {
     func insertProduct(product: Product) {
         let insertQuery = productsTable.insert(
             name <- product.name,
-            photo <- product.photo!,
+            photo <- product.photo,
             calories <- product.calories,
             protein <- product.protein,
             fat <- product.fat,
             carbo <- product.carbo,
-            categoryId <- product.category.categoryId
+            categoryId <- product.category.id!
         )
         
         do {
-            let _ = try dbConnection.run(insertQuery)
+            let productId = try dbConnection.run(insertQuery)
+            product.id = Int(productId)
         } catch {
             print("Error inserting record: \(error)")
         }
@@ -229,7 +238,7 @@ class DatabaseManager {
     
     
     func removeProduct(product: Product) {
-        let deleteQuery = productsTable.filter(id == product.dbId).delete()
+        let deleteQuery = productsTable.filter(id == product.id!).delete()
         
         do {
             try dbConnection.run(deleteQuery)
@@ -272,8 +281,8 @@ class DatabaseManager {
                 let photoData = Data.fromDatatypeValue(photoBlob)
                 let photo = UIImage(data: photoData)
                 
-                let category = Category(categoryId: categoryId, categoryName: categoryName)
-                let product = Product(dbId: dbId, name: name, photo: photo!, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: category)
+                let category = Category(id: categoryId, name: categoryName)
+                let product = Product(id: dbId, name: name, photo: photo!, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: category)
                 products.append(product)
             }
         } catch {
@@ -283,7 +292,7 @@ class DatabaseManager {
         return products
     }
     
-    func fetchProductCategory() -> [Category] {
+    func fetchProductCategories() -> [Category] {
         var categories: [Category] = []
         
         let selectQuery = productCategoriesTable
@@ -297,7 +306,7 @@ class DatabaseManager {
                 let categoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
                 let categoryName = row[productCategoriesTable[categoryName]]
                 
-                let category = Category(categoryId: categoryId, categoryName: categoryName)
+                let category = Category(id: categoryId, name: categoryName)
                 categories.append(category)
             }
         } catch {
@@ -322,7 +331,7 @@ class DatabaseManager {
                 let categoryId = row[dishCategoriesTable[id]]
                 let categoryName = row[dishCategoriesTable[categoryName]]
                 
-                let category = Category(categoryId: categoryId, categoryName: categoryName)
+                let category = Category(id: categoryId, name: categoryName)
                 categories.append(category)
             }
         } catch {
@@ -332,99 +341,88 @@ class DatabaseManager {
         return categories
     }
     
-    // Existing code for inserting and fetching products
-    // ...
     func fetchDishes() -> [Dish] {
         var dishes: [Dish] = []
         do {
-            let query = dishTable.join(productAmountTable, on: dishTable[id] == productAmountTable[id])
-                .join(productsTable, on: productAmountTable[productId] == productsTable[id])
-                .join(productCategoriesTable, on: productsTable[categoryId] == productCategoriesTable[id])
-                .join(dishCategoriesTable, on: dishTable[categoryId] == dishCategoriesTable[id])
-                .select(dishTable[*], productsTable[*], productAmountTable[*], productCategoriesTable[*], dishCategoriesTable[*])
-                .order(dishTable[name])
+            let dishFetchQuery = dishTable.join(dishCategoriesTable, on: dishTable[categoryId] == dishCategoriesTable[id]).order(dishTable[name])
             
-            var currentDish: Dish?
-            var productAmounts: [ProductAmount] = []
-            
-            for row in try dbConnection.prepare(query) {
-                let dishId = row[dishTable[id]]
-                let dishName = row[dishTable[name]]
-                let dishPhoto = row[dishTable[photo]]
-                let dishCalories = row[dishTable[calories]]
-                let dishFat = row[dishTable[fat]]
-                let dishCarbo = row[dishTable[carbo]]
-                let dishProteins = row[dishTable[protein]]
+            for dishRow in try dbConnection.prepare(dishFetchQuery) {
+                let dishId = dishRow[dishTable[id]]
+                let dishName = dishRow[dishTable[name]]
+                let dishPhoto = dishRow[dishTable[photo]]
+                let dishCategoryId = dishRow[dishCategoriesTable[id]]
+                let dishCategoryName = dishRow[dishCategoriesTable[categoryName]]
+                let dishCategory = Category(id: dishCategoryId, name: dishCategoryName)
+                let productAmountsForDish = fetchProductsAmountForDish(dishIdToSearch: dishId)
                 
-                let productId = row[productsTable[id]]
-                let productName = row[productsTable[name]]
-                let productPhotoBlob = row[productsTable[photo]]
-                let productKcal = row[productsTable[calories]]
-                let productProtein = row[productsTable[protein]]
-                let productFat = row[productsTable[fat]]
-                let productCarbo = row[productsTable[carbo]]
-                let productCategoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
-                let productCategoryName = row[productCategoriesTable[categoryName]]
+                let photoData = Data.fromDatatypeValue(dishPhoto)
+                let photo = UIImage(data: photoData)
                 
-                let dishAmount = row[productAmountTable[amount]]
+                dishes.append(Dish(id: dishId, name: dishName, photo: photo!, productAmounts: productAmountsForDish, category: dishCategory))
                 
-                let dishCategoryId = row[dishCategoriesTable[id]]
-                let dishCategory = row[dishCategoriesTable[categoryName]]
+            }
+        } catch {
+            print("Error fetching dish: \(error)")
+        }
+        return dishes
+    }
+    
+    func fetchProductsAmountForDish(dishIdToSearch: Int) -> [ProductAmount] {
+        var productAmountsForDish: [ProductAmount] = []
+        
+        let productsForDishQuery = productAmountTable.join(productsTable, on: productAmountTable[productId] == productsTable[id])
+            .join(productCategoriesTable, on: productsTable[categoryId] == productCategoriesTable[id])
+            .select(productsTable[*], productAmountTable[*], productCategoriesTable[*])
+            .filter(productAmountTable[dishId] == dishIdToSearch)
+            .order(productsTable[name])
+        
+        do {
+            for productRow in try dbConnection.prepare(productsForDishQuery) {
+                let productId = productRow[productsTable[id]]
+                let productName = productRow[productsTable[name]]
+                let productPhotoBlob = productRow[productsTable[photo]]
+                let productKcal = productRow[productsTable[calories]]
+                let productProtein = productRow[productsTable[protein]]
+                let productFat = productRow[productsTable[fat]]
+                let productCarbo = productRow[productsTable[carbo]]
+                let productCategoryId = productRow[productCategoriesTable[id]]
+                let productCategoryName = productRow[productCategoriesTable[categoryName]]
                 
-                if currentDish == nil || currentDish!.id != dishId {
-                    if var currentDish = currentDish {
-                        currentDish.productAmounts = productAmounts
-                        dishes.append(currentDish)
-                    }
-                    
-                    // Convert Blob to UIImage
-                    let photoData = Data.fromDatatypeValue(dishPhoto)
-                    let photo = UIImage(data: photoData)
-                    
-                    currentDish = Dish(id: dishId, name: dishName, photo: photo!, calories: dishCalories, carbo: dishCarbo, fat: dishFat, protein: dishProteins, productAmounts: [], category: Category(categoryId: dishCategoryId, categoryName: dishCategory))
-                    productAmounts = []
-                }
+                let dishAmount = productRow[productAmountTable[amount]]
                 
                 let photoData = Data.fromDatatypeValue(productPhotoBlob)
                 let photo = UIImage(data: photoData)
                 
-                let product = Product(dbId: productId, name: productName, photo: photo!, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: Category(categoryId: productCategoryId, categoryName: productCategoryName))
+                let productCategory = Category(id: productCategoryId, name: productCategoryName)
+                let product = Product(id: productId, name: productName, photo: photo!, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: productCategory)
                 
                 let productAmount = ProductAmount(product: product, amount: dishAmount)
-                productAmounts.append(productAmount)
-            }
-            
-            if var currentDish = currentDish {
-                currentDish.productAmounts = productAmounts
-                dishes.append(currentDish)
+                productAmountsForDish.append(productAmount)
             }
         } catch {
-            print("Error fetching dishes: \(error)")
+            print("Error fetching dish (\(dishId): \(error)")
         }
         
-        return dishes
+        return productAmountsForDish
     }
     
     func insertDish(dish: Dish) {
-        // Insert the dish into the dish table
+
         let insertDishQuery = dishTable.insert(
             name <- dish.name,
-            photo <- dish.photo!,
-            calories <- dish.calories,
-            fat <- dish.fat,
-            carbo <- dish.carbo,
-            protein <- dish.proteins,
-            categoryId <- dish.category.categoryId
+            photo <- dish.photo,
+            categoryId <- dish.category.id!
         )
         
         do {
             let dishId = try dbConnection.run(insertDishQuery)
-            // Insert the product amounts into the product_amount table
+            dish.id = Int(dishId)
+            
             for productAmount in dish.productAmounts {
                 let insertProductAmountQuery = productAmountTable.insert(
-                    self.id <- Int(dishId),
-                    self.productId <- productAmount.product.dbId,
-                    amount <- productAmount.amount
+                    self.dishId <- Int(dishId),
+                    self.productId <- productAmount.product.id!,
+                    self.amount <- productAmount.amount
                 )
                 try dbConnection.run(insertProductAmountQuery)
             }
@@ -434,12 +432,10 @@ class DatabaseManager {
     }
     
     func removeDish(dish: Dish) {
-        let deleteQueryDish = dishTable.filter(id == dish.id).delete()
-        let deleteQueryProductAmount = productAmountTable.filter(id == dish.id).delete()
-        
+        let deleteQueryDish = dishTable.filter(id == dish.id!).delete()
+ 
         do {
             try dbConnection.run(deleteQueryDish)
-            try dbConnection.run(deleteQueryProductAmount)
         } catch {
             print("Error removing product: \(error)")
         }
@@ -453,13 +449,13 @@ class DatabaseManager {
     
     func addProductToShoppingList(productToBuy: ProductAmount) {
         do {
-            if let existingProduct = try dbConnection.pluck(productsToBuyTable.filter(productId == productToBuy.product.dbId)) {
+            if let existingProduct = try dbConnection.pluck(productsToBuyTable.filter(productId == productToBuy.product.id!)) {
                 // Product exists, perform an update
-                let updateQuery = productsToBuyTable.filter(productId == productToBuy.product.dbId)
+                let updateQuery = productsToBuyTable.filter(productId == productToBuy.product.id!)
                     .update(amount <- existingProduct[amount] + productToBuy.amount)
                 try dbConnection.run(updateQuery)
             } else {
-                try dbConnection.run(productsToBuyTable.insert(productId <- productToBuy.product.dbId,
+                try dbConnection.run(productsToBuyTable.insert(productId <- productToBuy.product.id!,
                                                                amount <- productToBuy.amount))
             }
         } catch {
@@ -492,7 +488,7 @@ class DatabaseManager {
                 let photoData = Data.fromDatatypeValue(productPhotoBlob)
                 let photo = UIImage(data: photoData)
                 
-                let product = Product(dbId: productId, name: productName, photo: photo!, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: Category(categoryId: productCategoryId, categoryName: productCategoryName))
+                let product = Product(id: productId, name: productName, photo: photo!, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: Category(id: productCategoryId, name: productCategoryName))
                 
                 let productAmount = ProductAmount(product: product, amount: productToBuyAmount)
                 productsToBuy.append(productAmount)
@@ -505,10 +501,11 @@ class DatabaseManager {
     }
     
     func removeProductToBuy(productToBuy: ProductAmount) {
-        let deleteQueryProductToBuy = productsToBuyTable.filter(productId == productToBuy.product.dbId).delete()
+        let deleteQueryProductToBuy = productsToBuyTable.filter(productId == productToBuy.product.id!).delete()
         
         do {
             try dbConnection.run(deleteQueryProductToBuy)
+    
         } catch {
             print("Error removing product: \(error)")
         }

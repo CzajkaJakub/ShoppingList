@@ -89,7 +89,7 @@ class AddProductViewController: UIViewController {
         view.layer.cornerRadius = 16
         
         self.selectedOption = Category.productCategories.first
-        self.selectListTextField.text = selectedOption.categoryName
+        self.selectListTextField.text = selectedOption.name
         
         navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, saveButton]
         
@@ -232,11 +232,8 @@ class AddProductViewController: UIViewController {
         }
         
         // Create a product object with the entered values
-        let product = Product(dbId: 0, name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(categoryId: selectedOption.categoryId, categoryName: selectedOption.categoryName))
-        
-        // Perform your desired action with the product object (e.g., save to a database)
-        DatabaseManager.shared.insertProduct(product: product)
-        Product.products.append(product)
+        var product = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
+        Product.addProduct(product: product)
         
         // Show an alert or perform any other UI update to indicate successful save
         let alertController = UIAlertController(title: "Success", message: "Product saved successfully.", preferredStyle: .alert)
@@ -280,13 +277,13 @@ extension AddProductViewController: UIPickerViewDelegate, UIPickerViewDataSource
     // Example UIPickerViewDelegate method:
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         // Return the title for each row in the select list
-        return Category.productCategories[row].categoryName // Replace with your actual array of select options
+        return Category.productCategories[row].name // Replace with your actual array of select options
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         // Handle the selection of a row in the select list
         selectedOption = Category.productCategories[row] // Replace with your actual array of select options
-        selectListTextField.text = selectedOption.categoryName
+        selectListTextField.text = selectedOption.name
     }
 }
 

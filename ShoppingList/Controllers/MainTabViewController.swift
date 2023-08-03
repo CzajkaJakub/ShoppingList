@@ -28,7 +28,7 @@ class MainTabViewController: UITabBarController, UITabBarControllerDelegate {
     func loadDataFromDatabase() {
         Product.products = DatabaseManager.shared.fetchProducts()
         Category.dishCategories = DatabaseManager.shared.fetchDishCategories()
-        Category.productCategories = DatabaseManager.shared.fetchProductCategory()
+        Category.productCategories = DatabaseManager.shared.fetchProductCategories()
         Dish.dishes = DatabaseManager.shared.fetchDishes()
         ProductAmount.productsToBuy = DatabaseManager.shared.fetchProductsToBuy()
     }

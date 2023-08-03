@@ -1,24 +1,17 @@
-//
-//  Product.swift
-//  ShoppingList
-//
-//  Created by Patrycja on 10/07/2023.
-//
-
 import Foundation
 import UIKit
 import SQLite
 
-struct Product {
-    var dbId: Int = 0
-    var name: String = ""
-    var photo: Blob?
+class Product {
+    var id: Int?
+    var name: String
+    var photo: Blob
     var category: Category
     
-    private var _calories: Double = 0
-    private var _carbo: Double = 0
-    private var _fat: Double = 0
-    private var _protein: Double = 0
+    private var _calories: Double
+    private var _carbo: Double
+    private var _fat: Double
+    private var _protein: Double
     
     var calories: Double {
         set { _calories = newValue }
@@ -40,10 +33,21 @@ struct Product {
         get { return round(_protein * 100) / 100.0 }
     }
     
-    init(dbId: Int, name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, category: Category) {
-        self.dbId = dbId
+    init(name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, category: Category) {
+        self.id = nil
         self.name = name
-        self.photo = photo.jpegData(compressionQuality: 0.8)?.toBlob()
+        self.photo = photo.jpegData(compressionQuality: 0.4)!.toBlob()
+        self.category = category
+        self._calories = kcal
+        self._carbo = carbo
+        self._fat = fat
+        self._protein = protein
+    }
+    
+    init(id: Int, name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, category: Category) {
+        self.id = id
+        self.name = name
+        self.photo = photo.jpegData(compressionQuality: 0.4)!.toBlob()
         self.category = category
         self._calories = kcal
         self._carbo = carbo
@@ -54,9 +58,20 @@ struct Product {
     static var products: [Product] = []
     
     static func removeProduct(product: Product) {
-        if let index = Product.products.firstIndex(where: { $0.dbId == product.dbId }) {
+        if let index = Product.products.firstIndex(where: { $0.id == product.id }) {
             DatabaseManager.shared.removeProduct(product: product)
             Product.products.remove(at: index)
+            ProductAmount.reloadProductsToBuyFromDatabase()
+            Dish.reloadDishesFromDatabase()
         }
+    }
+    
+    static func addProduct(product: Product) {
+        DatabaseManager.shared.insertProduct(product: product)
+        Product.products.append(product)
+    }
+    
+    static func reloadProductsFromDatabase() {
+        Product.products = DatabaseManager.shared.fetchProducts()
     }
 }

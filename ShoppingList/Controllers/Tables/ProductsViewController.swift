@@ -1,10 +1,3 @@
-//
-//  ProductsViewController.swift
-//  ShoppingList
-//
-//  Created by Patrycja on 09/07/2023.
-//
-
 import UIKit
 
 class ProductsViewController: UIViewController {
@@ -16,8 +9,8 @@ class ProductsViewController: UIViewController {
     }()
     
     private var productsGroupedByCategory: [[Product]] {
-        let groupedProducts = Dictionary(grouping: Product.products, by: { $0.category.categoryName })
-        return groupedProducts.values.sorted(by: { $0[0].category.categoryName < $1[0].category.categoryName })
+        let groupedProducts = Dictionary(grouping: Product.products, by: { $0.category.name })
+        return groupedProducts.values.sorted(by: { $0[0].category.name < $1[0].category.name })
     }
     
     private lazy var addProductButton: UIBarButtonItem = {
@@ -80,7 +73,7 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
         let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
         mainLabel.textColor = .systemBlue
         mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        mainLabel.text = productsGroupedByCategory[section][0].category.categoryName
+        mainLabel.text = productsGroupedByCategory[section][0].category.name
 
         headerView.addSubview(mainLabel)
         return headerView

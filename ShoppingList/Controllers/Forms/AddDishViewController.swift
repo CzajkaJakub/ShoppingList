@@ -61,7 +61,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         view.layer.cornerRadius = 16
         
         self.selectedOption = Category.dishCategories.first
-        self.selectListTextField.text = selectedOption.categoryName
+        self.selectListTextField.text = selectedOption.name
         
         navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, addProductButton, showProductsButton, saveButton]
             
@@ -227,13 +227,13 @@ extension AddDishViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     // Example UIPickerViewDelegate method:
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         // Return the title for each row in the select list
-        return Category.dishCategories[row].categoryName // Replace with your actual array of select options
+        return Category.dishCategories[row].name // Replace with your actual array of select options
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         // Handle the selection of a row in the select list
         selectedOption = Category.dishCategories[row] // Replace with your actual array of select options
-        selectListTextField.text = selectedOption.categoryName
+        selectListTextField.text = selectedOption.name
     }
 }
 
@@ -282,8 +282,8 @@ class ProductSelectionViewController: UIViewController {
     weak var delegate: ProductSelectionDelegate?
     
     private var productsGroupedByCategory: [[Product]] {
-        let groupedProducts = Dictionary(grouping: Product.products, by: { $0.category.categoryName })
-        return groupedProducts.values.sorted(by: { $0[0].category.categoryName < $1[0].category.categoryName })
+        let groupedProducts = Dictionary(grouping: Product.products, by: { $0.category.name })
+        return groupedProducts.values.sorted(by: { $0[0].category.name < $1[0].category.name })
     }
 
     override func viewDidLoad() {
@@ -328,7 +328,7 @@ extension ProductSelectionViewController: UITableViewDataSource, UITableViewDele
         let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
         mainLabel.textColor = .systemBlue
         mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        mainLabel.text = productsGroupedByCategory[section][0].category.categoryName
+        mainLabel.text = productsGroupedByCategory[section][0].category.name
 
         headerView.addSubview(mainLabel)
         return headerView

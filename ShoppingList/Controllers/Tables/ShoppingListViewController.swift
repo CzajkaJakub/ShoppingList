@@ -9,8 +9,8 @@ class ShoppingListViewController: UIViewController {
     }()
     
     private var productsToBuyGroupedByCategory: [[ProductAmount]] {
-        let groupedProducts = Dictionary(grouping: ProductAmount.productsToBuy, by: { $0.product.category.categoryName })
-        return groupedProducts.values.sorted(by: { $0[0].product.category.categoryName < $1[0].product.category.categoryName })
+        let groupedProducts = Dictionary(grouping: ProductAmount.productsToBuy, by: { $0.product.category.name })
+        return groupedProducts.values.sorted(by: { $0[0].product.category.name < $1[0].product.category.name })
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -63,7 +63,7 @@ extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource
         let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
         mainLabel.textColor = .systemBlue
         mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        mainLabel.text = productsToBuyGroupedByCategory[section][0].product.category.categoryName
+        mainLabel.text = productsToBuyGroupedByCategory[section][0].product.category.name
 
         headerView.addSubview(mainLabel)
         return headerView

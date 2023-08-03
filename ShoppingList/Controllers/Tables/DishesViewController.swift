@@ -9,8 +9,8 @@ class DishesViewController: UIViewController {
     }()
     
     private var dishesGroupedByCategory: [[Dish]] {
-        let groupedDishes = Dictionary(grouping: Dish.dishes, by: { $0.category.categoryName })
-        return groupedDishes.values.sorted(by: { $0[0].category.categoryName < $1[0].category.categoryName })
+        let groupedDishes = Dictionary(grouping: Dish.dishes, by: { $0.category.name })
+        return groupedDishes.values.sorted(by: { $0[0].category.name < $1[0].category.name })
     }
     
     private lazy var addDishButton: UIBarButtonItem = {
@@ -73,7 +73,7 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
         mainLabel.textColor = .systemBlue
         mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        mainLabel.text = dishesGroupedByCategory[section][0].category.categoryName
+        mainLabel.text = dishesGroupedByCategory[section][0].category.name
 
         headerView.addSubview(mainLabel)
         return headerView
