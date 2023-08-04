@@ -61,7 +61,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         view.backgroundColor = .white
         view.layer.cornerRadius = 16
         
-        self.selectedOption = Category.dishCategories.first
+        self.selectedOption = self.editedDish == nil ? Category.dishCategories.first : self.editedDish.category
         self.selectListTextField.text = selectedOption.name
         
         navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, addProductButton, showProductsButton, saveButton]
@@ -190,11 +190,16 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     }
     
     @objc private func clearFields() {
-        dishImageView.image = nil
-        imageViewHeightConstraint?.isActive = false
-        nameTextField.text = nil
-        selectedPhoto = nil
-        selectedProducts.removeAll()
+        let alertController = UIAlertController(title: "Clear Fields", message: "Are you sure you want to clear the dish?", preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alertController.addAction(UIAlertAction(title: "Clear", style: .destructive, handler: { _ in
+            self.dishImageView.image = nil
+            self.imageViewHeightConstraint?.isActive = false
+            self.nameTextField.text = nil
+            self.selectedPhoto = nil
+            self.selectedProducts.removeAll()
+        }))
+        present(alertController, animated: true, completion: nil)
     }
     
     @objc private func addProductButtonTapped() {

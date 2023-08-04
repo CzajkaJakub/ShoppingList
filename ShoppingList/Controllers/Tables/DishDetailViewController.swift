@@ -20,7 +20,6 @@ class DishDetailViewController: UIViewController {
         let editDishVC = AddDishViewController()
         editDishVC.editedDish = dish
         editDishVC.selectedProducts = dish.productAmounts
-        editDishVC.selectedOption = dish.category
         editDishVC.nameTextField.text = dish.name
         editDishVC.selectedPhoto = UIImage(data: Data(dish.photo.bytes))
         editDishVC.reloadPhoto()

@@ -89,7 +89,7 @@ class AddProductViewController: UIViewController {
         view.backgroundColor = .white
         view.layer.cornerRadius = 16
         
-        self.selectedOption = Category.productCategories.first
+        self.selectedOption = self.editedProduct == nil ? Category.productCategories.first : self.editedProduct.category
         self.selectListTextField.text = selectedOption.name
         
         navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, saveButton]
@@ -250,15 +250,20 @@ class AddProductViewController: UIViewController {
     }
     
     @objc private func clearFields() {
-        productImageView.image = nil
-        imageViewHeightConstraint?.isActive = false
-        nameTextField.text = nil
-        carboTextField.text = nil
-        fatTextField.text = nil
-        proteinTextField.text = nil
-        kcalTextField
-            .text = nil
-        selectedPhoto = nil
+        let alertController = UIAlertController(title: "Clear Fields", message: "Are you sure you want to clear the product?", preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alertController.addAction(UIAlertAction(title: "Clear", style: .destructive, handler: { _ in
+            self.productImageView.image = nil
+            self.imageViewHeightConstraint?.isActive = false
+            self.nameTextField.text = nil
+            self.carboTextField.text = nil
+            self.fatTextField.text = nil
+            self.proteinTextField.text = nil
+            self.kcalTextField
+                .text = nil
+            self.selectedPhoto = nil
+        }))
+        present(alertController, animated: true, completion: nil)
     }
     
     @objc func dismissKeyboard() {

@@ -19,7 +19,6 @@ class ProductDetailViewController: UIViewController {
     @objc private func editProductButtonTapped() {
         let editProductVC = AddProductViewController()
         editProductVC.editedProduct = product
-        editProductVC.selectedOption = product.category
         editProductVC.nameTextField.text = product.name
         editProductVC.carboTextField.text = String(product.carbo)
         editProductVC.kcalTextField.text = String(product.calories)
