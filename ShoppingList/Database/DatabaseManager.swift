@@ -41,7 +41,7 @@ class DatabaseManager {
     private init() {
         let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
             .appendingPathComponent("fitForYou.sqlite")
-        print(try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false))
+
         print(fileURL)
         
         do {
@@ -236,6 +236,29 @@ class DatabaseManager {
         }
     }
     
+    func updateProduct(product: Product){
+        do {
+            if let _ = try dbConnection.pluck(productsTable.filter(id == product.id!)) {
+                
+                let updateProductQuery = productsTable.filter(id == product.id!)
+                    .update(name <- product.name,
+                            calories <- product.calories,
+                            protein <- product.protein,
+                            fat <- product.fat,
+                            carbo <- product.carbo,
+                            photo <- product.photo,
+                            categoryId <- product.category.id!)
+                do {
+                    try dbConnection.run(updateProductQuery)
+                } catch {
+                    print("Error updating product: \(error)")
+                }
+            }
+        } catch {
+            print("Product not found id: \(product.id!)")
+        }
+    }
+    
     
     func removeProduct(product: Product) {
         let deleteQuery = productsTable.filter(id == product.id!).delete()
@@ -406,28 +429,63 @@ class DatabaseManager {
         return productAmountsForDish
     }
     
-    func insertDish(dish: Dish) {
-
-        let insertDishQuery = dishTable.insert(
-            name <- dish.name,
-            photo <- dish.photo,
-            categoryId <- dish.category.id!
-        )
-        
+    func insertProductAmountForDish(dish: Dish){
         do {
-            let dishId = try dbConnection.run(insertDishQuery)
-            dish.id = Int(dishId)
-            
             for productAmount in dish.productAmounts {
                 let insertProductAmountQuery = productAmountTable.insert(
-                    self.dishId <- Int(dishId),
+                    self.dishId <- Int(dish.id!),
                     self.productId <- productAmount.product.id!,
                     self.amount <- productAmount.amount
                 )
                 try dbConnection.run(insertProductAmountQuery)
             }
         } catch {
+            print("Error inserting product amount: \(error)")
+        }
+    }
+    
+    func removeProductAmountForDish(dish: Dish){
+        let deleteProductAmountQuery = productAmountTable.filter(dishId == dish.id!).delete()
+ 
+        do {
+            try dbConnection.run(deleteProductAmountQuery)
+        } catch {
+            print("Error removing product amounts: \(error)")
+        }
+    }
+    
+    func insertDish(dish: Dish) {
+        
+        let insertDishQuery = dishTable.insert(
+            name <- dish.name,
+            photo <- dish.photo,
+            categoryId <- dish.category.id!)
+        do {
+            dish.id = try Int(dbConnection.run(insertDishQuery))
+            insertProductAmountForDish(dish: dish)
+        } catch {
             print("Error inserting dish: \(error)")
+        }
+    }
+    
+    func updateDish(dish: Dish){
+        do {
+            if let _ = try dbConnection.pluck(dishTable.filter(id == dish.id!)) {
+                
+                let updateDishQuery = dishTable.filter(id == dish.id!)
+                    .update(name <- dish.name,
+                            photo <- dish.photo,
+                            categoryId <- dish.category.id!)
+                do {
+                    try dbConnection.run(updateDishQuery)
+                    removeProductAmountForDish(dish: dish)
+                    insertProductAmountForDish(dish: dish)
+                } catch {
+                    print("Error updating dish: \(error)")
+                }
+            }
+        } catch {
+            print("Dish not found id: \(dish.id!)")
         }
     }
     

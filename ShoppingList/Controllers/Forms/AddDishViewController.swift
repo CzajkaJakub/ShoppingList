@@ -173,11 +173,13 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
             return
         }
         
-        let dish = editedDish != nil
-            ? Dish(id: editedDish.id!, name: name, photo: photo, productAmounts: selectedProducts, category: category)
-            : Dish(name: name, photo: photo, productAmounts: selectedProducts, category: category)
-
-        Dish.addDish(dish: dish)
+        if editedDish != nil {
+            let dishToUpdate = Dish(id: editedDish.id!, name: name, photo: photo, productAmounts: selectedProducts, category: category)
+            Dish.updateDish(dish: dishToUpdate)
+        } else {
+            let dishToSave = Dish(name: name, photo: photo, productAmounts: selectedProducts, category: category)
+            Dish.addDish(dish: dishToSave)
+        }
         
         // Show an alert or perform any other UI update to indicate successful save
         let alertController = UIAlertController(title: "Success", message: "Dish saved successfully.", preferredStyle: .alert)

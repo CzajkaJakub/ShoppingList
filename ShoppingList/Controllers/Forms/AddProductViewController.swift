@@ -3,11 +3,12 @@ import UIKit
 class AddProductViewController: UIViewController {
     
     private var imageViewHeightConstraint: NSLayoutConstraint?
-    private var selectOptions: [Category] = []
-    private var selectedOption: Category!
-    private var selectedPhoto: UIImage!
+    internal var selectOptions: [Category] = []
+    internal var selectedOption: Category!
+    internal var selectedPhoto: UIImage!
+    internal var editedProduct: Product!
 
-    private let nameTextField: UITextField = {
+    internal let nameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Product Name"
         textField.borderStyle = .roundedRect
@@ -15,7 +16,7 @@ class AddProductViewController: UIViewController {
         return textField
     }()
     
-    let productImageView: UIImageView = {
+    internal let productImageView: UIImageView = {
         let productImageView = UIImageView()
         productImageView.translatesAutoresizingMaskIntoConstraints = false
         productImageView.contentMode = .scaleAspectFit
@@ -24,7 +25,7 @@ class AddProductViewController: UIViewController {
         return productImageView
     }()
     
-    private let kcalTextField: UITextField = {
+    internal let kcalTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Kcal / 100g"
         textField.borderStyle = .roundedRect
@@ -33,7 +34,7 @@ class AddProductViewController: UIViewController {
         return textField
     }()
     
-    private let carboTextField: UITextField = {
+    internal let carboTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Carbo / 100g"
         textField.borderStyle = .roundedRect
@@ -42,7 +43,7 @@ class AddProductViewController: UIViewController {
         return textField
     }()
     
-    private let fatTextField: UITextField = {
+    internal let fatTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Fat / 100g"
         textField.borderStyle = .roundedRect
@@ -51,7 +52,7 @@ class AddProductViewController: UIViewController {
         return textField
     }()
     
-    private let proteinTextField: UITextField = {
+    internal let proteinTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Protein / 100g"
         textField.borderStyle = .roundedRect
@@ -231,9 +232,14 @@ class AddProductViewController: UIViewController {
             return
         }
         
-        // Create a product object with the entered values
-        let product = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
-        Product.addProduct(product: product)
+        
+        if editedProduct != nil {
+            let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
+            Product.updateProduct(product: productToUpdate)
+        } else {
+            let productToSave = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
+            Product.addProduct(product: productToSave)
+        }
         
         // Show an alert or perform any other UI update to indicate successful save
         let alertController = UIAlertController(title: "Success", message: "Product saved successfully.", preferredStyle: .alert)
@@ -258,6 +264,19 @@ class AddProductViewController: UIViewController {
     @objc func dismissKeyboard() {
          view.endEditing(true)
      }
+    
+    func reloadPhoto(){
+        productImageView.image = selectedPhoto
+        
+        if let image = productImageView.image {
+            let maxAllowedHeight = UIScreen.main.bounds.height * 0.35
+            let aspectRatio = image.size.width / image.size.height
+            let imageViewHeight = min(view.frame.width / aspectRatio, maxAllowedHeight)
+    
+            imageViewHeightConstraint = productImageView.heightAnchor.constraint(equalToConstant: imageViewHeight)
+            imageViewHeightConstraint?.isActive = true
+        }
+    }
 }
 
 extension AddProductViewController: UIPickerViewDelegate, UIPickerViewDataSource {
@@ -292,16 +311,7 @@ extension AddProductViewController: UIImagePickerControllerDelegate, UINavigatio
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let image = info[.originalImage] as? UIImage {
             selectedPhoto = image
-            productImageView.image = selectedPhoto
-            
-            if let image = productImageView.image {
-                let maxAllowedHeight = UIScreen.main.bounds.height * 0.35
-                let aspectRatio = image.size.width / image.size.height
-                let imageViewHeight = min(view.frame.width / aspectRatio, maxAllowedHeight)
-        
-                imageViewHeightConstraint = productImageView.heightAnchor.constraint(equalToConstant: imageViewHeight)
-                imageViewHeightConstraint?.isActive = true
-            }
+            reloadPhoto()
         }
         picker.dismiss(animated: true, completion: nil)
     }

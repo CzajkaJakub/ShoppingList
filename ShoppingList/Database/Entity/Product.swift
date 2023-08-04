@@ -71,6 +71,14 @@ class Product {
         Product.products.append(product)
     }
     
+    static func updateProduct(product: Product) {
+        if let index = Product.products.firstIndex(where: { $0.id == product.id }) {
+            Product.products[index] = product
+            DatabaseManager.shared.updateProduct(product: product)
+            Dish.reloadDishesFromDatabase()
+        }
+    }
+    
     static func reloadProductsFromDatabase() {
         Product.products = DatabaseManager.shared.fetchProducts()
     }

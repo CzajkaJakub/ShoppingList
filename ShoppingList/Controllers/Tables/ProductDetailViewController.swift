@@ -5,16 +5,36 @@ import UIKit
 class ProductDetailViewController: UIViewController {
 
     var product: Product!
+    
+    private lazy var editProductButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editProductButtonTapped))
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "\(product.name)"
         setupUI()
     }
+    
+    @objc private func editProductButtonTapped() {
+        let editProductVC = AddProductViewController()
+        editProductVC.editedProduct = product
+        editProductVC.selectedOption = product.category
+        editProductVC.nameTextField.text = product.name
+        editProductVC.carboTextField.text = String(product.carbo)
+        editProductVC.kcalTextField.text = String(product.calories)
+        editProductVC.fatTextField.text = String(product.fat)
+        editProductVC.proteinTextField.text = String(product.protein)
+        editProductVC.selectedPhoto = UIImage(data: Data(product.photo.bytes))
+        editProductVC.reloadPhoto()
+        navigationController?.pushViewController(editProductVC, animated: true)
+    }
 
     private func setupUI() {
         view.backgroundColor = .white
         view.layer.cornerRadius = 16
+        
+        navigationItem.rightBarButtonItems = [editProductButton]
         
         let productImageView = UIImageView()
         productImageView.translatesAutoresizingMaskIntoConstraints = false

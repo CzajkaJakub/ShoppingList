@@ -68,12 +68,18 @@ class Dish {
     }
     
     static func addDish(dish: Dish) {
-        removeDish(dish: dish)
         DatabaseManager.shared.insertDish(dish: dish)
         Dish.dishes.append(dish)
     }
     
     static func reloadDishesFromDatabase() {
         Dish.dishes = DatabaseManager.shared.fetchDishes()
+    }
+    
+    static func updateDish(dish: Dish){
+        if let index = Dish.dishes.firstIndex(where: { $0.id == dish.id }) {
+            Dish.dishes[index] = dish
+            DatabaseManager.shared.updateDish(dish: dish)
+        }
     }
 }
