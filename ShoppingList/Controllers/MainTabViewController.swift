@@ -11,7 +11,7 @@ class MainTabViewController: UITabBarController, UITabBarControllerDelegate {
         vc1.view.backgroundColor = .systemBackground
         vc1.tabBarItem.image = UIImage(systemName: "cart")
         vc1.tabBarItem.title = "Shopping list"
-
+        
         let vc2 = UINavigationController(rootViewController: ProductsViewController())
         vc2.view.backgroundColor = .systemBackground
         vc2.tabBarItem.image = UIImage(systemName: "folder.fill")
@@ -36,15 +36,15 @@ class MainTabViewController: UITabBarController, UITabBarControllerDelegate {
 
 extension MainTabViewController  {
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-
+        
         guard let fromView = selectedViewController?.view, let toView = viewController.view else {
-          return true
+            return true
         }
-
+        
         if fromView != toView {
             UIView.transition(from: fromView, to: toView, duration: 0.4, options: [.transitionCrossDissolve], completion: nil)
         }
-
+        
         return true
     }
 }

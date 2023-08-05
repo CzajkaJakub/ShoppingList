@@ -3,13 +3,17 @@
 import UIKit
 
 class DishDetailViewController: UIViewController {
-
+    
     var dish: Dish!
     
     private lazy var editDishButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editDishButtonTapped))
     }()
-
+    
+    private lazy var eatDishButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(eatDishButtonTapper))
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "\(dish.name)"
@@ -25,12 +29,18 @@ class DishDetailViewController: UIViewController {
         editDishVC.reloadPhoto()
         navigationController?.pushViewController(editDishVC, animated: true)
     }
-
+    
+    @objc private func eatDishButtonTapper() {
+        let eatItem = EatHistory(dateTime: Date.now, amount: nil, product: nil, dish: dish)
+        EatHistory.addItemToEatHistory(eatItem: eatItem)
+        Toast.shared.showToast(message: "\(dish.name) was eaten!", parentView: self.view)
+    }
+    
     private func setupUI() {
         view.backgroundColor = .white
         view.layer.cornerRadius = 16
         
-        navigationItem.rightBarButtonItems = [editDishButton]
+        navigationItem.rightBarButtonItems = [editDishButton, eatDishButton]
         
         let dishImageView = UIImageView()
         dishImageView.translatesAutoresizingMaskIntoConstraints = false

@@ -1,10 +1,3 @@
-//
-//  DatabaseManager.swift
-//  ShoppingList
-//
-//  Created by Patrycja on 09/07/2023.
-//
-
 import Foundation
 import SQLite
 import SQLite3
@@ -21,11 +14,12 @@ class DatabaseManager {
     private var productsToBuyTable = Table("products_to_buy")
     private var productAmountTable = Table("product_amount")
     private var dishTable = Table("dish")
+    private var eatHistoryTable = Table("eat_history")
     
     //Foreign keys columns
     private var categoryId = Expression<Int>("category_id")
-    private var productId = Expression<Int>("product_id")
-    private var dishId = Expression<Int>("dish_id")
+    private var productId = Expression<Int?>("product_id")
+    private var dishId = Expression<Int?>("dish_id")
     
     //Columns
     private var id = Expression<Int>("id")
@@ -36,12 +30,13 @@ class DatabaseManager {
     private var fat = Expression<Double>("fat")
     private var carbo = Expression<Double>("carbo")
     private var categoryName = Expression<String>("category_name")
-    private var amount = Expression<Double>("amount")
-
+    private var amount = Expression<Double?>("amount")
+    private var dateTime = Expression<Int>("date_time")
+    
     private init() {
         let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
             .appendingPathComponent("fitForYou.sqlite")
-
+        
         print(fileURL)
         
         do {
@@ -53,6 +48,7 @@ class DatabaseManager {
             createDishTable()
             createProductsToBuyTable()
             createProductAmountTable()
+            createEatHistoryTable()
         } catch {
             print("Error opening database: \(error)")
             fatalError("Failed to open database")
@@ -216,7 +212,74 @@ class DatabaseManager {
         }
     }
     
+    func createEatHistoryTable(){
+        let createEatHistoryTableQuery = eatHistoryTable.create(ifNotExists: true) { table in
+            table.column(id, primaryKey: .autoincrement)
+            table.column(dateTime)
+            table.column(amount, defaultValue: nil)
+            table.column(productId, defaultValue: nil)
+            table.column(dishId, defaultValue: nil)
+            table.foreignKey(productId, references: productsTable, id, update: .cascade, delete: .cascade)
+            table.foreignKey(dishId, references: dishTable, id, update: .cascade, delete: .cascade)
+        }
+        
+        do {
+            try dbConnection.run(createEatHistoryTableQuery)
+        } catch {
+            print("Error creating eat history table: \(error)")
+        }
+    }
     
+    func insertToEatHistory(eatItem: EatHistory) {
+        let insertEatItemQuery = eatHistoryTable.insert(
+            dateTime <- Int(eatItem.dateTime.timeIntervalSince1970),
+            amount <- eatItem.amount,
+            productId <- eatItem.product?.id,
+            dishId <- eatItem.dish?.id
+        )
+        
+        do {
+            let eatHistoryId = try dbConnection.run(insertEatItemQuery)
+            eatItem.id = Int(eatHistoryId)
+        } catch {
+            print("Error inserting record: \(error)")
+        }
+    }
+    
+    func fetchEatHistory(dateFrom: Date, dateTo: Date) -> [EatHistory] {
+        var eatHistory: [EatHistory] = []
+        
+        let selectQuery = eatHistoryTable
+            .select(
+                eatHistoryTable[id],
+                eatHistoryTable[amount],
+                eatHistoryTable[dateTime],
+                eatHistoryTable[dishId],
+                eatHistoryTable[productId])
+            .filter(eatHistoryTable[dateTime] >= Int(dateFrom.timeIntervalSince1970) && eatHistoryTable[dateTime] <= Int(dateTo.timeIntervalSince1970))
+        
+        do {
+            for row in try dbConnection.prepare(selectQuery) {
+                let eatHistoryId = row[eatHistoryTable[id]]
+                let dateTime = row[eatHistoryTable[dateTime]]
+                
+                if let amount = row[eatHistoryTable[amount]] {
+                    let productId = row[eatHistoryTable[productId]]
+                    let product = fetchProductcById(productIdToFetch: productId!)
+                    eatHistory.append(EatHistory(id: eatHistoryId, dateTime: dateTime, amount: amount, product: product, dish: nil))
+                } else {
+                    let dishIdToFetch = row[eatHistoryTable[dishId]]
+                    let dish = fetchDishById(dishIdToFetch: dishIdToFetch!)
+                    eatHistory.append(EatHistory(id: eatHistoryId, dateTime: dateTime, amount: nil, product: nil, dish: dish))
+                }
+            }
+        } catch {
+            print("Error selecting records: \(error)")
+        }
+        
+        return eatHistory
+    }
+
     func insertProduct(product: Product) {
         let insertQuery = productsTable.insert(
             name <- product.name,
@@ -286,7 +349,7 @@ class DatabaseManager {
                 productCategoriesTable[id], // Use the alias directly instead of categoryId
                 productCategoriesTable[categoryName]
             ).order(productsTable[name])
-
+        
         
         do {
             for row in try dbConnection.prepare(selectQuery) {
@@ -313,6 +376,45 @@ class DatabaseManager {
         }
         
         return products
+    }
+    
+    
+    func fetchProductcById(productIdToFetch: Int) -> Product {
+        var product: Product!
+        
+        let selectQuery = productsTable
+            .join(productCategoriesTable, on: productsTable[categoryId] == productCategoriesTable[id])
+            .select(
+                productsTable[id],
+                productsTable[name],
+                productsTable[photo],
+                productsTable[calories],
+                productsTable[protein],
+                productsTable[fat],
+                productsTable[carbo],
+                productCategoriesTable[id],
+                productCategoriesTable[categoryName]
+            ).filter(productsTable[id] == productIdToFetch)
+        
+        for row in try! dbConnection.prepare(selectQuery) {
+            let dbId = row[productsTable[id]]
+            let name = row[productsTable[name]]
+            let photoBlob = row[productsTable[photo]]
+            let kcal = row[productsTable[calories]]
+            let protein = row[productsTable[protein]]
+            let fat = row[productsTable[fat]]
+            let carbo = row[productsTable[carbo]]
+            let categoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
+            let categoryName = row[productCategoriesTable[categoryName]]
+            
+            // Convert Blob to UIImage
+            let photoData = Data.fromDatatypeValue(photoBlob)
+            let photo = UIImage(data: photoData)
+            
+            let category = Category(id: categoryId, name: categoryName)
+            product = Product(id: dbId, name: name, photo: photo!, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: category)
+        }
+        return product
     }
     
     func fetchProductCategories() -> [Category] {
@@ -390,6 +492,27 @@ class DatabaseManager {
         return dishes
     }
     
+    func fetchDishById(dishIdToFetch: Int) -> Dish {
+        var dish: Dish!
+        let dishFetchQuery = dishTable.join(dishCategoriesTable, on: dishTable[categoryId] == dishCategoriesTable[id]).filter(dishTable[id] == dishIdToFetch)
+
+        for dishRow in try! dbConnection.prepare(dishFetchQuery) {
+            let dishId = dishRow[dishTable[id]]
+            let dishName = dishRow[dishTable[name]]
+            let dishPhoto = dishRow[dishTable[photo]]
+            let dishCategoryId = dishRow[dishCategoriesTable[id]]
+            let dishCategoryName = dishRow[dishCategoriesTable[categoryName]]
+            let dishCategory = Category(id: dishCategoryId, name: dishCategoryName)
+            let productAmountsForDish = fetchProductsAmountForDish(dishIdToSearch: dishId)
+
+            let photoData = Data.fromDatatypeValue(dishPhoto)
+            let photo = UIImage(data: photoData)
+
+            dish = Dish(id: dishId, name: dishName, photo: photo!, productAmounts: productAmountsForDish, category: dishCategory)
+        }
+        return dish
+    }
+    
     func fetchProductsAmountForDish(dishIdToSearch: Int) -> [ProductAmount] {
         var productAmountsForDish: [ProductAmount] = []
         
@@ -419,7 +542,7 @@ class DatabaseManager {
                 let productCategory = Category(id: productCategoryId, name: productCategoryName)
                 let product = Product(id: productId, name: productName, photo: photo!, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: productCategory)
                 
-                let productAmount = ProductAmount(product: product, amount: dishAmount)
+                let productAmount = ProductAmount(product: product, amount: dishAmount!)
                 productAmountsForDish.append(productAmount)
             }
         } catch {
@@ -446,7 +569,7 @@ class DatabaseManager {
     
     func removeProductAmountForDish(dish: Dish){
         let deleteProductAmountQuery = productAmountTable.filter(dishId == dish.id!).delete()
- 
+        
         do {
             try dbConnection.run(deleteProductAmountQuery)
         } catch {
@@ -491,7 +614,7 @@ class DatabaseManager {
     
     func removeDish(dish: Dish) {
         let deleteQueryDish = dishTable.filter(id == dish.id!).delete()
- 
+        
         do {
             try dbConnection.run(deleteQueryDish)
         } catch {
@@ -510,7 +633,7 @@ class DatabaseManager {
             if let existingProduct = try dbConnection.pluck(productsToBuyTable.filter(productId == productToBuy.product.id!)) {
                 // Product exists, perform an update
                 let updateQuery = productsToBuyTable.filter(productId == productToBuy.product.id!)
-                    .update(amount <- existingProduct[amount] + productToBuy.amount)
+                    .update(amount <- existingProduct[amount]! + productToBuy.amount)
                 try dbConnection.run(updateQuery)
             } else {
                 try dbConnection.run(productsToBuyTable.insert(productId <- productToBuy.product.id!,
@@ -548,7 +671,7 @@ class DatabaseManager {
                 
                 let product = Product(id: productId, name: productName, photo: photo!, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: Category(id: productCategoryId, name: productCategoryName))
                 
-                let productAmount = ProductAmount(product: product, amount: productToBuyAmount)
+                let productAmount = ProductAmount(product: product, amount: productToBuyAmount!)
                 productsToBuy.append(productAmount)
             }
             
@@ -563,10 +686,10 @@ class DatabaseManager {
         
         do {
             try dbConnection.run(deleteQueryProductToBuy)
-    
+            
         } catch {
             print("Error removing product: \(error)")
         }
     }
 }
-        
+    

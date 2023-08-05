@@ -1,7 +1,7 @@
 import UIKit
 
 class AddDishViewController: UIViewController, UITableViewDelegate {
-
+    
     private var imageViewHeightConstraint: NSLayoutConstraint?
     internal var selectedPhoto: UIImage!
     internal var selectedProducts: [ProductAmount] = []
@@ -24,7 +24,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         dishImageView.clipsToBounds = true
         return dishImageView
     }()
-
+    
     
     private let selectListTextField: UITextField = {
         let textField = UITextField()
@@ -65,7 +65,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         self.selectListTextField.text = selectedOption.name
         
         navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, addProductButton, showProductsButton, saveButton]
-            
+        
         setupViews()
         setupConstraints()
         
@@ -129,7 +129,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         present(selectListActionSheet, animated: true, completion: nil)
     }
     
-  
+    
     @objc private func selectPhoto() {
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
@@ -162,7 +162,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         
         self.present(imageSourceAlert, animated: true, completion: nil)
     }
-
+    
     @objc private func saveDish() {
         
         guard let name = nameTextField.text,
@@ -216,8 +216,8 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     }
     
     @objc func dismissKeyboard() {
-         view.endEditing(true)
-     }
+        view.endEditing(true)
+    }
     
     func reloadPhoto(){
         dishImageView.image = selectedPhoto
@@ -226,7 +226,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
             let maxAllowedHeight = UIScreen.main.bounds.height * 0.35
             let aspectRatio = image.size.width / image.size.height
             let imageViewHeight = min(view.frame.width / aspectRatio, maxAllowedHeight)
-    
+            
             imageViewHeightConstraint = dishImageView.heightAnchor.constraint(equalToConstant: imageViewHeight)
             imageViewHeightConstraint?.isActive = true
         }
@@ -270,7 +270,7 @@ extension AddDishViewController: UIImagePickerControllerDelegate, UINavigationCo
         }
         picker.dismiss(animated: true, completion: nil)
     }
-
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
     }
@@ -299,7 +299,7 @@ class ProductSelectionViewController: UIViewController {
         let groupedProducts = Dictionary(grouping: Product.products, by: { $0.category.name })
         return groupedProducts.values.sorted(by: { $0[0].category.name < $1[0].category.name })
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -320,12 +320,12 @@ class ProductSelectionViewController: UIViewController {
 extension ProductSelectionViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-         return productsGroupedByCategory.count
-     }
-
-     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-         return productsGroupedByCategory[section].count
-     }
+        return productsGroupedByCategory.count
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return productsGroupedByCategory[section].count
+    }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 64
@@ -338,16 +338,16 @@ extension ProductSelectionViewController: UITableViewDataSource, UITableViewDele
         borderLayer.frame = CGRect(x: 0, y: headerView.frame.height - 1, width: headerView.frame.width, height: 1)
         borderLayer.backgroundColor = UIColor.lightGray.cgColor
         headerView.layer.addSublayer(borderLayer)
-
+        
         let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
         mainLabel.textColor = .systemBlue
         mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
         mainLabel.text = productsGroupedByCategory[section][0].category.name
-
+        
         headerView.addSubview(mainLabel)
         return headerView
     }
-
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 30
     }
@@ -362,8 +362,7 @@ extension ProductSelectionViewController: UITableViewDataSource, UITableViewDele
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let product = productsGroupedByCategory[indexPath.section][indexPath.row]
-
-        // Present an alert to enter the amount of the selected product
+        
         let amountAlert = UIAlertController(title: "Enter Amount", message: nil, preferredStyle: .alert)
         amountAlert.addTextField { textField in
             textField.placeholder = "Enter Amount (grams)"
@@ -372,16 +371,19 @@ extension ProductSelectionViewController: UITableViewDataSource, UITableViewDele
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
-            if let amountText = amountAlert.textFields?.first?.text,
-               let amount = Double(amountText) {
-                self?.delegate?.didSelectProduct(product, amount: amount)
-                Toast.shared.showToast(message: "\(product.name) (\(amount) grams) added!", parentView: self!.view)
+            
+            let passedValueText = amountAlert.textFields?.first?.text!
+            if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
+                self?.delegate?.didSelectProduct(product, amount: passedValue)
+                Toast.shared.showToast(message: "\(product.name) (\(passedValue) grams) added!", parentView: self!.view)
+            } else {
+                Toast.shared.showToast(message: "Wrong value text!", parentView: self!.view)
             }
         }
         
         amountAlert.addAction(cancelAction)
         amountAlert.addAction(addAction)
-        present(amountAlert, animated: true, completion: nil)
+        self.present(amountAlert, animated: true, completion: nil)
     }
 }
 
@@ -393,7 +395,7 @@ class ProductListViewController: UIViewController {
     private weak var tableView: UITableView!
     weak var delegate: ProductListDelegate?
     fileprivate var selectedProducts: [ProductAmount] = []
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -415,12 +417,12 @@ class ProductListViewController: UIViewController {
 extension ProductListViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-         return 1
-     }
-
-     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-         return selectedProducts.count
-     }
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return selectedProducts.count
+    }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 64
@@ -433,16 +435,16 @@ extension ProductListViewController: UITableViewDataSource, UITableViewDelegate 
         borderLayer.frame = CGRect(x: 0, y: headerView.frame.height - 1, width: headerView.frame.width, height: 1)
         borderLayer.backgroundColor = UIColor.lightGray.cgColor
         headerView.layer.addSublayer(borderLayer)
-
+        
         let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
         mainLabel.textColor = .systemBlue
         mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
         mainLabel.text = "Product list"
-
+        
         headerView.addSubview(mainLabel)
         return headerView
     }
-
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 30
     }
@@ -456,7 +458,7 @@ extension ProductListViewController: UITableViewDataSource, UITableViewDelegate 
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-
+        
         let removeProductFromDishAction = UIContextualAction(style: .normal, title: "Remove product") { [weak self] (action, view, completionHandler) in
             self?.delegate?.removeProductFromDishList(productIndex: indexPath.row)
             self?.selectedProducts.remove(at: indexPath.row)
@@ -464,7 +466,7 @@ extension ProductListViewController: UITableViewDataSource, UITableViewDelegate 
             completionHandler(true) // Call the completion handler to indicate that the action was performed
         }
         removeProductFromDishAction.backgroundColor = UIColor.red
-
+        
         let configuration = UISwipeActionsConfiguration(actions: [removeProductFromDishAction])
         configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
         return configuration

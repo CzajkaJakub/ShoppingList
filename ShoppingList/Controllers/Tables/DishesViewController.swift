@@ -1,7 +1,7 @@
 import UIKit
 
 class DishesViewController: UIViewController {
-
+    
     private let dishesTable: UITableView = {
         let dishesTable = UITableView()
         dishesTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
@@ -21,7 +21,7 @@ class DishesViewController: UIViewController {
         super.viewWillAppear(animated)
         reloadDishes()
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Dishes"
@@ -51,12 +51,12 @@ class DishesViewController: UIViewController {
 extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-         return dishesGroupedByCategory.count
-     }
-
-     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-         return dishesGroupedByCategory[section].count
-     }
+        return dishesGroupedByCategory.count
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return dishesGroupedByCategory[section].count
+    }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 64
@@ -69,20 +69,20 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         borderLayer.frame = CGRect(x: 0, y: headerView.frame.height - 1, width: headerView.frame.width, height: 1)
         borderLayer.backgroundColor = UIColor.lightGray.cgColor
         headerView.layer.addSublayer(borderLayer)
-
+        
         let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
         mainLabel.textColor = .systemBlue
         mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
         mainLabel.text = dishesGroupedByCategory[section][0].category.name
-
+        
         headerView.addSubview(mainLabel)
         return headerView
     }
-
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 30
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = dishesTable.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
@@ -99,15 +99,15 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         detailsLabel.textColor = .gray
         detailsLabel.text = "Calories: \(dish.calories) Carbs: \(dish.carbo) Fat: \(dish.fat) Protein \(dish.proteins)"
         cell.contentView.addSubview(detailsLabel)
-    
+        
         
         NSLayoutConstraint.activate([
-                nameLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
-                nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
-                
-                detailsLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
-                detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10),
-            ])
+            nameLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
+            nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
+            
+            detailsLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
+            detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10),
+        ])
         return cell
     }
     
@@ -124,14 +124,14 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
             completionHandler(true) // Call the completion handler to indicate that the action was performed
         }
         addDishToShoppingListAction.backgroundColor = .blue // Customize the action button background color
-
+        
         let configuration = UISwipeActionsConfiguration(actions: [addDishToShoppingListAction])
         configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
         return configuration
     }
-
+    
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-
+        
         let removeDishAction = UIContextualAction(style: .normal, title: "Remove dish") { [weak self] (action, view, completionHandler) in
             let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to remove this dish?", preferredStyle: .alert)
             let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -160,7 +160,7 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         dishDetailViewController.dish = selectedDish
         navigationController?.pushViewController(dishDetailViewController, animated: true)
     }
-
+    
     func removeDish(at indexPath: IndexPath) {
         let dish = dishesGroupedByCategory[indexPath.section][indexPath.row]
         Dish.removeDish(dish: dish)

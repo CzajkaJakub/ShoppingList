@@ -41,12 +41,12 @@ class ShoppingListViewController: UIViewController {
 extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-         return productsToBuyGroupedByCategory.count
-     }
-
-     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-         return productsToBuyGroupedByCategory[section].count
-     }
+        return productsToBuyGroupedByCategory.count
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return productsToBuyGroupedByCategory[section].count
+    }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 64
@@ -59,16 +59,16 @@ extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource
         borderLayer.frame = CGRect(x: 0, y: headerView.frame.height - 1, width: headerView.frame.width, height: 1)
         borderLayer.backgroundColor = UIColor.lightGray.cgColor
         headerView.layer.addSublayer(borderLayer)
-
+        
         let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
         mainLabel.textColor = .systemBlue
         mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
         mainLabel.text = productsToBuyGroupedByCategory[section][0].product.category.name
-
+        
         headerView.addSubview(mainLabel)
         return headerView
     }
-
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 30
     }
@@ -91,18 +91,18 @@ extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource
         cell.contentView.addSubview(detailsLabel)
         
         NSLayoutConstraint.activate([
-                nameLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
-                nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
-                
-                detailsLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
-                detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10)
-            ])
+            nameLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
+            nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
+            
+            detailsLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
+            detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10)
+        ])
         
         return cell
     }
-
+    
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-
+        
         let removeDishAction = UIContextualAction(style: .normal, title: "Remove product") { [weak self] (action, view, completionHandler) in
             self?.removeProductToBuy(at: indexPath)
             completionHandler(true) // Call the completion handler to indicate that the action was performed
@@ -113,7 +113,7 @@ extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource
         configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
         return configuration
     }
-
+    
     func removeProductToBuy(at indexPath: IndexPath) {
         let productToRemove = productsToBuyGroupedByCategory[indexPath.section][indexPath.row]
         ProductAmount.removeProductToBuy(productToBuy: productToRemove)

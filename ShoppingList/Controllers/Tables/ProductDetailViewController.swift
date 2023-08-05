@@ -3,13 +3,17 @@
 import UIKit
 
 class ProductDetailViewController: UIViewController {
-
+    
     var product: Product!
     
     private lazy var editProductButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editProductButtonTapped))
     }()
-
+    
+    private lazy var eatButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(eatProductButtonTapped))
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "\(product.name)"
@@ -28,12 +32,37 @@ class ProductDetailViewController: UIViewController {
         editProductVC.reloadPhoto()
         navigationController?.pushViewController(editProductVC, animated: true)
     }
-
+    
+    @objc private func eatProductButtonTapped() {
+        let amountAlert = UIAlertController(title: "Enter Amount", message: nil, preferredStyle: .alert)
+        amountAlert.addTextField { textField in
+            textField.placeholder = "Enter Amount (grams)"
+            textField.keyboardType = .decimalPad
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
+            
+            let passedValueText = amountAlert.textFields?.first?.text!
+            if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
+                let eatItem = EatHistory(dateTime: Date.now, amount: passedValue, product: self!.product, dish: nil)
+                EatHistory.addItemToEatHistory(eatItem: eatItem)
+                Toast.shared.showToast(message: "\(self!.product.name) was eaten!", parentView: self!.view)
+            } else {
+                Toast.shared.showToast(message: "Wrong value text!", parentView: self!.view)
+            }
+        }
+        
+        amountAlert.addAction(cancelAction)
+        amountAlert.addAction(addAction)
+        self.present(amountAlert, animated: true, completion: nil)
+    }
+    
     private func setupUI() {
         view.backgroundColor = .white
         view.layer.cornerRadius = 16
         
-        navigationItem.rightBarButtonItems = [editProductButton]
+        navigationItem.rightBarButtonItems = [editProductButton, eatButton]
         
         let productImageView = UIImageView()
         productImageView.translatesAutoresizingMaskIntoConstraints = false

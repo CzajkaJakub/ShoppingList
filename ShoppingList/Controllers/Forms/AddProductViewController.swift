@@ -7,7 +7,7 @@ class AddProductViewController: UIViewController {
     internal var selectedOption: Category!
     internal var selectedPhoto: UIImage!
     internal var editedProduct: Product!
-
+    
     internal let nameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Product Name"
@@ -81,7 +81,7 @@ class AddProductViewController: UIViewController {
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -117,7 +117,7 @@ class AddProductViewController: UIViewController {
     
     private func setupConstraints() {
         let margin: CGFloat = 16
-
+        
         NSLayoutConstraint.activate([
             productImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             productImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -213,25 +213,20 @@ class AddProductViewController: UIViewController {
         
         self.present(imageSourceAlert, animated: true, completion: nil)
     }
-
-
+    
+    
     @objc private func saveProduct() {
         
         guard let name = nameTextField.text,
               let photo = selectedPhoto,
-              let kcalText = kcalTextField.text,
-              let carboText = carboTextField.text,
-              let fatText = fatTextField.text,
-              let proteinText = proteinTextField.text,
-              let kcal = Double(kcalText.replacingOccurrences(of: ",", with: ".")),
-              let carbo = Double(carboText.replacingOccurrences(of: ",", with: ".")),
-              let fat = Double(fatText.replacingOccurrences(of: ",", with: ".")),
-              let protein = Double(proteinText.replacingOccurrences(of: ",", with: "."))
+              let kcal = StringUtils.convertTextFieldToDouble(stringValue: kcalTextField.text!),
+              let carbo = StringUtils.convertTextFieldToDouble(stringValue: carboTextField.text!),
+              let fat = StringUtils.convertTextFieldToDouble(stringValue: fatTextField.text!),
+              let protein = StringUtils.convertTextFieldToDouble(stringValue: proteinTextField.text!)
         else {
             Toast.shared.showToast(message: "Invalid input", parentView: self.view)
             return
         }
-        
         
         if editedProduct != nil {
             let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
@@ -267,8 +262,8 @@ class AddProductViewController: UIViewController {
     }
     
     @objc func dismissKeyboard() {
-         view.endEditing(true)
-     }
+        view.endEditing(true)
+    }
     
     func reloadPhoto(){
         productImageView.image = selectedPhoto
@@ -277,7 +272,7 @@ class AddProductViewController: UIViewController {
             let maxAllowedHeight = UIScreen.main.bounds.height * 0.35
             let aspectRatio = image.size.width / image.size.height
             let imageViewHeight = min(view.frame.width / aspectRatio, maxAllowedHeight)
-    
+            
             imageViewHeightConstraint = productImageView.heightAnchor.constraint(equalToConstant: imageViewHeight)
             imageViewHeightConstraint?.isActive = true
         }
@@ -320,7 +315,7 @@ extension AddProductViewController: UIImagePickerControllerDelegate, UINavigatio
         }
         picker.dismiss(animated: true, completion: nil)
     }
-
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
     }
