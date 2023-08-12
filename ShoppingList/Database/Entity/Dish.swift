@@ -37,7 +37,7 @@ class Dish {
     init(name: String, photo: UIImage, productAmounts: [ProductAmount], category: Category) {
         self.id = nil
         self.name = name
-        self.photo = photo.jpegData(compressionQuality: 0.4)!.toBlob()
+        self.photo = photo.jpegData(compressionQuality: 0.1)!.toBlob()
         self.category = category
         self.productAmounts = productAmounts
         self._calories = productAmounts.map {$0.product.calories * $0.amount / 100}.reduce(0, +)
@@ -49,7 +49,7 @@ class Dish {
     init(id: Int, name: String, photo: UIImage, productAmounts: [ProductAmount], category: Category) {
         self.id = id
         self.name = name
-        self.photo = photo.jpegData(compressionQuality: 0.4)!.toBlob()
+        self.photo = photo.jpegData(compressionQuality: 0.1)!.toBlob()
         self.category = category
         self.productAmounts = productAmounts
         self._calories = productAmounts.map {$0.product.calories * $0.amount / 100}.reduce(0, +)

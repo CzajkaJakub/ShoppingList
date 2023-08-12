@@ -12,10 +12,12 @@
 		0C0554052A5C3E4E00DFECAB /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0554042A5C3E4E00DFECAB /* Toast.swift */; };
 		0C0624D22A60680D00E5E36F /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 0C0624D12A60680D00E5E36F /* SQLite */; };
 		0C19A2F92A74FA59002D15F8 /* ProductDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C19A2F82A74FA59002D15F8 /* ProductDetailViewController.swift */; };
+		0C3AEDE02A7FF84E000F77A3 /* EatHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3AEDDF2A7FF84E000F77A3 /* EatHistoryViewController.swift */; };
 		0C5FB0E42A631D5B00B609CF /* Dish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5FB0E32A631D5B00B609CF /* Dish.swift */; };
 		0C5FB0E62A631F2100B609CF /* ProductAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5FB0E52A631F2100B609CF /* ProductAmount.swift */; };
 		0C63C8842A7BBD3200CFDCD2 /* PhotoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C63C8832A7BBD3200CFDCD2 /* PhotoData.swift */; };
 		0C98E2392A7E8E4F00A33054 /* StringUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C98E2382A7E8E4F00A33054 /* StringUtils.swift */; };
+		0C9AA1532A87CAAB001F8FF4 /* UILabelPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C9AA1522A87CAAB001F8FF4 /* UILabelPadding.swift */; };
 		0CC7D17F2A5AE2E7005DB139 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D17E2A5AE2E7005DB139 /* AppDelegate.swift */; };
 		0CC7D1812A5AE2E7005DB139 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1802A5AE2E7005DB139 /* SceneDelegate.swift */; };
 		0CC7D1862A5AE2E7005DB139 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0CC7D1842A5AE2E7005DB139 /* Main.storyboard */; };
@@ -37,10 +39,12 @@
 		0C0554012A5C3AB100DFECAB /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		0C0554042A5C3E4E00DFECAB /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 		0C19A2F82A74FA59002D15F8 /* ProductDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductDetailViewController.swift; sourceTree = "<group>"; };
+		0C3AEDDF2A7FF84E000F77A3 /* EatHistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistoryViewController.swift; sourceTree = "<group>"; };
 		0C5FB0E32A631D5B00B609CF /* Dish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dish.swift; sourceTree = "<group>"; };
 		0C5FB0E52A631F2100B609CF /* ProductAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductAmount.swift; sourceTree = "<group>"; };
 		0C63C8832A7BBD3200CFDCD2 /* PhotoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoData.swift; sourceTree = "<group>"; };
 		0C98E2382A7E8E4F00A33054 /* StringUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtils.swift; sourceTree = "<group>"; };
+		0C9AA1522A87CAAB001F8FF4 /* UILabelPadding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UILabelPadding.swift; sourceTree = "<group>"; };
 		0CC7D17B2A5AE2E7005DB139 /* ShoppingList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShoppingList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CC7D17E2A5AE2E7005DB139 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0CC7D1802A5AE2E7005DB139 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -89,6 +93,7 @@
 				0C63C8832A7BBD3200CFDCD2 /* PhotoData.swift */,
 				0C0554042A5C3E4E00DFECAB /* Toast.swift */,
 				0C98E2382A7E8E4F00A33054 /* StringUtils.swift */,
+				0C9AA1522A87CAAB001F8FF4 /* UILabelPadding.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -101,6 +106,7 @@
 				0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */,
 				0C19A2F82A74FA59002D15F8 /* ProductDetailViewController.swift */,
 				0CE66F732A76738500971742 /* DishDetailViewController.swift */,
+				0C3AEDDF2A7FF84E000F77A3 /* EatHistoryViewController.swift */,
 			);
 			path = Tables;
 			sourceTree = "<group>";
@@ -255,6 +261,7 @@
 				0C19A2F92A74FA59002D15F8 /* ProductDetailViewController.swift in Sources */,
 				0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */,
 				0CC7D1A22A5B2D2F005DB139 /* DishesViewController.swift in Sources */,
+				0C3AEDE02A7FF84E000F77A3 /* EatHistoryViewController.swift in Sources */,
 				0CC7D1962A5AE32D005DB139 /* DatabaseManager.swift in Sources */,
 				0CC7D19E2A5B2D0F005DB139 /* ProductsViewController.swift in Sources */,
 				0CC7D19C2A5B2CFF005DB139 /* AddProductViewController.swift in Sources */,
@@ -267,6 +274,7 @@
 				0CC7D1A42A5B3360005DB139 /* MainTabViewController.swift in Sources */,
 				0C5FB0E42A631D5B00B609CF /* Dish.swift in Sources */,
 				0CDF372C2A7E729300EB2A88 /* EatHistory.swift in Sources */,
+				0C9AA1532A87CAAB001F8FF4 /* UILabelPadding.swift in Sources */,
 				0C0554022A5C3AB100DFECAB /* Category.swift in Sources */,
 				0C5FB0E62A631F2100B609CF /* ProductAmount.swift in Sources */,
 			);

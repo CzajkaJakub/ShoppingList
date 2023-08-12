@@ -36,7 +36,7 @@ class Product {
     init(name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, category: Category) {
         self.id = nil
         self.name = name
-        self.photo = photo.jpegData(compressionQuality: 0.4)!.toBlob()
+        self.photo = photo.jpegData(compressionQuality: 0.1)!.toBlob()
         self.category = category
         self._calories = kcal
         self._carbo = carbo
@@ -47,7 +47,7 @@ class Product {
     init(id: Int, name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, category: Category) {
         self.id = id
         self.name = name
-        self.photo = photo.jpegData(compressionQuality: 0.4)!.toBlob()
+        self.photo = photo.jpegData(compressionQuality: 0.1)!.toBlob()
         self.category = category
         self._calories = kcal
         self._carbo = carbo
@@ -76,6 +76,7 @@ class Product {
             Product.products[index] = product
             DatabaseManager.shared.updateProduct(product: product)
             Dish.reloadDishesFromDatabase()
+            ProductAmount.reloadProductsToBuyFromDatabase()
         }
     }
     

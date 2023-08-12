@@ -48,7 +48,7 @@ class DatabaseManager {
             createDishTable()
             createProductsToBuyTable()
             createProductAmountTable()
-            createEatHistoryTable()
+//            createEatHistoryTable()
         } catch {
             print("Error opening database: \(error)")
             fatalError("Failed to open database")
@@ -262,13 +262,14 @@ class DatabaseManager {
             for row in try dbConnection.prepare(selectQuery) {
                 let eatHistoryId = row[eatHistoryTable[id]]
                 let dateTime = row[eatHistoryTable[dateTime]]
+                let productId = row[eatHistoryTable[productId]]
+                let dishIdToFetch = row[eatHistoryTable[dishId]]
+                let amount = row[eatHistoryTable[amount]]
                 
-                if let amount = row[eatHistoryTable[amount]] {
-                    let productId = row[eatHistoryTable[productId]]
+                if true {
                     let product = fetchProductcById(productIdToFetch: productId!)
                     eatHistory.append(EatHistory(id: eatHistoryId, dateTime: dateTime, amount: amount, product: product, dish: nil))
                 } else {
-                    let dishIdToFetch = row[eatHistoryTable[dishId]]
                     let dish = fetchDishById(dishIdToFetch: dishIdToFetch!)
                     eatHistory.append(EatHistory(id: eatHistoryId, dateTime: dateTime, amount: nil, product: nil, dish: dish))
                 }

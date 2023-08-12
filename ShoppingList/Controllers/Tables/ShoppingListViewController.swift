@@ -49,7 +49,7 @@ extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 64
+        return 56
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -83,19 +83,42 @@ extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource
         nameLabel.text = "\(productAmounts.product.name)"
         cell.contentView.addSubview(nameLabel)
         
-        let detailsLabel = UILabel()
+        let detailsLabel = UILabelPadding()
         detailsLabel.translatesAutoresizingMaskIntoConstraints = false
-        detailsLabel.font = UIFont.systemFont(ofSize: 12)
-        detailsLabel.textColor = .gray
-        detailsLabel.text = "Amount: \(productAmounts.amount)"
+        detailsLabel.font = UIFont.systemFont(ofSize: 13)
+        detailsLabel.textColor = .black
+        detailsLabel.text = "\(productAmounts.amount) gr"
+        
+        // Set up rounded border
+        detailsLabel.layer.cornerRadius = 10.0 // Adjust the radius as needed for your design
+        detailsLabel.layer.borderWidth = 1.3  // Width of the border
+        detailsLabel.layer.borderColor = UIColor.gray.cgColor // Color of the border
         cell.contentView.addSubview(detailsLabel)
         
+        let productImageView = UIImageView()
+        productImageView.translatesAutoresizingMaskIntoConstraints = false
+        productImageView.contentMode = .scaleAspectFit
+        productImageView.layer.cornerRadius = 4
+        productImageView.clipsToBounds = true
+        
+        let productPhoto = productAmounts.product.photo
+        let photoData = Data.fromDatatypeValue(productPhoto)
+        let photo = UIImage(data: photoData)
+        productImageView.image = photo
+        cell.contentView.addSubview(productImageView)
+        
         NSLayoutConstraint.activate([
-            nameLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
-            nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
+            productImageView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
+            productImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+            productImageView.heightAnchor.constraint(equalTo: cell.contentView.heightAnchor, constant: -6),
+            productImageView.widthAnchor.constraint(equalTo: productImageView.heightAnchor, multiplier: photo!.size.width / photo!.size.height),
+  
             
-            detailsLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
-            detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10)
+            nameLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
+            nameLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+
+            detailsLabel.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -10),
+            detailsLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
         ])
         
         return cell
