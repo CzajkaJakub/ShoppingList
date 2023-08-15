@@ -19,8 +19,8 @@ class AddProductViewController: UIViewController {
     internal let productImageView: UIImageView = {
         let productImageView = UIImageView()
         productImageView.translatesAutoresizingMaskIntoConstraints = false
-        productImageView.contentMode = .scaleAspectFit
-        productImageView.layer.cornerRadius = 8
+        productImageView.contentMode = .scaleAspectFill
+        productImageView.layer.cornerRadius = 12
         productImageView.clipsToBounds = true
         return productImageView
     }()
@@ -89,12 +89,11 @@ class AddProductViewController: UIViewController {
         view.backgroundColor = .white
         view.layer.cornerRadius = 16
         
-        self.selectedOption = self.editedProduct == nil ? Category.productCategories.first : self.editedProduct.category
+        if self.selectedOption == nil { self.selectedOption = Category.productCategories.first }
         self.selectListTextField.text = selectedOption.name
         
         navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, saveButton]
         
-        setupViews()
         setupConstraints()
         
         let tapGestureKeyboard = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -105,54 +104,20 @@ class AddProductViewController: UIViewController {
         selectListTextField.isUserInteractionEnabled = true
     }
     
-    private func setupViews() {
-        view.addSubview(nameTextField)
-        view.addSubview(kcalTextField)
-        view.addSubview(carboTextField)
-        view.addSubview(fatTextField)
-        view.addSubview(proteinTextField)
-        view.addSubview(productImageView)
-        view.addSubview(selectListTextField)
-    }
-    
     private func setupConstraints() {
-        let margin: CGFloat = 16
         
+        let stackView = UIStackView(arrangedSubviews: [productImageView, nameTextField, kcalTextField, proteinTextField, fatTextField, carboTextField, selectListTextField])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = TableViewComponent.stackViewAxis
+        stackView.spacing = TableViewComponent.stackViewSpacing
+        
+        view.addSubview(stackView)
+            
         NSLayoutConstraint.activate([
-            productImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            productImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            productImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            productImageView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40),
-            
-            nameTextField.topAnchor.constraint(equalTo: productImageView.bottomAnchor, constant: margin),
-            nameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            nameTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            kcalTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: margin),
-            kcalTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            kcalTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            kcalTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            proteinTextField.topAnchor.constraint(equalTo: kcalTextField.bottomAnchor, constant: margin),
-            proteinTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            proteinTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            proteinTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            fatTextField.topAnchor.constraint(equalTo: proteinTextField.bottomAnchor, constant: margin),
-            fatTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            fatTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            fatTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            carboTextField.topAnchor.constraint(equalTo: fatTextField.bottomAnchor, constant: margin),
-            carboTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            carboTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            carboTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            selectListTextField.topAnchor.constraint(equalTo: carboTextField.bottomAnchor, constant: margin),
-            selectListTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            selectListTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            selectListTextField.heightAnchor.constraint(equalToConstant: 40),
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: TableViewComponent.detailsComponentMargin),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: TableViewComponent.detailsComponentMargin),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -TableViewComponent.detailsComponentMargin),
+            stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -TableViewComponent.detailsComponentMargin)
         ])
     }
     
@@ -224,12 +189,14 @@ class AddProductViewController: UIViewController {
               let fat = StringUtils.convertTextFieldToDouble(stringValue: fatTextField.text!),
               let protein = StringUtils.convertTextFieldToDouble(stringValue: proteinTextField.text!)
         else {
-            Toast.shared.showToast(message: "Invalid input", parentView: self.view)
+            Toast.showToast(message: "Invalid input", parentView: self.view)
             return
         }
         
+        let photoBlob = try! PhotoData.convertUIImageToResizedBlob(imageToResize: selectedPhoto)
+        
         if editedProduct != nil {
-            let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
+            let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
             Product.updateProduct(product: productToUpdate)
         } else {
             let productToSave = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
@@ -272,6 +239,8 @@ class AddProductViewController: UIViewController {
             let maxAllowedHeight = UIScreen.main.bounds.height * 0.35
             let aspectRatio = image.size.width / image.size.height
             let imageViewHeight = min(view.frame.width / aspectRatio, maxAllowedHeight)
+            
+    
             
             imageViewHeightConstraint = productImageView.heightAnchor.constraint(equalToConstant: imageViewHeight)
             imageViewHeightConstraint?.isActive = true

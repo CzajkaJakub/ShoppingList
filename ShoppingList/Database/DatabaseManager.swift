@@ -364,12 +364,8 @@ class DatabaseManager {
                 let categoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
                 let categoryName = row[productCategoriesTable[categoryName]]
                 
-                // Convert Blob to UIImage
-                let photoData = Data.fromDatatypeValue(photoBlob)
-                let photo = UIImage(data: photoData)
-                
                 let category = Category(id: categoryId, name: categoryName)
-                let product = Product(id: dbId, name: name, photo: photo!, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: category)
+                let product = Product(id: dbId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: category)
                 products.append(product)
             }
         } catch {
@@ -400,7 +396,7 @@ class DatabaseManager {
         for row in try! dbConnection.prepare(selectQuery) {
             let dbId = row[productsTable[id]]
             let name = row[productsTable[name]]
-            let photoBlob = row[productsTable[photo]]
+            let photo = row[productsTable[photo]]
             let kcal = row[productsTable[calories]]
             let protein = row[productsTable[protein]]
             let fat = row[productsTable[fat]]
@@ -408,12 +404,8 @@ class DatabaseManager {
             let categoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
             let categoryName = row[productCategoriesTable[categoryName]]
             
-            // Convert Blob to UIImage
-            let photoData = Data.fromDatatypeValue(photoBlob)
-            let photo = UIImage(data: photoData)
-            
             let category = Category(id: categoryId, name: categoryName)
-            product = Product(id: dbId, name: name, photo: photo!, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: category)
+            product = Product(id: dbId, name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: category)
         }
         return product
     }
@@ -481,10 +473,7 @@ class DatabaseManager {
                 let dishCategory = Category(id: dishCategoryId, name: dishCategoryName)
                 let productAmountsForDish = fetchProductsAmountForDish(dishIdToSearch: dishId)
                 
-                let photoData = Data.fromDatatypeValue(dishPhoto)
-                let photo = UIImage(data: photoData)
-                
-                dishes.append(Dish(id: dishId, name: dishName, photo: photo!, productAmounts: productAmountsForDish, category: dishCategory))
+                dishes.append(Dish(id: dishId, name: dishName, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory))
                 
             }
         } catch {
@@ -506,10 +495,7 @@ class DatabaseManager {
             let dishCategory = Category(id: dishCategoryId, name: dishCategoryName)
             let productAmountsForDish = fetchProductsAmountForDish(dishIdToSearch: dishId)
 
-            let photoData = Data.fromDatatypeValue(dishPhoto)
-            let photo = UIImage(data: photoData)
-
-            dish = Dish(id: dishId, name: dishName, photo: photo!, productAmounts: productAmountsForDish, category: dishCategory)
+            dish = Dish(id: dishId, name: dishName, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory)
         }
         return dish
     }
@@ -527,7 +513,7 @@ class DatabaseManager {
             for productRow in try dbConnection.prepare(productsForDishQuery) {
                 let productId = productRow[productsTable[id]]
                 let productName = productRow[productsTable[name]]
-                let productPhotoBlob = productRow[productsTable[photo]]
+                let productPhoto = productRow[productsTable[photo]]
                 let productKcal = productRow[productsTable[calories]]
                 let productProtein = productRow[productsTable[protein]]
                 let productFat = productRow[productsTable[fat]]
@@ -537,11 +523,8 @@ class DatabaseManager {
                 
                 let dishAmount = productRow[productAmountTable[amount]]
                 
-                let photoData = Data.fromDatatypeValue(productPhotoBlob)
-                let photo = UIImage(data: photoData)
-                
                 let productCategory = Category(id: productCategoryId, name: productCategoryName)
-                let product = Product(id: productId, name: productName, photo: photo!, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: productCategory)
+                let product = Product(id: productId, name: productName, photo: productPhoto, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: productCategory)
                 
                 let productAmount = ProductAmount(product: product, amount: dishAmount!)
                 productAmountsForDish.append(productAmount)
@@ -657,7 +640,7 @@ class DatabaseManager {
                 
                 let productId = row[productsTable[id]]
                 let productName = row[productsTable[name]]
-                let productPhotoBlob = row[productsTable[photo]]
+                let productPhoto = row[productsTable[photo]]
                 let productKcal = row[productsTable[calories]]
                 let productProtein = row[productsTable[protein]]
                 let productFat = row[productsTable[fat]]
@@ -667,10 +650,7 @@ class DatabaseManager {
                 
                 let productToBuyAmount = row[productsToBuyTable[amount]]
                 
-                let photoData = Data.fromDatatypeValue(productPhotoBlob)
-                let photo = UIImage(data: photoData)
-                
-                let product = Product(id: productId, name: productName, photo: photo!, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: Category(id: productCategoryId, name: productCategoryName))
+                let product = Product(id: productId, name: productName, photo: productPhoto, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: Category(id: productCategoryId, name: productCategoryName))
                 
                 let productAmount = ProductAmount(product: product, amount: productToBuyAmount!)
                 productsToBuy.append(productAmount)

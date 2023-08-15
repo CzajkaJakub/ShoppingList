@@ -19,8 +19,8 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     let dishImageView: UIImageView = {
         let dishImageView = UIImageView()
         dishImageView.translatesAutoresizingMaskIntoConstraints = false
-        dishImageView.contentMode = .scaleAspectFit
-        dishImageView.layer.cornerRadius = 8
+        dishImageView.contentMode = .scaleAspectFill
+        dishImageView.layer.cornerRadius = 12
         dishImageView.clipsToBounds = true
         return dishImageView
     }()
@@ -61,12 +61,11 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         view.backgroundColor = .white
         view.layer.cornerRadius = 16
         
-        self.selectedOption = self.editedDish == nil ? Category.dishCategories.first : self.editedDish.category
+        if self.selectedOption == nil { self.selectedOption = Category.dishCategories.first }
         self.selectListTextField.text = selectedOption.name
         
         navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, addProductButton, showProductsButton, saveButton]
         
-        setupViews()
         setupConstraints()
         
         let tapGestureKeyboard = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -77,30 +76,20 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         selectListTextField.isUserInteractionEnabled = true
     }
     
-    private func setupViews() {
-        view.addSubview(nameTextField)
-        view.addSubview(dishImageView)
-        view.addSubview(selectListTextField)
-    }
-    
     private func setupConstraints() {
-        let margin: CGFloat = 16
         
+        let stackView = UIStackView(arrangedSubviews: [dishImageView, nameTextField, selectListTextField])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = TableViewComponent.stackViewAxis
+        stackView.spacing = TableViewComponent.stackViewSpacing
+        
+        view.addSubview(stackView)
+            
         NSLayoutConstraint.activate([
-            selectListTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin),
-            selectListTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            selectListTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            selectListTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            nameTextField.topAnchor.constraint(equalTo: selectListTextField.bottomAnchor, constant: margin),
-            nameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-            nameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            nameTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            dishImageView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 20),
-            dishImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            dishImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            dishImageView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40),
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: TableViewComponent.detailsComponentMargin),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: TableViewComponent.detailsComponentMargin),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -TableViewComponent.detailsComponentMargin),
+            stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -TableViewComponent.detailsComponentMargin)
         ])
     }
     
@@ -169,12 +158,14 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
               let photo = selectedPhoto,
               let category = selectedOption
         else {
-            Toast.shared.showToast(message: "Invalid input", parentView: self.view)
+            Toast.showToast(message: "Invalid input", parentView: self.view)
             return
         }
         
+        let photoBlob = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)
+        
         if editedDish != nil {
-            let dishToUpdate = Dish(id: editedDish.id!, name: name, photo: photo, productAmounts: selectedProducts, category: category)
+            let dishToUpdate = Dish(id: editedDish.id!, name: name, photo: photoBlob, productAmounts: selectedProducts, category: category)
             Dish.updateDish(dish: dishToUpdate)
         } else {
             let dishToSave = Dish(name: name, photo: photo, productAmounts: selectedProducts, category: category)
@@ -375,9 +366,9 @@ extension ProductSelectionViewController: UITableViewDataSource, UITableViewDele
             let passedValueText = amountAlert.textFields?.first?.text!
             if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
                 self?.delegate?.didSelectProduct(product, amount: passedValue)
-                Toast.shared.showToast(message: "\(product.name) (\(passedValue) grams) added!", parentView: self!.view)
+                Toast.showToast(message: "\(product.name) (\(passedValue) grams) added!", parentView: self!.view)
             } else {
-                Toast.shared.showToast(message: "Wrong value text!", parentView: self!.view)
+                Toast.showToast(message: "Wrong value text!", parentView: self!.view)
             }
         }
         

@@ -1,10 +1,9 @@
 import UIKit
 
 public class Toast {
-    static let shared = Toast()
     
-    public func showToast(message: String, parentView: UIView) {
-        let toastLabel = UILabel(frame: CGRect(x: 30, y: parentView.frame.size.height - 100, width:  parentView.frame.size.width - 60, height: 35))
+    public static func showToast(message: String, parentView: UIView) {
+        let toastLabel = UILabel(frame: CGRect(x: 30, y: parentView.frame.size.height - 130, width:  parentView.frame.size.width - 60, height: 35))
         toastLabel.backgroundColor = UIColor.black.withAlphaComponent(0.6)
         toastLabel.textColor = UIColor.white
         toastLabel.font = UIFont.systemFont(ofSize: 16)

@@ -23,9 +23,13 @@ class DishesViewController: UIViewController {
         return UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(showSearchAlert))
     }()
     
+    private lazy var clearSearchButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(clearSearchTerm))
+    }()
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.filterDishes(searchTerm: nil)
+        self.clearSearchTerm()
     }
     
     override func viewDidLoad() {
@@ -36,6 +40,7 @@ class DishesViewController: UIViewController {
         dishesTable.dataSource = self
         
         navigationItem.rightBarButtonItems = [addDishButton, searchButton]
+        navigationItem.leftBarButtonItems = [clearSearchButton]
         
         view.addSubview(dishesTable)
         
@@ -57,6 +62,10 @@ class DishesViewController: UIViewController {
         navigationController?.pushViewController(AddDishViewController(), animated: true)
     }
     
+    @objc private func clearSearchTerm() {
+        self.filterDishes(searchTerm: nil)
+    }
+    
     private func openDishViewController(editMode: Bool, dish: Dish){
         let editDishVC = AddDishViewController()
         
@@ -66,7 +75,8 @@ class DishesViewController: UIViewController {
         
         editDishVC.selectedProducts = dish.productAmounts
         editDishVC.nameTextField.text = dish.name
-        editDishVC.selectedPhoto = UIImage(data: Data(dish.photo.bytes))
+        editDishVC.selectedPhoto = PhotoData.blobToUIImage(photoBlob: dish.photo)
+        editDishVC.selectedOption = dish.category
         editDishVC.reloadPhoto()
         navigationController?.pushViewController(editDishVC, animated: true)
     }
@@ -145,28 +155,15 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 64
+        return TableViewComponent.tableCellHeight
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 30))
-        
-        let borderLayer = CALayer()
-        borderLayer.frame = CGRect(x: 0, y: headerView.frame.height - 1, width: headerView.frame.width, height: 1)
-        borderLayer.backgroundColor = UIColor.lightGray.cgColor
-        headerView.layer.addSublayer(borderLayer)
-        
-        let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
-        mainLabel.textColor = .systemBlue
-        mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        mainLabel.text = filteredDishesGroupedByCategory[section][0].category.name
-        
-        headerView.addSubview(mainLabel)
-        return headerView
+        return TableViewComponent.createHeaderForTable(tableView: tableView, headerName: filteredDishesGroupedByCategory[section][0].category.name)
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 30
+        return TableViewComponent.headerHeight
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -179,23 +176,12 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         nameLabel.text = "\(dish.name)"
         cell.contentView.addSubview(nameLabel)
         
-        let dishImageView = UIImageView()
-        dishImageView.translatesAutoresizingMaskIntoConstraints = false
-        dishImageView.contentMode = .scaleAspectFit
-        dishImageView.layer.cornerRadius = 4
-        dishImageView.clipsToBounds = true
-        
-        let dishPhoto = dish.photo
-        let photoData = Data.fromDatatypeValue(dishPhoto)
-        let photo = UIImage(data: photoData)
-        dishImageView.image = photo
+        let dishImageView = TableViewComponent.createImageView(photoInCell: dish.photo)
         cell.contentView.addSubview(dishImageView)
         
         NSLayoutConstraint.activate([
             dishImageView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
             dishImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-            dishImageView.heightAnchor.constraint(equalTo: cell.contentView.heightAnchor, constant: -6),
-            dishImageView.widthAnchor.constraint(equalTo: dishImageView.heightAnchor, multiplier: photo!.size.width / photo!.size.height),
             
             nameLabel.leadingAnchor.constraint(equalTo: dishImageView.trailingAnchor, constant: 10),
             nameLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),

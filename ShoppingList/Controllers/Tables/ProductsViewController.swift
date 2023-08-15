@@ -23,9 +23,13 @@ class ProductsViewController: UIViewController {
         return UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(showSearchAlert))
     }()
     
+    private lazy var clearSearchButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(clearSearchTerm))
+    }()
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.filterProducts(searchTerm: nil)
+        self.clearSearchTerm()
         self.title = "Products"
     }
     
@@ -36,6 +40,7 @@ class ProductsViewController: UIViewController {
         productsTable.dataSource = self
         
         navigationItem.rightBarButtonItems = [addProductButton, searchButton]
+        navigationItem.leftBarButtonItems = [clearSearchButton]
         view.addSubview(productsTable)
         
         // Add a long-press gesture recognizer to the table view
@@ -52,6 +57,10 @@ class ProductsViewController: UIViewController {
         productsTable.reloadData()
     }
     
+    @objc private func clearSearchTerm() {
+        self.filterProducts(searchTerm: nil)
+    }
+    
     @objc private func addProductView() {
         navigationController?.pushViewController(AddProductViewController(), animated: true)
     }
@@ -62,12 +71,14 @@ class ProductsViewController: UIViewController {
         if editMode == true {
             editProductVC.editedProduct = product
         }
+        
         editProductVC.nameTextField.text = product.name
         editProductVC.carboTextField.text = String(product.carbo)
         editProductVC.kcalTextField.text = String(product.calories)
         editProductVC.fatTextField.text = String(product.fat)
         editProductVC.proteinTextField.text = String(product.protein)
         editProductVC.selectedPhoto = UIImage(data: Data(product.photo.bytes))
+        editProductVC.selectedOption = product.category
         editProductVC.reloadPhoto()
         navigationController?.pushViewController(editProductVC, animated: true)
     }
@@ -140,38 +151,24 @@ class ProductsViewController: UIViewController {
 
 extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
     
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return filteredProductsGroupedByCategory.count
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredProductsGroupedByCategory[section].count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 64
-    }
-    
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return filteredProductsGroupedByCategory.count
+        return TableViewComponent.tableCellHeight
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 30))
-        
-        let borderLayer = CALayer()
-        borderLayer.frame = CGRect(x: 0, y: headerView.frame.height - 1, width: headerView.frame.width, height: 1)
-        borderLayer.backgroundColor = UIColor.lightGray.cgColor
-        headerView.layer.addSublayer(borderLayer)
-        
-        let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
-        mainLabel.textColor = .systemBlue
-        mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        mainLabel.text = filteredProductsGroupedByCategory[section][0].category.name
-        
-        headerView.addSubview(mainLabel)
-        return headerView
+        return TableViewComponent.createHeaderForTable(tableView: tableView, headerName: filteredProductsGroupedByCategory[section][0].category.name)
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 30
+        return TableViewComponent.headerHeight
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -188,26 +185,17 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
         detailsLabel.translatesAutoresizingMaskIntoConstraints = false
         detailsLabel.font = UIFont.systemFont(ofSize: 12)
         detailsLabel.textColor = .gray
-        detailsLabel.text = "Kcal: \(product.calories) Carbs: \(product.carbo) Fat: \(product.fat) Protein \(product.protein)"
+        detailsLabel.text = """
+            Kcal: \(product.calories)  |  Carbs: \(product.carbo)  |  Fat: \(product.fat)  |  Protein: \(product.protein)
+            """
         cell.contentView.addSubview(detailsLabel)
         
-        let productImageView = UIImageView()
-        productImageView.translatesAutoresizingMaskIntoConstraints = false
-        productImageView.contentMode = .scaleAspectFit
-        productImageView.layer.cornerRadius = 4
-        productImageView.clipsToBounds = true
-        
-        let productPhoto = product.photo
-        let photoData = Data.fromDatatypeValue(productPhoto)
-        let photo = UIImage(data: photoData)
-        productImageView.image = photo
+        let productImageView = TableViewComponent.createImageView(photoInCell: product.photo)
         cell.contentView.addSubview(productImageView)
         
         NSLayoutConstraint.activate([
             productImageView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
             productImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-            productImageView.heightAnchor.constraint(equalTo: cell.contentView.heightAnchor, constant: -6),
-            productImageView.widthAnchor.constraint(equalTo: productImageView.heightAnchor, multiplier: photo!.size.width / photo!.size.height),
             
             nameLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
             nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),

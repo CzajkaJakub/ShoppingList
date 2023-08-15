@@ -36,7 +36,7 @@ class Product {
     init(name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, category: Category) {
         self.id = nil
         self.name = name
-        self.photo = photo.jpegData(compressionQuality: 0.1)!.toBlob()
+        self.photo = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)
         self.category = category
         self._calories = kcal
         self._carbo = carbo
@@ -44,10 +44,10 @@ class Product {
         self._protein = protein
     }
     
-    init(id: Int, name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, category: Category) {
+    init(id: Int, name: String, photo: Blob, kcal: Double, carbo: Double, fat: Double, protein: Double, category: Category) {
         self.id = id
         self.name = name
-        self.photo = photo.jpegData(compressionQuality: 1)!.toBlob()
+        self.photo = photo
         self.category = category
         self._calories = kcal
         self._carbo = carbo
