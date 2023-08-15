@@ -6,10 +6,6 @@ class DishDetailViewController: UIViewController {
     
     var dish: Dish!
     
-    private lazy var editDishButton: UIBarButtonItem = {
-        return UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editDishButtonTapped))
-    }()
-    
     private lazy var eatDishButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(eatDishButtonTapper))
     }()
@@ -18,16 +14,6 @@ class DishDetailViewController: UIViewController {
         super.viewDidLoad()
         self.title = "\(dish.name)"
         setupUI()
-    }
-    
-    @objc private func editDishButtonTapped() {
-        let editDishVC = AddDishViewController()
-        editDishVC.editedDish = dish
-        editDishVC.selectedProducts = dish.productAmounts
-        editDishVC.nameTextField.text = dish.name
-        editDishVC.selectedPhoto = UIImage(data: Data(dish.photo.bytes))
-        editDishVC.reloadPhoto()
-        navigationController?.pushViewController(editDishVC, animated: true)
     }
     
     @objc private func eatDishButtonTapper() {
@@ -40,7 +26,7 @@ class DishDetailViewController: UIViewController {
         view.backgroundColor = .white
         view.layer.cornerRadius = 16
         
-        navigationItem.rightBarButtonItems = [editDishButton, eatDishButton]
+        navigationItem.rightBarButtonItems = [eatDishButton]
         
         let dishImageView = UIImageView()
         dishImageView.translatesAutoresizingMaskIntoConstraints = false

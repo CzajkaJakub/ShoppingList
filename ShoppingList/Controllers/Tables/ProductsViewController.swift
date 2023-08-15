@@ -8,19 +8,25 @@ class ProductsViewController: UIViewController {
         return productsTable
     }()
     
-    private var productsGroupedByCategory: [[Product]] {
+    private var allProductsGroupedByCategory: [[Product]] {
         let groupedProducts = Dictionary(grouping: Product.products, by: { $0.category.name })
         return groupedProducts.values.sorted(by: { $0[0].category.name < $1[0].category.name })
     }
+    
+    private var filteredProductsGroupedByCategory: [[Product]] = []
     
     private lazy var addProductButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addProductView))
     }()
     
+    private lazy var searchButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(showSearchAlert))
+    }()
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.filterProducts(searchTerm: nil)
         self.title = "Products"
-        reloadProducts()
     }
     
     override func viewDidLoad() {
@@ -29,8 +35,12 @@ class ProductsViewController: UIViewController {
         productsTable.delegate = self
         productsTable.dataSource = self
         
-        navigationItem.rightBarButtonItem = addProductButton
+        navigationItem.rightBarButtonItems = [addProductButton, searchButton]
         view.addSubview(productsTable)
+        
+        // Add a long-press gesture recognizer to the table view
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(editProductAction(_:)))
+        productsTable.addGestureRecognizer(longPressGesture)
     }
     
     override func viewDidLayoutSubviews() {
@@ -45,12 +55,93 @@ class ProductsViewController: UIViewController {
     @objc private func addProductView() {
         navigationController?.pushViewController(AddProductViewController(), animated: true)
     }
+    
+    private func openProductViewController(editMode: Bool, product: Product){
+        let editProductVC = AddProductViewController()
+
+        if editMode == true {
+            editProductVC.editedProduct = product
+        }
+        editProductVC.nameTextField.text = product.name
+        editProductVC.carboTextField.text = String(product.carbo)
+        editProductVC.kcalTextField.text = String(product.calories)
+        editProductVC.fatTextField.text = String(product.fat)
+        editProductVC.proteinTextField.text = String(product.protein)
+        editProductVC.selectedPhoto = UIImage(data: Data(product.photo.bytes))
+        editProductVC.reloadPhoto()
+        navigationController?.pushViewController(editProductVC, animated: true)
+    }
+    
+    @objc func editProductAction(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        if gestureRecognizer.state == .began {
+            let point = gestureRecognizer.location(in: productsTable)
+            
+            if let indexPath = productsTable.indexPathForRow(at: point) {
+                let product = filteredProductsGroupedByCategory[indexPath.section][indexPath.row]
+                
+                let alertController = UIAlertController(title: "Options", message: "Choose an action:", preferredStyle: .actionSheet)
+                
+                let editAction = UIAlertAction(title: "Edit", style: .default) { (_) in
+           
+                    self.openProductViewController(editMode: true, product: product)
+                }
+                
+                let addNewAction = UIAlertAction(title: "Copy", style: .default) { (_) in
+                    self.openProductViewController(editMode: false, product: product)
+                    
+                }
+                
+                let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+                
+                alertController.addAction(editAction)
+                alertController.addAction(addNewAction)
+                alertController.addAction(cancelAction)
+            
+                present(alertController, animated: true, completion: nil)
+                
+            }
+        }
+    }
+    
+    func filterProducts(searchTerm: String?) {
+        if searchTerm == nil || searchTerm!.isEmpty {
+            filteredProductsGroupedByCategory = allProductsGroupedByCategory
+        } else {
+            filteredProductsGroupedByCategory = allProductsGroupedByCategory.map { products in
+                products.filter { product in
+                    let productName = product.name.lowercased()
+                    return productName.contains(searchTerm!.lowercased())
+                }
+            }.filter { !$0.isEmpty }
+        }
+        productsTable.reloadData()
+    }
+    
+    @objc func showSearchAlert() {
+        let alertController = UIAlertController(title: "Search", message: "Enter a search term", preferredStyle: .alert)
+        alertController.addTextField { textField in
+            textField.placeholder = "Search term"
+        }
+
+        let searchAction = UIAlertAction(title: "Search", style: .default) { [weak self] _ in
+            if let searchTerm = alertController.textFields?.first?.text {
+                self?.filterProducts(searchTerm: searchTerm)
+            }
+        }
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+
+        alertController.addAction(searchAction)
+        alertController.addAction(cancelAction)
+
+        present(alertController, animated: true, completion: nil)
+    }
 }
 
 extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return productsGroupedByCategory[section].count
+        return filteredProductsGroupedByCategory[section].count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -59,7 +150,7 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
     
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return productsGroupedByCategory.count
+        return filteredProductsGroupedByCategory.count
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -73,7 +164,7 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
         let mainLabel = UILabel(frame: CGRect(x: 16, y: 0, width: tableView.frame.width - 32, height: 30))
         mainLabel.textColor = .systemBlue
         mainLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        mainLabel.text = productsGroupedByCategory[section][0].category.name
+        mainLabel.text = filteredProductsGroupedByCategory[section][0].category.name
         
         headerView.addSubview(mainLabel)
         return headerView
@@ -86,7 +177,7 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = productsTable.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-        let product = productsGroupedByCategory[indexPath.section][indexPath.row]
+        let product = filteredProductsGroupedByCategory[indexPath.section][indexPath.row]
         
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -100,12 +191,28 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
         detailsLabel.text = "Kcal: \(product.calories) Carbs: \(product.carbo) Fat: \(product.fat) Protein \(product.protein)"
         cell.contentView.addSubview(detailsLabel)
         
+        let productImageView = UIImageView()
+        productImageView.translatesAutoresizingMaskIntoConstraints = false
+        productImageView.contentMode = .scaleAspectFit
+        productImageView.layer.cornerRadius = 4
+        productImageView.clipsToBounds = true
+        
+        let productPhoto = product.photo
+        let photoData = Data.fromDatatypeValue(productPhoto)
+        let photo = UIImage(data: photoData)
+        productImageView.image = photo
+        cell.contentView.addSubview(productImageView)
+        
         NSLayoutConstraint.activate([
+            productImageView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
+            productImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+            productImageView.heightAnchor.constraint(equalTo: cell.contentView.heightAnchor, constant: -6),
+            productImageView.widthAnchor.constraint(equalTo: productImageView.heightAnchor, multiplier: photo!.size.width / photo!.size.height),
             
-            nameLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
+            nameLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
             nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
             
-            detailsLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
+            detailsLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
             detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10)
         ])
         
@@ -159,25 +266,14 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
         return configuration
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        showProductDetail(for: indexPath)
-    }
-    
-    private func showProductDetail(for indexPath: IndexPath) {
-        let selectedProduct = productsGroupedByCategory[indexPath.section][indexPath.row]
-        let productDetailViewController = ProductDetailViewController()
-        productDetailViewController.product = selectedProduct
-        navigationController?.pushViewController(productDetailViewController, animated: true)
-    }
-    
     private func removeProduct(at indexPath: IndexPath) {
-        let product = productsGroupedByCategory[indexPath.section][indexPath.row]
+        let product = filteredProductsGroupedByCategory[indexPath.section][indexPath.row]
         Product.removeProduct(product: product)
         reloadProducts()
     }
     
     private func addProductToShoppingList(at indexPath: IndexPath, amount: Double) {
-        let product = productsGroupedByCategory[indexPath.section][indexPath.row]
+        let product = filteredProductsGroupedByCategory[indexPath.section][indexPath.row]
         let productAmount = ProductAmount(product: product, amount: amount)
         ProductAmount.addProductTuBuy(productAmount: productAmount)
     }
