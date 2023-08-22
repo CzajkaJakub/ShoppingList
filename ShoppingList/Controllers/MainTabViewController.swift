@@ -25,7 +25,7 @@ class MainTabViewController: UITabBarController, UITabBarControllerDelegate {
         let vc4 = UINavigationController(rootViewController: EatHistoryViewController())
         vc4.view.backgroundColor = .systemBackground
         vc4.tabBarItem.image = UIImage(systemName: "rectangle.and.pencil.and.ellipsis")
-        vc4.tabBarItem.title = "Today"
+        vc4.tabBarItem.title = "Calories dictionary"
         
         setViewControllers([vc1, vc2, vc3, vc4], animated: true)
     }

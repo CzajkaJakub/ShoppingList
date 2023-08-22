@@ -4,8 +4,19 @@ class EatHistoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = "Calories dictionary"
         setupUI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        clearOldViews()
+        setupUI()
+    }
+    
+    private func clearOldViews() {
+        for subview in view.subviews {
+            subview.removeFromSuperview()
+        }
     }
     
     private func setupUI() {

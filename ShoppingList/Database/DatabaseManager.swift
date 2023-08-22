@@ -48,7 +48,7 @@ class DatabaseManager {
             createDishTable()
             createProductsToBuyTable()
             createProductAmountTable()
-//            createEatHistoryTable()
+            createEatHistoryTable()
         } catch {
             print("Error opening database: \(error)")
             fatalError("Failed to open database")
