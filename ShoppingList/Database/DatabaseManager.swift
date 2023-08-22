@@ -230,11 +230,11 @@ class DatabaseManager {
         }
     }
     
-    func insertToEatHistory(eatItem: EatHistory) {
+    func insertToEatHistory(eatItem: EatHistoryItem) {
         let insertEatItemQuery = eatHistoryTable.insert(
-            dateTime <- Int(eatItem.dateTime.timeIntervalSince1970),
-            amount <- eatItem.amount,
-            productId <- eatItem.product?.id,
+            dateTime <- DateUtils.convertDateToIntValue(dateToConvert: eatItem.dateTime),
+            amount <- eatItem.productAmount?.amount,
+            productId <- eatItem.productAmount?.product.id,
             dishId <- eatItem.dish?.id
         )
         
@@ -246,8 +246,8 @@ class DatabaseManager {
         }
     }
     
-    func fetchEatHistory(dateFrom: Date, dateTo: Date) -> [EatHistory] {
-        var eatHistory: [EatHistory] = []
+    func fetchEatHistory(dateFrom: Date, dateTo: Date) -> [EatHistoryItem] {
+        var eatHistory: [EatHistoryItem] = []
         
         let selectQuery = eatHistoryTable
             .select(
@@ -256,7 +256,7 @@ class DatabaseManager {
                 eatHistoryTable[dateTime],
                 eatHistoryTable[dishId],
                 eatHistoryTable[productId])
-            .filter(eatHistoryTable[dateTime] >= Int(dateFrom.timeIntervalSince1970) && eatHistoryTable[dateTime] <= Int(dateTo.timeIntervalSince1970))
+            .filter(eatHistoryTable[dateTime] >= DateUtils.convertDateToIntValue(dateToConvert: dateFrom) && eatHistoryTable[dateTime] <= DateUtils.convertDateToIntValue(dateToConvert: dateTo))
         
         do {
             for row in try dbConnection.prepare(selectQuery) {
@@ -266,12 +266,15 @@ class DatabaseManager {
                 let dishIdToFetch = row[eatHistoryTable[dishId]]
                 let amount = row[eatHistoryTable[amount]]
                 
-                if true {
+                if productId != nil {
                     let product = fetchProductcById(productIdToFetch: productId!)
-                    eatHistory.append(EatHistory(id: eatHistoryId, dateTime: dateTime, amount: amount, product: product, dish: nil))
+                    let productAmount = ProductAmount(product: product, amount: amount!)
+                    let eatHistoryItem = EatHistoryItem(id: eatHistoryId, dateValue: dateTime, productAmount: productAmount)
+                    eatHistory.append(eatHistoryItem)
                 } else {
                     let dish = fetchDishById(dishIdToFetch: dishIdToFetch!)
-                    eatHistory.append(EatHistory(id: eatHistoryId, dateTime: dateTime, amount: nil, product: nil, dish: dish))
+                    let eatHistoryItem = EatHistoryItem(id: eatHistoryId, dateValue: dateTime, dish: dish)
+                    eatHistory.append(eatHistoryItem)
                 }
             }
         } catch {

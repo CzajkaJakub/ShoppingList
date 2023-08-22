@@ -4,26 +4,14 @@ class DishDetailViewController: UIViewController {
     
     var dish: Dish!
     
-    private lazy var eatDishButton: UIBarButtonItem = {
-        return UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(eatDishButtonTapped))
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = dish.name
         setupUI()
     }
     
-    @objc private func eatDishButtonTapped() {
-        let eatItem = EatHistory(dateTime: Date.now, amount: nil, product: nil, dish: dish)
-        EatHistory.addItemToEatHistory(eatItem: eatItem)
-        Toast.showToast(message: "\(dish.name) was eaten!", parentView: self.view)
-    }
-    
     private func setupUI() {
         view.backgroundColor = .white
-        
-        navigationItem.rightBarButtonItem = eatDishButton
         
         let dishImageView = UIImageView()
         dishImageView.translatesAutoresizingMaskIntoConstraints = false

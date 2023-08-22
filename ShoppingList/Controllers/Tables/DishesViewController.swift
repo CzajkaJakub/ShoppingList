@@ -98,8 +98,16 @@ class DishesViewController: UIViewController {
                     self.openDishViewController(editMode: false, dish: dish)
                 }
                 
+                let eatDishAction = UIAlertAction(title: "Eat dish", style: .default) { (_) in
+                    let eatItem = EatHistoryItem(dish: dish)
+                    EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
+                    Toast.showToast(message: "\(dish.name) was eaten!", parentView: self.view)
+                }
+                
+                
                 let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
                 
+                alertController.addAction(eatDishAction)
                 alertController.addAction(editAction)
                 alertController.addAction(addNewAction)
                 alertController.addAction(cancelAction)

@@ -93,17 +93,47 @@ class ProductsViewController: UIViewController {
                 let alertController = UIAlertController(title: "Options", message: "Choose an action:", preferredStyle: .actionSheet)
                 
                 let editAction = UIAlertAction(title: "Edit", style: .default) { (_) in
-           
+                    
                     self.openProductViewController(editMode: true, product: product)
                 }
                 
                 let addNewAction = UIAlertAction(title: "Copy", style: .default) { (_) in
                     self.openProductViewController(editMode: false, product: product)
+                }
+                
+                
+                let eatProductAction = UIAlertAction(title: "Eat product", style: .default) { (_) in
                     
+                    let amountAlert = UIAlertController(title: "Enter Amount", message: nil, preferredStyle: .alert)
+                    amountAlert.addTextField { textField in
+                        textField.placeholder = "Enter Amount (grams)"
+                        textField.keyboardType = .decimalPad
+                    }
+                    
+                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+                    let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
+                        
+                        let passedValueText = amountAlert.textFields?.first?.text!
+                        if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
+                            
+                            let productAmount = ProductAmount(product: product, amount: passedValue)
+                            let eatItem = EatHistoryItem(productAmount: productAmount)
+                            EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
+                            Toast.showToast(message: "\(product.name) was eaten! (\(productAmount.amount) grams)", parentView: self!.view)
+                            
+                        } else {
+                            Toast.showToast(message: "Wrong value text!", parentView: self!.view)
+                        }
+                    }
+                    
+                    amountAlert.addAction(cancelAction)
+                    amountAlert.addAction(addAction)
+                    self.present(amountAlert, animated: true, completion: nil)
                 }
                 
                 let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
                 
+                alertController.addAction(eatProductAction)
                 alertController.addAction(editAction)
                 alertController.addAction(addNewAction)
                 alertController.addAction(cancelAction)
