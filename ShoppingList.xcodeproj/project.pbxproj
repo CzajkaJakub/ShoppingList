@@ -31,6 +31,7 @@
 		0CC7D1A02A5B2D22005DB139 /* AddDishViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D19F2A5B2D22005DB139 /* AddDishViewController.swift */; };
 		0CC7D1A22A5B2D2F005DB139 /* DishesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */; };
 		0CC7D1A42A5B3360005DB139 /* MainTabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1A32A5B3360005DB139 /* MainTabViewController.swift */; };
+		0CC8D3962A9FD099002B7B0F /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC8D3952A9FD099002B7B0F /* Extensions.swift */; };
 		0CDF372C2A7E729300EB2A88 /* EatHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDF372B2A7E729300EB2A88 /* EatHistoryItem.swift */; };
 		0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE66F732A76738500971742 /* DishDetailViewController.swift */; };
 /* End PBXBuildFile section */
@@ -61,6 +62,7 @@
 		0CC7D19F2A5B2D22005DB139 /* AddDishViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddDishViewController.swift; sourceTree = "<group>"; };
 		0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishesViewController.swift; sourceTree = "<group>"; };
 		0CC7D1A32A5B3360005DB139 /* MainTabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabViewController.swift; sourceTree = "<group>"; };
+		0CC8D3952A9FD099002B7B0F /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		0CDF372B2A7E729300EB2A88 /* EatHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistoryItem.swift; sourceTree = "<group>"; };
 		0CE66F732A76738500971742 /* DishDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishDetailViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -98,6 +100,7 @@
 				0C9AA1522A87CAAB001F8FF4 /* UILabelPadding.swift */,
 				0C913A412A8BDDF800C8F2E8 /* TableViewComponent.swift */,
 				0CA539EF2A9540AD001CDD2F /* DateUtils.swift */,
+				0CC8D3952A9FD099002B7B0F /* Extensions.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -267,6 +270,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0CC8D3962A9FD099002B7B0F /* Extensions.swift in Sources */,
 				0CC7D19A2A5B2CCF005DB139 /* ShoppingListViewController.swift in Sources */,
 				0C0554052A5C3E4E00DFECAB /* Toast.swift in Sources */,
 				0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */,

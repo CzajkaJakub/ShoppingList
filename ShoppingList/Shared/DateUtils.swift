@@ -2,6 +2,13 @@ import Foundation
 
 class DateUtils {
     
+    static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        return formatter
+    }()
+    
     static func convertDoubleToDate(dateNumberValue: Int) -> Date {
         let timeInterval = TimeInterval(dateNumberValue)
         return Date(timeIntervalSince1970: timeInterval)
@@ -9,6 +16,10 @@ class DateUtils {
     
     static func convertDateToIntValue(dateToConvert: Date) -> Int {
         return Int(dateToConvert.timeIntervalSince1970)
+    }
+    
+    static func convertDateToMediumFormat(dateToConvert: Date) -> String {
+        return DateUtils.dateFormatter.string(from: dateToConvert)
     }
 }
 

@@ -25,7 +25,7 @@ class MainTabViewController: UITabBarController, UITabBarControllerDelegate {
         let vc4 = UINavigationController(rootViewController: EatHistoryViewController())
         vc4.view.backgroundColor = .systemBackground
         vc4.tabBarItem.image = UIImage(systemName: "rectangle.and.pencil.and.ellipsis")
-        vc4.tabBarItem.title = "Calories dictionary"
+        vc4.tabBarItem.title = DateUtils.convertDateToMediumFormat(dateToConvert: Date())
         
         setViewControllers([vc1, vc2, vc3, vc4], animated: true)
     }
@@ -36,7 +36,6 @@ class MainTabViewController: UITabBarController, UITabBarControllerDelegate {
         Category.productCategories = DatabaseManager.shared.fetchProductCategories()
         Dish.dishes = DatabaseManager.shared.fetchDishes()
         ProductAmount.productsToBuy = DatabaseManager.shared.fetchProductsToBuy()
-        EatHistoryItem.eatHistory = DatabaseManager.shared.fetchEatHistory(dateFrom: Date().startOfDay, dateTo: Date().endOfDay)
     }
 }
 

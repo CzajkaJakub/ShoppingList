@@ -22,7 +22,6 @@ class EatHistoryItem {
         self.dish = nil
     }
     
-    
     init(id: Int, dateValue: Int, productAmount: ProductAmount) {
         self.id = id
         self.productAmount = productAmount
@@ -42,5 +41,16 @@ class EatHistoryItem {
     static func addItemToEatHistory(eatItem: EatHistoryItem) {
         DatabaseManager.shared.insertToEatHistory(eatItem: eatItem)
         EatHistoryItem.eatHistory.append(eatItem)
+    }
+    
+    static func reloadEatItemsByDate(searchDate: Date) {
+        EatHistoryItem.eatHistory = DatabaseManager.shared.fetchEatHistory(dateFrom: searchDate.startOfDay, dateTo: searchDate.endOfDay)
+    }
+    
+    static func removeHistoryItem(historyItem: EatHistoryItem) {
+        if let index = EatHistoryItem.eatHistory.firstIndex(where: { $0.id == historyItem.id }) {
+            DatabaseManager.shared.removeEatHistoryItem(historyItem: historyItem)
+            EatHistoryItem.eatHistory.remove(at: index)
+        }
     }
 }

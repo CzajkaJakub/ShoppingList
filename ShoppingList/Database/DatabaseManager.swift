@@ -675,5 +675,16 @@ class DatabaseManager {
             print("Error removing product: \(error)")
         }
     }
+    
+    func removeEatHistoryItem(historyItem: EatHistoryItem) {
+        let deleteQueryEatHistoryItem = eatHistoryTable.filter(id == historyItem.id!).delete()
+        
+        do {
+            try dbConnection.run(deleteQueryEatHistoryItem)
+            
+        } catch {
+            print("Error removing history item: \(error)")
+        }
+    }
 }
     

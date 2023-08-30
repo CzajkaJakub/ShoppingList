@@ -240,8 +240,6 @@ class AddProductViewController: UIViewController {
             let aspectRatio = image.size.width / image.size.height
             let imageViewHeight = min(view.frame.width / aspectRatio, maxAllowedHeight)
             
-    
-            
             imageViewHeightConstraint = productImageView.heightAnchor.constraint(equalToConstant: imageViewHeight)
             imageViewHeightConstraint?.isActive = true
         }
