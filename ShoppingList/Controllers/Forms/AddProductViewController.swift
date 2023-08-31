@@ -61,6 +61,15 @@ class AddProductViewController: UIViewController {
         return textField
     }()
     
+    internal let weightOfPieceTextField: UITextField = {
+        let weightOfPieceTextField = UITextField()
+        weightOfPieceTextField.placeholder = "Weight of piece"
+        weightOfPieceTextField.borderStyle = .roundedRect
+        weightOfPieceTextField.translatesAutoresizingMaskIntoConstraints = false
+        weightOfPieceTextField.keyboardType = .decimalPad
+        return weightOfPieceTextField
+    }()
+    
     private lazy var saveButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(saveProduct))
     }()
@@ -106,7 +115,7 @@ class AddProductViewController: UIViewController {
     
     private func setupConstraints() {
         
-        let stackView = UIStackView(arrangedSubviews: [productImageView, nameTextField, kcalTextField, proteinTextField, fatTextField, carboTextField, selectListTextField])
+        let stackView = UIStackView(arrangedSubviews: [productImageView, nameTextField, kcalTextField, proteinTextField, fatTextField, carboTextField, weightOfPieceTextField, selectListTextField])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = TableViewComponent.stackViewAxis
         stackView.spacing = TableViewComponent.stackViewSpacing
@@ -194,12 +203,13 @@ class AddProductViewController: UIViewController {
         }
         
         let photoBlob = try! PhotoData.convertUIImageToResizedBlob(imageToResize: selectedPhoto)
+        let weightOfPiece = weightOfPieceTextField.text != nil ? StringUtils.convertTextFieldToDouble(stringValue: weightOfPieceTextField.text!) : nil
         
         if editedProduct != nil {
-            let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
+            let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: Category(id: selectedOption.id!, name: selectedOption.name))
             Product.updateProduct(product: productToUpdate)
         } else {
-            let productToSave = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: Category(id: selectedOption.id!, name: selectedOption.name))
+            let productToSave = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: Category(id: selectedOption.id!, name: selectedOption.name))
             Product.addProduct(product: productToSave)
         }
         
@@ -224,6 +234,7 @@ class AddProductViewController: UIViewController {
             self.kcalTextField
                 .text = nil
             self.selectedPhoto = nil
+            self.weightOfPieceTextField.text = nil
         }))
         present(alertController, animated: true, completion: nil)
     }

@@ -77,6 +77,7 @@ class ProductsViewController: UIViewController {
         editProductVC.kcalTextField.text = String(product.calories)
         editProductVC.fatTextField.text = String(product.fat)
         editProductVC.proteinTextField.text = String(product.protein)
+        editProductVC.weightOfPieceTextField.text = product.weightOfPiece != nil ? String(product.weightOfPiece!) : nil
         editProductVC.selectedPhoto = UIImage(data: Data(product.photo.bytes))
         editProductVC.selectedOption = product.category
         editProductVC.reloadPhoto()
@@ -144,20 +145,6 @@ class ProductsViewController: UIViewController {
         }
     }
     
-    func filterProducts(searchTerm: String?) {
-        if searchTerm == nil || searchTerm!.isEmpty {
-            filteredProductsGroupedByCategory = allProductsGroupedByCategory
-        } else {
-            filteredProductsGroupedByCategory = allProductsGroupedByCategory.map { products in
-                products.filter { product in
-                    let productName = product.name.lowercased()
-                    return productName.contains(searchTerm!.lowercased())
-                }
-            }.filter { !$0.isEmpty }
-        }
-        productsTable.reloadData()
-    }
-    
     @objc func showSearchAlert() {
         let alertController = UIAlertController(title: "Search", message: "Enter a search term", preferredStyle: .alert)
         alertController.addTextField { textField in
@@ -176,6 +163,20 @@ class ProductsViewController: UIViewController {
         alertController.addAction(cancelAction)
 
         present(alertController, animated: true, completion: nil)
+    }
+    
+    func filterProducts(searchTerm: String?) {
+        if searchTerm == nil || searchTerm!.isEmpty {
+            filteredProductsGroupedByCategory = allProductsGroupedByCategory
+        } else {
+            filteredProductsGroupedByCategory = allProductsGroupedByCategory.map { products in
+                products.filter { product in
+                    let productName = product.name.lowercased()
+                    return productName.contains(searchTerm!.lowercased())
+                }
+            }.filter { !$0.isEmpty }
+        }
+        productsTable.reloadData()
     }
 }
 

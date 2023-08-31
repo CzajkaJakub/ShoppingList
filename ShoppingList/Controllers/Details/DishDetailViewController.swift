@@ -35,7 +35,9 @@ class DishDetailViewController: UIViewController {
         productsList.textColor = .black
         productsList.numberOfLines = 0
         productsList.text = dish.productAmounts.map { productAmount in
-            "\(productAmount.product.name) (\(productAmount.amount) grams)"
+            let piecesLabel = productAmount.product.weightOfPiece != nil ? "| \((productAmount.amount / productAmount.product.weightOfPiece!).rounded(toPlaces: 2)) szt." : ""
+            return "\(productAmount.product.name) ( \(productAmount.amount) grams \(piecesLabel) )"
+
         }.joined(separator: "\n")
         
         let stackView = UIStackView(arrangedSubviews: [dishImageView, detailsLabel, productsList])

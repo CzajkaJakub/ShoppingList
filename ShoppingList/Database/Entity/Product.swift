@@ -7,6 +7,7 @@ class Product {
     var name: String
     var photo: Blob
     var category: Category
+    var weightOfPiece: Double?
     
     private var _calories: Double
     private var _carbo: Double
@@ -33,7 +34,7 @@ class Product {
         get { return round(_protein * 100) / 100.0 }
     }
     
-    init(name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, category: Category) {
+    init(name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, weightOfPiece: Double?, category: Category) {
         self.id = nil
         self.name = name
         self.photo = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)
@@ -42,9 +43,10 @@ class Product {
         self._carbo = carbo
         self._fat = fat
         self._protein = protein
+        self.weightOfPiece = weightOfPiece
     }
     
-    init(id: Int, name: String, photo: Blob, kcal: Double, carbo: Double, fat: Double, protein: Double, category: Category) {
+    init(id: Int, name: String, photo: Blob, kcal: Double, carbo: Double, fat: Double, protein: Double, weightOfPiece: Double?, category: Category) {
         self.id = id
         self.name = name
         self.photo = photo
@@ -53,6 +55,7 @@ class Product {
         self._carbo = carbo
         self._fat = fat
         self._protein = protein
+        self.weightOfPiece = weightOfPiece
     }
     
     static var products: [Product] = []

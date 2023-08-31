@@ -105,6 +105,7 @@ class EatHistoryViewController: UIViewController {
         totalFat = totalFat.rounded(toPlaces: 2)
         totalProteins = totalProteins.rounded(toPlaces: 2)
         
+        
         eatValueLabel.text = """
             Kcal: \(totalCalories)  |  Carbs: \(totalCarbo)\nFat: \(totalFat)  |  Protein: \(totalProteins)
             """

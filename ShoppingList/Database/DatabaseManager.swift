@@ -31,6 +31,7 @@ class DatabaseManager {
     private var carbo = Expression<Double>("carbo")
     private var categoryName = Expression<String>("category_name")
     private var amount = Expression<Double?>("amount")
+    private var weightOfPiece = Expression<Double?>("weight_of_piece")
     private var dateTime = Expression<Int>("date_time")
     
     private init() {
@@ -153,6 +154,7 @@ class DatabaseManager {
             table.column(fat)
             table.column(carbo)
             table.column(categoryId)
+            table.column(weightOfPiece)
             table.foreignKey(categoryId, references: productCategoriesTable, id, update: .cascade, delete: .cascade)
         }
         
@@ -163,8 +165,6 @@ class DatabaseManager {
         }
     }
     
-    // Existing code for creating and populating Categories and Products tables
-    // ...
     
     func createDishTable() {
         let createDishTableQuery = dishTable.create(ifNotExists: true) { table in
@@ -292,6 +292,7 @@ class DatabaseManager {
             protein <- product.protein,
             fat <- product.fat,
             carbo <- product.carbo,
+            weightOfPiece <- product.weightOfPiece,
             categoryId <- product.category.id!
         )
         
@@ -314,6 +315,7 @@ class DatabaseManager {
                             fat <- product.fat,
                             carbo <- product.carbo,
                             photo <- product.photo,
+                            weightOfPiece <- product.weightOfPiece,
                             categoryId <- product.category.id!)
                 do {
                     try dbConnection.run(updateProductQuery)
@@ -348,6 +350,7 @@ class DatabaseManager {
                 productsTable[photo],
                 productsTable[calories],
                 productsTable[protein],
+                productsTable[weightOfPiece],
                 productsTable[fat],
                 productsTable[carbo],
                 productCategoriesTable[id], // Use the alias directly instead of categoryId
@@ -363,12 +366,13 @@ class DatabaseManager {
                 let kcal = row[productsTable[calories]]
                 let protein = row[productsTable[protein]]
                 let fat = row[productsTable[fat]]
+                let weightOfPiece = row[productsTable[weightOfPiece]]
                 let carbo = row[productsTable[carbo]]
                 let categoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
                 let categoryName = row[productCategoriesTable[categoryName]]
                 
                 let category = Category(id: categoryId, name: categoryName)
-                let product = Product(id: dbId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: category)
+                let product = Product(id: dbId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: category)
                 products.append(product)
             }
         } catch {
@@ -390,6 +394,7 @@ class DatabaseManager {
                 productsTable[photo],
                 productsTable[calories],
                 productsTable[protein],
+                productsTable[weightOfPiece],
                 productsTable[fat],
                 productsTable[carbo],
                 productCategoriesTable[id],
@@ -402,13 +407,14 @@ class DatabaseManager {
             let photo = row[productsTable[photo]]
             let kcal = row[productsTable[calories]]
             let protein = row[productsTable[protein]]
+            let weightOfPiece = row[productsTable[weightOfPiece]]
             let fat = row[productsTable[fat]]
             let carbo = row[productsTable[carbo]]
             let categoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
             let categoryName = row[productCategoriesTable[categoryName]]
             
             let category = Category(id: categoryId, name: categoryName)
-            product = Product(id: dbId, name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, category: category)
+            product = Product(id: dbId, name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: category)
         }
         return product
     }
@@ -519,6 +525,7 @@ class DatabaseManager {
                 let productPhoto = productRow[productsTable[photo]]
                 let productKcal = productRow[productsTable[calories]]
                 let productProtein = productRow[productsTable[protein]]
+                let weightOfPiece = productRow[productsTable[weightOfPiece]]
                 let productFat = productRow[productsTable[fat]]
                 let productCarbo = productRow[productsTable[carbo]]
                 let productCategoryId = productRow[productCategoriesTable[id]]
@@ -527,7 +534,7 @@ class DatabaseManager {
                 let dishAmount = productRow[productAmountTable[amount]]
                 
                 let productCategory = Category(id: productCategoryId, name: productCategoryName)
-                let product = Product(id: productId, name: productName, photo: productPhoto, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: productCategory)
+                let product = Product(id: productId, name: productName, photo: productPhoto, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, weightOfPiece: weightOfPiece, category: productCategory)
                 
                 let productAmount = ProductAmount(product: product, amount: dishAmount!)
                 productAmountsForDish.append(productAmount)
@@ -646,6 +653,7 @@ class DatabaseManager {
                 let productPhoto = row[productsTable[photo]]
                 let productKcal = row[productsTable[calories]]
                 let productProtein = row[productsTable[protein]]
+                let weightOfPiece = row[productsTable[weightOfPiece]]
                 let productFat = row[productsTable[fat]]
                 let productCarbo = row[productsTable[carbo]]
                 let productCategoryId = row[productCategoriesTable[id]]
@@ -653,7 +661,7 @@ class DatabaseManager {
                 
                 let productToBuyAmount = row[productsToBuyTable[amount]]
                 
-                let product = Product(id: productId, name: productName, photo: productPhoto, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, category: Category(id: productCategoryId, name: productCategoryName))
+                let product = Product(id: productId, name: productName, photo: productPhoto, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, weightOfPiece: weightOfPiece, category: Category(id: productCategoryId, name: productCategoryName))
                 
                 let productAmount = ProductAmount(product: product, amount: productToBuyAmount!)
                 productsToBuy.append(productAmount)

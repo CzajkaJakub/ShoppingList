@@ -70,7 +70,8 @@ extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource
         nameLabel.text = "\(productAmounts.product.name)"
         cell.contentView.addSubview(nameLabel)
         
-        let detailsLabel = UILabelPadding(insets: TableViewComponent.defaultLabelPadding, labelText: "\(productAmounts.amount) gr")
+        let piecesLabel = productAmounts.product.weightOfPiece != nil ? "| \((productAmounts.amount / productAmounts.product.weightOfPiece!).rounded(toPlaces: 2)) szt." : ""
+        let detailsLabel = UILabelPadding(insets: TableViewComponent.defaultLabelPadding, labelText: "\(productAmounts.amount) gr \(piecesLabel)")
         
         // Set up rounded border
         detailsLabel.layer.cornerRadius = 10.0 // Adjust the radius as needed for your design
