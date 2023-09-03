@@ -202,10 +202,10 @@ class AddProductViewController: UIViewController {
             return
         }
         
-        let photoBlob = try! PhotoData.convertUIImageToResizedBlob(imageToResize: selectedPhoto)
         let weightOfPiece = weightOfPieceTextField.text != nil ? StringUtils.convertTextFieldToDouble(stringValue: weightOfPieceTextField.text!) : nil
         
         if editedProduct != nil {
+            let photoBlob = try! PhotoData.convertUIImageToResizedBlob(imageToResize: selectedPhoto)
             let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: Category(id: selectedOption.id!, name: selectedOption.name))
             Product.updateProduct(product: productToUpdate)
         } else {

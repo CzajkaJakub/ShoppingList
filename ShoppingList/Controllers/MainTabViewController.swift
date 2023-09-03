@@ -27,7 +27,12 @@ class MainTabViewController: UITabBarController, UITabBarControllerDelegate {
         vc4.tabBarItem.image = UIImage(systemName: "rectangle.and.pencil.and.ellipsis")
         vc4.tabBarItem.title = DateUtils.convertDateToMediumFormat(dateToConvert: Date())
         
-        setViewControllers([vc1, vc2, vc3, vc4], animated: true)
+        let vc5 = UINavigationController(rootViewController: RecipesViewController())
+        vc5.view.backgroundColor = .systemBackground
+        vc5.tabBarItem.image = UIImage(systemName: "cart")
+        vc5.tabBarItem.title = DateUtils.convertRangeToShortFormat(monthToConvert: Date())
+        
+        setViewControllers([vc1, vc2, vc3, vc4, vc5], animated: true)
     }
     
     func loadDataFromDatabase() {

@@ -13,8 +13,9 @@ class DatabaseManager {
     private var dishCategoriesTable = Table("dish_category")
     private var productsToBuyTable = Table("products_to_buy")
     private var productAmountTable = Table("product_amount")
-    private var dishTable = Table("dish")
     private var eatHistoryTable = Table("eat_history")
+    private var recipeTable = Table("recipes")
+    private var dishTable = Table("dish")
     
     //Foreign keys columns
     private var categoryId = Expression<Int>("category_id")
@@ -50,6 +51,7 @@ class DatabaseManager {
             createProductsToBuyTable()
             createProductAmountTable()
             createEatHistoryTable()
+            createRecipeTable()
         } catch {
             print("Error opening database: \(error)")
             fatalError("Failed to open database")
@@ -227,6 +229,70 @@ class DatabaseManager {
             try dbConnection.run(createEatHistoryTableQuery)
         } catch {
             print("Error creating eat history table: \(error)")
+        }
+    }
+    
+    func createRecipeTable(){
+        let createRecipeTableQuery = recipeTable.create(ifNotExists: true) { table in
+            table.column(id, primaryKey: .autoincrement)
+            table.column(dateTime)
+            table.column(amount)
+            table.column(photo)
+        }
+        
+        do {
+            try dbConnection.run(createRecipeTableQuery)
+        } catch {
+            print("Error creating recipe table: \(error)")
+        }
+    }
+    
+    func fetchRecipes(dateFrom: Date, dateTo: Date) -> [Recipe] {
+        var recipes: [Recipe] = []
+        
+        let selectQuery = recipeTable
+            .select(recipeTable[*])
+            .filter(recipeTable[dateTime] >= DateUtils.convertDateToIntValue(dateToConvert: dateFrom) && recipeTable[dateTime] <= DateUtils.convertDateToIntValue(dateToConvert: dateTo))
+        
+        do {
+            for row in try dbConnection.prepare(selectQuery) {
+                let recipeId = row[recipeTable[id]]
+                let dateTime = row[recipeTable[dateTime]]
+                let amount = row[recipeTable[amount]]
+                let photo = row[recipeTable[photo]]
+                
+                let recipe = Recipe(id: recipeId, dateValue: dateTime, amount: amount!, photo: photo)
+                recipes.append(recipe)
+            }
+        } catch {
+            print("Error selecting records: \(error)")
+        }
+        
+        return recipes
+    }
+    
+    func insertRecipe(recipe: Recipe) {
+        let insertRecipeQuery = recipeTable.insert(
+            dateTime <- DateUtils.convertDateToIntValue(dateToConvert: recipe.dateTime),
+            amount <- recipe.amount,
+            photo <- recipe.photo
+        )
+        
+        do {
+            let recipeId = try dbConnection.run(insertRecipeQuery)
+            recipe.id = Int(recipeId)
+        } catch {
+            print("Error inserting record: \(error)")
+        }
+    }
+    
+    func removeRecipe(recipe: Recipe) {
+        let deleteQuery = recipeTable.filter(id == recipe.id!).delete()
+        
+        do {
+            try dbConnection.run(deleteQuery)
+        } catch {
+            print("Error removing recipe: \(error)")
         }
     }
     

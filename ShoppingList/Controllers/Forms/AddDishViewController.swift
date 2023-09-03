@@ -2,6 +2,14 @@ import UIKit
 
 class AddDishViewController: UIViewController, UITableViewDelegate {
     
+    private var selectedProductsGroupedByCategory: [[ProductAmount]] = []
+    private let productsTable: UITableView = {
+        let productsTable = UITableView()
+        productsTable.translatesAutoresizingMaskIntoConstraints = false
+        productsTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        return productsTable
+    }()
+        
     private var imageViewHeightConstraint: NSLayoutConstraint?
     internal var selectedPhoto: UIImage!
     internal var selectedProducts: [ProductAmount] = []
@@ -47,10 +55,6 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         return UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(clearFields))
     }()
     
-    private lazy var showProductsButton: UIBarButtonItem = {
-        return UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editProductsButtonTapped))
-    }()
-    
     private lazy var selectPhotoButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(selectPhoto))
     }()
@@ -64,8 +68,9 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         if self.selectedOption == nil { self.selectedOption = Category.dishCategories.first }
         self.selectListTextField.text = selectedOption.name
         
-        navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, addProductButton, showProductsButton, saveButton]
-        
+        navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, addProductButton, saveButton]
+        view.addSubview(productsTable)
+
         setupConstraints()
         
         let tapGestureKeyboard = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -74,11 +79,20 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showSelectList))
         selectListTextField.addGestureRecognizer(tapGesture)
         selectListTextField.isUserInteractionEnabled = true
+        
+        
+        productsTable.delegate = self
+        productsTable.dataSource = self
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reloadProducts()
     }
     
     private func setupConstraints() {
         
-        let stackView = UIStackView(arrangedSubviews: [dishImageView, nameTextField, selectListTextField])
+        let stackView = UIStackView(arrangedSubviews: [selectListTextField, nameTextField, dishImageView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = TableViewComponent.stackViewAxis
         stackView.spacing = TableViewComponent.stackViewSpacing
@@ -89,7 +103,12 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
             stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: TableViewComponent.detailsComponentMargin),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: TableViewComponent.detailsComponentMargin),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -TableViewComponent.detailsComponentMargin),
-            stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -TableViewComponent.detailsComponentMargin)
+            stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -TableViewComponent.detailsComponentMargin),
+            
+            productsTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            productsTable.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            productsTable.topAnchor.constraint(equalTo: stackView.bottomAnchor),
+            productsTable.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     
@@ -199,13 +218,6 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         navigationController?.pushViewController(productSelectionVC, animated: true)
     }
     
-    @objc private func editProductsButtonTapped() {
-        let productSelectionVC = ProductListViewController()
-        productSelectionVC.delegate = self
-        productSelectionVC.selectedProducts = selectedProducts
-        navigationController?.pushViewController(productSelectionVC, animated: true)
-    }
-    
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -222,37 +234,35 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
             imageViewHeightConstraint?.isActive = true
         }
     }
+    
+    @objc private func reloadProducts() {
+        let groupedProducts = Dictionary(grouping: selectedProducts, by: { $0.product.category.name })
+        selectedProductsGroupedByCategory = groupedProducts.values.sorted(by: { $0[0].product.category.name < $1[0].product.category.name })
+        productsTable.reloadData()
+    }
 }
 
 extension AddDishViewController: UIPickerViewDelegate, UIPickerViewDataSource {
-    // Implement the required methods for UIPickerViewDataSource and UIPickerViewDelegate here
     
-    // Example UIPickerViewDataSource methods:
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        // Return the number of components (columns) in the select list
         return 1
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        // Return the number of rows in the select list
-        return Category.dishCategories.count // Replace with your actual array of select options
+        return Category.dishCategories.count
     }
     
-    // Example UIPickerViewDelegate method:
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        // Return the title for each row in the select list
-        return Category.dishCategories[row].name // Replace with your actual array of select options
+        return Category.dishCategories[row].name
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        // Handle the selection of a row in the select list
-        selectedOption = Category.dishCategories[row] // Replace with your actual array of select options
+        selectedOption = Category.dishCategories[row]
         selectListTextField.text = selectedOption.name
     }
 }
 
 
-// UIImagePickerControllerDelegate method to handle the captured photo
 extension AddDishViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let image = info[.originalImage] as? UIImage {
@@ -268,16 +278,130 @@ extension AddDishViewController: UIImagePickerControllerDelegate, UINavigationCo
 }
 
 
-extension AddDishViewController: ProductSelectionDelegate, ProductListDelegate {
+extension AddDishViewController: ProductSelectionDelegate {
     func didSelectProduct(_ product: Product, amount: Double) {
         selectedProducts.append(ProductAmount(product: product, amount: amount))
-    }
-    
-    func removeProductFromDishList(productIndex: Int) {
-        selectedProducts.remove(at: productIndex)
+        reloadProducts()
     }
 }
 
 protocol ProductSelectionDelegate: AnyObject {
     func didSelectProduct(_ product: Product, amount: Double)
+}
+
+extension AddDishViewController: UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return selectedProductsGroupedByCategory.count
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return selectedProductsGroupedByCategory[section].count
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return TableViewComponent.tableCellHeight
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return TableViewComponent.createHeaderForTable(tableView: tableView, headerName: selectedProductsGroupedByCategory[section][0].product.category.name)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return TableViewComponent.headerHeight
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = productsTable.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+        let productAmount = selectedProductsGroupedByCategory[indexPath.section][indexPath.row]
+        
+        let nameLabel = UILabel()
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.text = "\(productAmount.product.name)"
+        cell.contentView.addSubview(nameLabel)
+        
+        let piecesLabel = productAmount.product.weightOfPiece != nil ? "| \((productAmount.amount / productAmount.product.weightOfPiece!).rounded(toPlaces: 2)) szt." : ""
+        let detailsLabel = UILabelPadding(insets: TableViewComponent.defaultLabelPadding, labelText: "\(productAmount.amount) gr \(piecesLabel)")
+        
+        // Set up rounded border
+        detailsLabel.layer.cornerRadius = 10.0 // Adjust the radius as needed for your design
+        detailsLabel.layer.borderWidth = 1.8  // Width of the border
+        detailsLabel.layer.borderColor = UIColor.systemBlue.cgColor // Color of the border
+        cell.contentView.addSubview(detailsLabel)
+        
+        let productImageView = TableViewComponent.createImageView(photoInCell: productAmount.product.photo)
+        cell.contentView.addSubview(productImageView)
+        
+        NSLayoutConstraint.activate([
+            productImageView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
+            productImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+            
+            nameLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
+            nameLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+            
+            detailsLabel.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -10),
+            detailsLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
+        ])
+        
+        return cell
+    }
+    
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let addProductToShoppingListAction = UIContextualAction(style: .normal, title: "Edit amount") { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to add this product to list?", preferredStyle: .alert)
+            confirmationAlert.addTextField { textField in
+                textField.placeholder = "Enter Amount"
+                textField.keyboardType = .decimalPad
+            }
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let addAction = UIAlertAction(title: "Add", style: .destructive) { (_) in
+                if let amountText = confirmationAlert.textFields?.first?.text,
+                   let amount = Double(amountText) {
+                    self?.updateAmount(at: indexPath, amount: amount)
+                }
+            }
+            
+            confirmationAlert.addAction(cancelAction)
+            confirmationAlert.addAction(addAction)
+            self?.present(confirmationAlert, animated: true, completion: nil)
+            completionHandler(true) // Call the completion handler to indicate that the action was performed
+        }
+        addProductToShoppingListAction.backgroundColor = .blue // Customize the action button background color
+        
+        let configuration = UISwipeActionsConfiguration(actions: [addProductToShoppingListAction])
+        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        return configuration
+    }
+    
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let removeDishAction = UIContextualAction(style: .normal, title: "Remove product") { [weak self] (action, view, completionHandler) in
+            self?.removeProductToBuy(at: indexPath)
+            completionHandler(true) // Call the completion handler to indicate that the action was performed
+        }
+        removeDishAction.backgroundColor = .red // Customize the action button background color
+        
+        let configuration = UISwipeActionsConfiguration(actions: [removeDishAction])
+        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        return configuration
+    }
+    
+    func removeProductToBuy(at indexPath: IndexPath) {
+        let productToRemove = selectedProductsGroupedByCategory[indexPath.section][indexPath.row]
+        if let index = selectedProducts.firstIndex(where: { $0.product.id == productToRemove.product.id }) {
+            selectedProducts.remove(at: index)
+        }
+        reloadProducts()
+    }
+    
+    func updateAmount(at indexPath: IndexPath, amount: Double) {
+        let productToUpdate = selectedProductsGroupedByCategory[indexPath.section][indexPath.row]
+        productToUpdate.amount = amount
+        if let index = selectedProducts.firstIndex(where: { $0.product.id == productToUpdate.product.id }) {
+            selectedProducts[index] = productToUpdate
+        }
+        reloadProducts()
+    }
 }

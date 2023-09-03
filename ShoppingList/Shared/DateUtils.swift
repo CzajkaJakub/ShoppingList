@@ -9,6 +9,12 @@ class DateUtils {
         return formatter
     }()
     
+    static let monthYearDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("MMMM yyyy")
+        return formatter
+    }()
+    
     static func convertDoubleToDate(dateNumberValue: Int) -> Date {
         let timeInterval = TimeInterval(dateNumberValue)
         return Date(timeIntervalSince1970: timeInterval)
@@ -20,6 +26,10 @@ class DateUtils {
     
     static func convertDateToMediumFormat(dateToConvert: Date) -> String {
         return DateUtils.dateFormatter.string(from: dateToConvert)
+    }
+    
+    static func convertRangeToShortFormat(monthToConvert: Date) -> String {
+        return DateUtils.monthYearDateFormatter.string(from: monthToConvert)
     }
 }
 

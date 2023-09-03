@@ -34,6 +34,9 @@
 		0CC8D3962A9FD099002B7B0F /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC8D3952A9FD099002B7B0F /* Extensions.swift */; };
 		0CDF372C2A7E729300EB2A88 /* EatHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDF372B2A7E729300EB2A88 /* EatHistoryItem.swift */; };
 		0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE66F732A76738500971742 /* DishDetailViewController.swift */; };
+		0CF62CE82AA4D4C7005AFD9D /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF62CE72AA4D4C7005AFD9D /* Recipe.swift */; };
+		0CF62CEA2AA4D8A2005AFD9D /* RecipesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF62CE92AA4D8A2005AFD9D /* RecipesViewController.swift */; };
+		0CF62CEC2AA4E408005AFD9D /* AddRecipeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF62CEB2AA4E408005AFD9D /* AddRecipeViewController.swift */; };
 		0CF6A8E32AA10DF700AEA39D /* ProductSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF6A8E22AA10DF700AEA39D /* ProductSelectionViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -66,6 +69,9 @@
 		0CC8D3952A9FD099002B7B0F /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		0CDF372B2A7E729300EB2A88 /* EatHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistoryItem.swift; sourceTree = "<group>"; };
 		0CE66F732A76738500971742 /* DishDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishDetailViewController.swift; sourceTree = "<group>"; };
+		0CF62CE72AA4D4C7005AFD9D /* Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
+		0CF62CE92AA4D8A2005AFD9D /* RecipesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipesViewController.swift; sourceTree = "<group>"; };
+		0CF62CEB2AA4E408005AFD9D /* AddRecipeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecipeViewController.swift; sourceTree = "<group>"; };
 		0CF6A8E22AA10DF700AEA39D /* ProductSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductSelectionViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -89,6 +95,7 @@
 				0C5FB0E32A631D5B00B609CF /* Dish.swift */,
 				0C5FB0E52A631F2100B609CF /* ProductAmount.swift */,
 				0CDF372B2A7E729300EB2A88 /* EatHistoryItem.swift */,
+				0CF62CE72AA4D4C7005AFD9D /* Recipe.swift */,
 			);
 			path = Entity;
 			sourceTree = "<group>";
@@ -112,6 +119,7 @@
 			children = (
 				0C3AEDDF2A7FF84E000F77A3 /* EatHistoryViewController.swift */,
 				0CE66F732A76738500971742 /* DishDetailViewController.swift */,
+				0CF62CE92AA4D8A2005AFD9D /* RecipesViewController.swift */,
 			);
 			path = Details;
 			sourceTree = "<group>";
@@ -132,6 +140,7 @@
 				0CC7D19B2A5B2CFF005DB139 /* AddProductViewController.swift */,
 				0CC7D19F2A5B2D22005DB139 /* AddDishViewController.swift */,
 				0CF6A8E22AA10DF700AEA39D /* ProductSelectionViewController.swift */,
+				0CF62CEB2AA4E408005AFD9D /* AddRecipeViewController.swift */,
 			);
 			path = Forms;
 			sourceTree = "<group>";
@@ -291,11 +300,14 @@
 				0CC7D1812A5AE2E7005DB139 /* SceneDelegate.swift in Sources */,
 				0C63C8842A7BBD3200CFDCD2 /* PhotoData.swift in Sources */,
 				0CC7D1A42A5B3360005DB139 /* MainTabViewController.swift in Sources */,
+				0CF62CEC2AA4E408005AFD9D /* AddRecipeViewController.swift in Sources */,
 				0C5FB0E42A631D5B00B609CF /* Dish.swift in Sources */,
+				0CF62CE82AA4D4C7005AFD9D /* Recipe.swift in Sources */,
 				0CDF372C2A7E729300EB2A88 /* EatHistoryItem.swift in Sources */,
 				0C9AA1532A87CAAB001F8FF4 /* UILabelPadding.swift in Sources */,
 				0C0554022A5C3AB100DFECAB /* Category.swift in Sources */,
 				0C5FB0E62A631F2100B609CF /* ProductAmount.swift in Sources */,
+				0CF62CEA2AA4D8A2005AFD9D /* RecipesViewController.swift in Sources */,
 				0C913A422A8BDDF800C8F2E8 /* TableViewComponent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

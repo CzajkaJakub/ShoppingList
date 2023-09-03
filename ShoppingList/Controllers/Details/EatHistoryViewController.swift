@@ -59,6 +59,11 @@ class EatHistoryViewController: UIViewController {
         setupUI()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reloadView()
+    }
+    
     @objc private func nextDayAction() {
         self.searchDate = Calendar.current.date(byAdding: .day, value: 1, to: self.searchDate)!
         reloadView()
