@@ -9,7 +9,7 @@ enum PhotoDataError: Error {
 public class PhotoData {
     
     private static let targetPhotoSize = CGSize(width: 800, height: 1200)
-    private static let compressionQuality = 0.5
+    private static let compressionQuality = 0.7
     
     public static func convertUIImageToResizedBlob(imageToResize: UIImage) throws -> Blob {
         let resizedImage = self.resizeImage(image: imageToResize, targetSize: targetPhotoSize)
@@ -22,6 +22,11 @@ public class PhotoData {
         imageData.copyBytes(to: &byteArray, count: imageData.count)
         
         return Blob(bytes: byteArray)
+    }
+    
+    public static func resizeImage(imageBlob: Blob, targetSize: CGSize) -> UIImage? {
+        let photoData = Data.fromDatatypeValue(imageBlob)
+        return resizeImage(image: UIImage(data: photoData)!, targetSize: targetSize)
     }
     
     public static func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage? {

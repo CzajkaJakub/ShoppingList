@@ -2,7 +2,7 @@ import Foundation
 import SQLite
 import UIKit
 
-class Recipe {
+public class Recipe {
     
     var id: Int?
     var photo: Blob
@@ -36,7 +36,7 @@ class Recipe {
     static func removeRecipe(recipe: Recipe) {
         if let index = Recipe.recipes.firstIndex(where: { $0.id == recipe.id }) {
             DatabaseManager.shared.removeRecipe(recipe: recipe)
-            EatHistoryItem.eatHistory.remove(at: index)
+            Recipe.recipes.remove(at: index)
         }
     }
 }

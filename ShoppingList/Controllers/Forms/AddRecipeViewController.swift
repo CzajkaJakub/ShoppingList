@@ -4,7 +4,7 @@ class AddRecipeViewController: UIViewController {
     
     private var imageViewHeightConstraint: NSLayoutConstraint?
     internal var selectedPhoto: UIImage!
-    internal var selectedDate: Date!
+    internal var selectedDate: Date = Date()
     
     internal let recipeImageView: UIImageView = {
         let productImageView = UIImageView()
@@ -116,21 +116,24 @@ class AddRecipeViewController: UIViewController {
     @objc private func saveRecipe() {
         
         guard let photo = selectedPhoto,
-              let date = selectedDate,
               let recipeValue = StringUtils.convertTextFieldToDouble(stringValue: recipeValueTextField.text!)
         else {
             Toast.showToast(message: "Invalid input", parentView: self.view)
             return
         }
         
-        Recipe.addRecipe(recipe: Recipe(date: date, amount: recipeValue, photo: photo))
+        Recipe.addRecipe(recipe: Recipe(date: selectedDate, amount: recipeValue, photo: photo))
         
         // Show an alert or perform any other UI update to indicate successful save
         let alertController = UIAlertController(title: "Success", message: "Recipe saved successfully.", preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-        alertController.addAction(okAction)
+        
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+            self.recipeImageView.image = nil
+            self.imageViewHeightConstraint?.isActive = false
+            self.recipeValueTextField.text = nil
+        }))
+        
         present(alertController, animated: true, completion: nil)
-        clearFields()
     }
     
     @objc private func clearFields() {

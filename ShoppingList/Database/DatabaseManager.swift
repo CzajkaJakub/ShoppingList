@@ -252,7 +252,8 @@ class DatabaseManager {
         
         let selectQuery = recipeTable
             .select(recipeTable[*])
-            .filter(recipeTable[dateTime] >= DateUtils.convertDateToIntValue(dateToConvert: dateFrom) && recipeTable[dateTime] <= DateUtils.convertDateToIntValue(dateToConvert: dateTo))
+            .filter(recipeTable[dateTime] >= DateUtils.convertDateToIntValue(dateToConvert: dateFrom) &&
+                    recipeTable[dateTime] <= DateUtils.convertDateToIntValue(dateToConvert: dateTo)).order(recipeTable[dateTime])
         
         do {
             for row in try dbConnection.prepare(selectQuery) {
@@ -322,7 +323,9 @@ class DatabaseManager {
                 eatHistoryTable[dateTime],
                 eatHistoryTable[dishId],
                 eatHistoryTable[productId])
-            .filter(eatHistoryTable[dateTime] >= DateUtils.convertDateToIntValue(dateToConvert: dateFrom) && eatHistoryTable[dateTime] <= DateUtils.convertDateToIntValue(dateToConvert: dateTo))
+            .filter(eatHistoryTable[dateTime] >= DateUtils.convertDateToIntValue(dateToConvert: dateFrom) &&
+                    eatHistoryTable[dateTime] <= DateUtils.convertDateToIntValue(dateToConvert: dateTo))
+            .order(eatHistoryTable[dateTime])
         
         do {
             for row in try dbConnection.prepare(selectQuery) {

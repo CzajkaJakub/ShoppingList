@@ -2,6 +2,11 @@ import UIKit
 
 class ShoppingListViewController: UIViewController {
     
+    private lazy var longPressRecognizer: UILongPressGestureRecognizer = {
+        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        return recognizer
+    }()
+    
     private let productsTable: UITableView = {
         let productsTable = UITableView()
         productsTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
@@ -21,6 +26,7 @@ class ShoppingListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Shopping list"
+        self.productsTable.addGestureRecognizer(longPressRecognizer)
         
         productsTable.delegate = self
         productsTable.dataSource = self
@@ -35,6 +41,22 @@ class ShoppingListViewController: UIViewController {
     
     @objc private func reloadProducts() {
         productsTable.reloadData()
+    }
+    
+    @objc private func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        if gestureRecognizer.state == .began {
+            let touchPoint = gestureRecognizer.location(in: self.productsTable)
+            if let indexPath = self.productsTable.indexPathForRow(at: touchPoint) {
+                let product = productsToBuyGroupedByCategory[indexPath.section][indexPath.row]
+
+                let popupVC = PopUpModalViewController()
+                popupVC.blobImageToDisplay = product.product.photo
+
+                popupVC.modalPresentationStyle = .overFullScreen
+                popupVC.modalTransitionStyle = .crossDissolve
+                self.present(popupVC, animated: true)
+            }
+        }
     }
 }
 

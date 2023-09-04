@@ -3,6 +3,11 @@ import UIKit
 import SQLite
 
 class RecipesViewController: UIViewController {
+    
+    private lazy var longPressRecognizer: UILongPressGestureRecognizer = {
+        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        return recognizer
+    }()
         
     private let recipesTable: UITableView = {
         let eatHistoryTable = UITableView()
@@ -37,6 +42,7 @@ class RecipesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = DateUtils.convertDateToMediumFormat(dateToConvert: self.searchMonth)
+        self.recipesTable.addGestureRecognizer(longPressRecognizer)
         EatHistoryItem.reloadEatItemsByDate(searchDate: self.searchMonth)
         
         navigationItem.rightBarButtonItems = [self.nextMonthButton, addRecipeButton]
@@ -78,7 +84,7 @@ class RecipesViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .white
         
-        recipeLabel.text = "Sum : \(Recipe.recipes.map {$0.amount}.reduce(0, +))"
+        recipeLabel.text = "Sum : \(Recipe.recipes.map {$0.amount}.reduce(0, +).rounded(toPlaces: 2))"
         
         NSLayoutConstraint.activate([
             recipeLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -89,6 +95,22 @@ class RecipesViewController: UIViewController {
             recipesTable.topAnchor.constraint(equalTo: recipeLabel.bottomAnchor),
             recipesTable.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+    
+    @objc private func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        if gestureRecognizer.state == .began {
+            let touchPoint = gestureRecognizer.location(in: self.recipesTable)
+            if let indexPath = self.recipesTable.indexPathForRow(at: touchPoint) {
+                let recipe = Recipe.recipes[indexPath.row]
+
+                let popupVC = PopUpModalViewController()
+                popupVC.blobImageToDisplay = recipe.photo
+
+                popupVC.modalPresentationStyle = .overFullScreen
+                popupVC.modalTransitionStyle = .crossDissolve
+                self.present(popupVC, animated: true)
+            }
+        }
     }
 }
 
@@ -131,23 +153,33 @@ extension RecipesViewController: UITableViewDelegate, UITableViewDataSource {
         detailsLabel.text = "\(DateUtils.convertDateToMediumFormat(dateToConvert: recipe.dateTime))"
         cell.contentView.addSubview(detailsLabel)
         
-        let productImageView = TableViewComponent.createImageView(photoInCell: recipe.photo)
-        cell.contentView.addSubview(productImageView)
-        
         NSLayoutConstraint.activate([
-            productImageView.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
-            productImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-            
-            nameLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
+            nameLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
             nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
             
-            detailsLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
+            detailsLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 10),
             detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10)
         ])
         
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let removeDishAction = UIContextualAction(style: .normal, title: "Remove recipe") { [weak self] (action, view, completionHandler) in
+            self?.removeRecipe(at: indexPath)
+            completionHandler(true) // Call the completion handler to indicate that the action was performed
+        }
+        removeDishAction.backgroundColor = .red // Customize the action button background color
+        
+        let configuration = UISwipeActionsConfiguration(actions: [removeDishAction])
+        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        return configuration
+    }
+    
+    func removeRecipe(at indexPath: IndexPath) {
+        let recipeToRemove = Recipe.recipes[indexPath.row]
+        Recipe.removeRecipe(recipe: recipeToRemove)
+        reloadView()
+    }
 }
-
-
-

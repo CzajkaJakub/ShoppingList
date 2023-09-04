@@ -11,6 +11,7 @@
 		0C0554022A5C3AB100DFECAB /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0554012A5C3AB100DFECAB /* Category.swift */; };
 		0C0554052A5C3E4E00DFECAB /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0554042A5C3E4E00DFECAB /* Toast.swift */; };
 		0C0624D22A60680D00E5E36F /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 0C0624D12A60680D00E5E36F /* SQLite */; };
+		0C12B5D32AA649F90093A4F4 /* PopupModelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C12B5D22AA649F90093A4F4 /* PopupModelViewController.swift */; };
 		0C3AEDE02A7FF84E000F77A3 /* EatHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3AEDDF2A7FF84E000F77A3 /* EatHistoryViewController.swift */; };
 		0C5FB0E42A631D5B00B609CF /* Dish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5FB0E32A631D5B00B609CF /* Dish.swift */; };
 		0C5FB0E62A631F2100B609CF /* ProductAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5FB0E52A631F2100B609CF /* ProductAmount.swift */; };
@@ -44,6 +45,7 @@
 		0C0553FF2A5C3A4B00DFECAB /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
 		0C0554012A5C3AB100DFECAB /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		0C0554042A5C3E4E00DFECAB /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
+		0C12B5D22AA649F90093A4F4 /* PopupModelViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupModelViewController.swift; sourceTree = "<group>"; };
 		0C3AEDDF2A7FF84E000F77A3 /* EatHistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistoryViewController.swift; sourceTree = "<group>"; };
 		0C5FB0E32A631D5B00B609CF /* Dish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dish.swift; sourceTree = "<group>"; };
 		0C5FB0E52A631F2100B609CF /* ProductAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductAmount.swift; sourceTree = "<group>"; };
@@ -112,6 +114,14 @@
 				0CC8D3952A9FD099002B7B0F /* Extensions.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		0C12B5D12AA649DF0093A4F4 /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				0C12B5D22AA649F90093A4F4 /* PopupModelViewController.swift */,
+			);
+			path = shared;
 			sourceTree = "<group>";
 		};
 		0C913A432A8BE46F00C8F2E8 /* Details */ = {
@@ -188,6 +198,7 @@
 		0CC7D1972A5B2AF8005DB139 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				0C12B5D12AA649DF0093A4F4 /* shared */,
 				0C913A432A8BE46F00C8F2E8 /* Details */,
 				0CA88C672A6BEEAD00838222 /* Forms */,
 				0CA88C662A6BEEA200838222 /* Tables */,
@@ -283,6 +294,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0CC8D3962A9FD099002B7B0F /* Extensions.swift in Sources */,
+				0C12B5D32AA649F90093A4F4 /* PopupModelViewController.swift in Sources */,
 				0CC7D19A2A5B2CCF005DB139 /* ShoppingListViewController.swift in Sources */,
 				0C0554052A5C3E4E00DFECAB /* Toast.swift in Sources */,
 				0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */,
