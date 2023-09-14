@@ -8,18 +8,18 @@ class EatHistoryItem {
     var productAmount: ProductAmount?
     var dish: Dish?
     
-    init(dish: Dish) {
+    init(dish: Dish, eatDate: Date) {
         self.id = nil
-        self.dateTime = Date.now
-        self.productAmount = nil
         self.dish = dish
+        self.dateTime = eatDate
+        self.productAmount = nil
     }
     
-    init(productAmount: ProductAmount) {
+    init(productAmount: ProductAmount, eatDate: Date) {
         self.id = nil
-        self.dateTime = Date.now
-        self.productAmount = productAmount
         self.dish = nil
+        self.dateTime = eatDate
+        self.productAmount = productAmount
     }
     
     init(id: Int, dateValue: Int, productAmount: ProductAmount) {
@@ -39,8 +39,9 @@ class EatHistoryItem {
     static var eatHistory: [EatHistoryItem] = []
     
     static func addItemToEatHistory(eatItem: EatHistoryItem) {
-        DatabaseManager.shared.insertToEatHistory(eatItem: eatItem)
-        EatHistoryItem.eatHistory.append(eatItem)
+        if (DatabaseManager.shared.insertToEatHistory(eatItem: eatItem)) {
+            EatHistoryItem.eatHistory.append(eatItem)
+        }
     }
     
     static func reloadEatItemsByDate(searchDate: Date) {
@@ -49,8 +50,9 @@ class EatHistoryItem {
     
     static func removeHistoryItem(historyItem: EatHistoryItem) {
         if let index = EatHistoryItem.eatHistory.firstIndex(where: { $0.id == historyItem.id }) {
-            DatabaseManager.shared.removeEatHistoryItem(historyItem: historyItem)
-            EatHistoryItem.eatHistory.remove(at: index)
+            if (DatabaseManager.shared.removeEatHistoryItem(historyItem: historyItem)) {
+                EatHistoryItem.eatHistory.remove(at: index)
+            }
         }
     }
 }

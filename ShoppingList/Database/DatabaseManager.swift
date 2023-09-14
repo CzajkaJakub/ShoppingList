@@ -7,33 +7,36 @@ class DatabaseManager {
     static let shared = DatabaseManager()
     private var dbConnection: Connection
     
-    //Tables
-    private var productsTable = Table("products")
-    private var productCategoriesTable = Table("product_category")
-    private var dishCategoriesTable = Table("dish_category")
-    private var productsToBuyTable = Table("products_to_buy")
-    private var productAmountTable = Table("product_amount")
-    private var eatHistoryTable = Table("eat_history")
-    private var recipeTable = Table("recipes")
-    private var dishTable = Table("dish")
+    // Tables
+    private var dishTable = Table(Constants.dishTable)
+    private var recipeTable = Table(Constants.recipeTable)
+    private var productsTable = Table(Constants.productsTable)
+    private var eatHistoryTable = Table(Constants.eatHistoryTable)
+    private var productsToBuyTable = Table(Constants.productsToBuyTable)
+    private var productAmountTable = Table(Constants.productAmountTable)
+    private var dishCategoriesTable = Table(Constants.dishCategoriesTable)
+    private var productCategoriesTable = Table(Constants.productCategoriesTable)
+
     
-    //Foreign keys columns
-    private var categoryId = Expression<Int>("category_id")
-    private var productId = Expression<Int?>("product_id")
-    private var dishId = Expression<Int?>("dish_id")
-    
-    //Columns
-    private var id = Expression<Int>("id")
-    private var name = Expression<String>("name")
-    private var photo = Expression<Blob>("photo")
-    private var calories = Expression<Double>("calories")
-    private var protein = Expression<Double>("protein")
-    private var fat = Expression<Double>("fat")
-    private var carbo = Expression<Double>("carbo")
-    private var categoryName = Expression<String>("category_name")
-    private var amount = Expression<Double?>("amount")
-    private var weightOfPiece = Expression<Double?>("weight_of_piece")
-    private var dateTime = Expression<Int>("date_time")
+    // Foreign keys columns
+    private var dishId = Expression<Int?>(Constants.dishId)
+    private var productId = Expression<Int?>(Constants.productId)
+    private var categoryId = Expression<Int>(Constants.categoryId)
+
+    // Columns
+    private var id = Expression<Int>(Constants.id)
+    private var fat = Expression<Double>(Constants.fat)
+    private var name = Expression<String>(Constants.name)
+    private var photo = Expression<Blob>(Constants.photo)
+    private var carbo = Expression<Double>(Constants.carbo)
+    private var amount = Expression<Double?>(Constants.amount)
+    private var dateTime = Expression<Int>(Constants.dateTime)
+    private var protein = Expression<Double>(Constants.protein)
+    private var calories = Expression<Double>(Constants.calories)
+    private var favourite = Expression<Bool>(Constants.favourite)
+    private var description = Expression<String?>(Constants.description)
+    private var categoryName = Expression<String>(Constants.categoryName)
+    private var weightOfPiece = Expression<Double?>(Constants.weightOfPiece)
     
     private init() {
         let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
@@ -53,7 +56,7 @@ class DatabaseManager {
             createEatHistoryTable()
             createRecipeTable()
         } catch {
-            print("Error opening database: \(error)")
+            Alert.displayErrorAlert(message: "Error opening database: \(error)")
             fatalError("Failed to open database")
         }
     }
@@ -73,7 +76,7 @@ class DatabaseManager {
         do {
             try dbConnection.run(createCategoriesTableQuery)
         } catch {
-            print("Error creating categories table: \(error)")
+            Alert.displayErrorAlert(message: "Error creating categories table: \(error)")
         }
         
         let selectCategoriesIfNotExists = productCategoriesTable.count
@@ -81,32 +84,20 @@ class DatabaseManager {
             let categoryCount = try dbConnection.scalar(selectCategoriesIfNotExists)
             
             if categoryCount == 0 {
-                let categoriesSql = [
-                    productCategoriesTable.insert(categoryName <- "Vegetables"),
-                    productCategoriesTable.insert(categoryName <- "Fruits"),
-                    productCategoriesTable.insert(categoryName <- "Meat"),
-                    productCategoriesTable.insert(categoryName <- "Seafood"),
-                    productCategoriesTable.insert(categoryName <- "Grain"),
-                    productCategoriesTable.insert(categoryName <- "Fat"),
-                    productCategoriesTable.insert(categoryName <- "Sweets"),
-                    productCategoriesTable.insert(categoryName <- "Legumes"),
-                    productCategoriesTable.insert(categoryName <- "Spices"),
-                    productCategoriesTable.insert(categoryName <- "Bread"),
-                    productCategoriesTable.insert(categoryName <- "Dairy"),
-                    productCategoriesTable.insert(categoryName <- "Nuts seeds"),
-                    productCategoriesTable.insert(categoryName <- "Others")
-                ]
+                let categoriesSql = Constants.productCategories.map { categoryName in
+                    return productCategoriesTable.insert(self.categoryName <- categoryName)
+                }
                 
                 for query in categoriesSql {
                     do {
                         try dbConnection.run(query)
                     } catch {
-                        print("Error creating categories records: \(error)")
+                        Alert.displayErrorAlert(message: "Error creating categories records: \(error)")
                     }
                 }
             }
         } catch {
-            print("Error counting categories records: \(error)")
+            Alert.displayErrorAlert(message: "Error counting categories records: \(error)")
         }
     }
     
@@ -119,7 +110,7 @@ class DatabaseManager {
         do {
             try dbConnection.run(createCategoriesTableQuery)
         } catch {
-            print("Error creating dish categories table: \(error)")
+            Alert.displayErrorAlert(message: "Error creating dish categories table: \(error)")
         }
         
         let selectCategoriesIfNotExists = dishCategoriesTable.count
@@ -127,22 +118,20 @@ class DatabaseManager {
             let categoryCount = try dbConnection.scalar(selectCategoriesIfNotExists)
             
             if categoryCount == 0 {
-                let categoriesSql = [
-                    dishCategoriesTable.insert(categoryName <- "Breakfast"),
-                    dishCategoriesTable.insert(categoryName <- "Lunch"),
-                    dishCategoriesTable.insert(categoryName <- "Dinner"),
-                ]
+                let categoriesSql = Constants.dishCategories.map { categoryName in
+                    return dishCategoriesTable.insert(self.categoryName <- categoryName)
+                }
                 
                 for query in categoriesSql {
                     do {
                         try dbConnection.run(query)
                     } catch {
-                        print("Error creating dish categories records: \(error)")
+                        Alert.displayErrorAlert(message: "Error creating dish categories records: \(error)")
                     }
                 }
             }
         } catch {
-            print("Error counting cdish ategories records: \(error)")
+            Alert.displayErrorAlert(message: "Error counting cdish ategories records: \(error)")
         }
     }
     
@@ -163,7 +152,7 @@ class DatabaseManager {
         do {
             try dbConnection.run(createProductsTableQuery)
         } catch {
-            print("Error creating products table: \(error)")
+            Alert.displayErrorAlert(message: "Error creating products table: \(error)")
         }
     }
     
@@ -172,6 +161,8 @@ class DatabaseManager {
         let createDishTableQuery = dishTable.create(ifNotExists: true) { table in
             table.column(id, primaryKey: .autoincrement)
             table.column(name, unique: true)
+            table.column(favourite)
+            table.column(description)
             table.column(photo)
             table.column(categoryId)
             table.foreignKey(categoryId, references: dishCategoriesTable, id, update: .cascade, delete: .cascade)
@@ -180,7 +171,7 @@ class DatabaseManager {
         do {
             try dbConnection.run(createDishTableQuery)
         } catch {
-            print("Error creating dish table: \(error)")
+            Alert.displayErrorAlert(message: "Error creating dish table: \(error)")
         }
     }
     
@@ -196,7 +187,7 @@ class DatabaseManager {
         do {
             try dbConnection.run(createProductAmountTableQuery)
         } catch {
-            print("Error creating product_amount table: \(error)")
+            Alert.displayErrorAlert(message: "Error creating product_amount table: \(error)")
         }
     }
     
@@ -210,7 +201,7 @@ class DatabaseManager {
         do {
             try dbConnection.run(createProductsToBuyTableQuery)
         } catch {
-            print("Error creating products_to_buy table: \(error)")
+            Alert.displayErrorAlert(message: "Error creating products_to_buy table: \(error)")
         }
     }
     
@@ -228,7 +219,7 @@ class DatabaseManager {
         do {
             try dbConnection.run(createEatHistoryTableQuery)
         } catch {
-            print("Error creating eat history table: \(error)")
+            Alert.displayErrorAlert(message: "Error creating eat history table: \(error)")
         }
     }
     
@@ -243,7 +234,7 @@ class DatabaseManager {
         do {
             try dbConnection.run(createRecipeTableQuery)
         } catch {
-            print("Error creating recipe table: \(error)")
+            Alert.displayErrorAlert(message: "Error creating recipe table: \(error)")
         }
     }
     
@@ -266,13 +257,13 @@ class DatabaseManager {
                 recipes.append(recipe)
             }
         } catch {
-            print("Error selecting records: \(error)")
+            Alert.displayErrorAlert(message: "Error selecting records: \(error)")
         }
         
         return recipes
     }
     
-    func insertRecipe(recipe: Recipe) {
+    func insertRecipe(recipe: Recipe) -> Bool {
         let insertRecipeQuery = recipeTable.insert(
             dateTime <- DateUtils.convertDateToIntValue(dateToConvert: recipe.dateTime),
             amount <- recipe.amount,
@@ -282,22 +273,26 @@ class DatabaseManager {
         do {
             let recipeId = try dbConnection.run(insertRecipeQuery)
             recipe.id = Int(recipeId)
+            return true
         } catch {
-            print("Error inserting record: \(error)")
+            Alert.displayErrorAlert(message: "Error inserting record: \(error)")
+            return false
         }
     }
     
-    func removeRecipe(recipe: Recipe) {
+    func removeRecipe(recipe: Recipe) -> Bool {
         let deleteQuery = recipeTable.filter(id == recipe.id!).delete()
         
         do {
             try dbConnection.run(deleteQuery)
+            return true
         } catch {
-            print("Error removing recipe: \(error)")
+            Alert.displayErrorAlert(message: "Error removing recipe: \(error)")
+            return false
         }
     }
     
-    func insertToEatHistory(eatItem: EatHistoryItem) {
+    func insertToEatHistory(eatItem: EatHistoryItem) -> Bool {
         let insertEatItemQuery = eatHistoryTable.insert(
             dateTime <- DateUtils.convertDateToIntValue(dateToConvert: eatItem.dateTime),
             amount <- eatItem.productAmount?.amount,
@@ -308,8 +303,10 @@ class DatabaseManager {
         do {
             let eatHistoryId = try dbConnection.run(insertEatItemQuery)
             eatItem.id = Int(eatHistoryId)
+            return true
         } catch {
-            print("Error inserting record: \(error)")
+            Alert.displayErrorAlert(message: "Error inserting record: \(error)")
+            return false
         }
     }
     
@@ -347,13 +344,13 @@ class DatabaseManager {
                 }
             }
         } catch {
-            print("Error selecting records: \(error)")
+            Alert.displayErrorAlert(message: "Error selecting records: \(error)")
         }
         
         return eatHistory
     }
 
-    func insertProduct(product: Product) {
+    func insertProduct(product: Product) -> Bool {
         let insertQuery = productsTable.insert(
             name <- product.name,
             photo <- product.photo,
@@ -368,12 +365,14 @@ class DatabaseManager {
         do {
             let productId = try dbConnection.run(insertQuery)
             product.id = Int(productId)
+            return true
         } catch {
-            print("Error inserting record: \(error)")
+            Alert.displayErrorAlert(message: "Error inserting record: \(error)")
+            return false
         }
     }
     
-    func updateProduct(product: Product){
+    func updateProduct(product: Product) -> Bool {
         do {
             if let _ = try dbConnection.pluck(productsTable.filter(id == product.id!)) {
                 
@@ -388,23 +387,29 @@ class DatabaseManager {
                             categoryId <- product.category.id!)
                 do {
                     try dbConnection.run(updateProductQuery)
+                    return true
                 } catch {
-                    print("Error updating product: \(error)")
+                    Alert.displayErrorAlert(message: "Error updating product: \(error)")
+                    return false
                 }
             }
         } catch {
-            print("Product not found id: \(product.id!)")
+            Alert.displayErrorAlert(message: "Product not found id: \(product.id!)")
+            return false
         }
+        return true
     }
     
     
-    func removeProduct(product: Product) {
+    func removeProduct(product: Product) -> Bool {
         let deleteQuery = productsTable.filter(id == product.id!).delete()
         
         do {
             try dbConnection.run(deleteQuery)
+            return true
         } catch {
-            print("Error removing product: \(error)")
+            Alert.displayErrorAlert(message: "Error removing product: \(error)")
+            return false
         }
     }
     
@@ -445,7 +450,7 @@ class DatabaseManager {
                 products.append(product)
             }
         } catch {
-            print("Error selecting records: \(error)")
+            Alert.displayErrorAlert(message: "Error selecting records: \(error)")
         }
         
         return products
@@ -506,7 +511,7 @@ class DatabaseManager {
                 categories.append(category)
             }
         } catch {
-            print("Error selecting records: \(error)")
+            Alert.displayErrorAlert(message: "Error selecting records: \(error)")
         }
         
         return categories
@@ -531,7 +536,7 @@ class DatabaseManager {
                 categories.append(category)
             }
         } catch {
-            print("Error selecting records: \(error)")
+            Alert.displayErrorAlert(message: "Error selecting records: \(error)")
         }
         
         return categories
@@ -546,16 +551,18 @@ class DatabaseManager {
                 let dishId = dishRow[dishTable[id]]
                 let dishName = dishRow[dishTable[name]]
                 let dishPhoto = dishRow[dishTable[photo]]
+                let dishFavourite = dishRow[dishTable[favourite]]
+                let dishDescription = dishRow[dishTable[description]]
                 let dishCategoryId = dishRow[dishCategoriesTable[id]]
                 let dishCategoryName = dishRow[dishCategoriesTable[categoryName]]
                 let dishCategory = Category(id: dishCategoryId, name: dishCategoryName)
                 let productAmountsForDish = fetchProductsAmountForDish(dishIdToSearch: dishId)
                 
-                dishes.append(Dish(id: dishId, name: dishName, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory))
+                dishes.append(Dish(id: dishId, name: dishName, description: dishDescription, favourite: dishFavourite, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory))
                 
             }
         } catch {
-            print("Error fetching dish: \(error)")
+            Alert.displayErrorAlert(message: "Error fetching dish: \(error)")
         }
         return dishes
     }
@@ -568,12 +575,14 @@ class DatabaseManager {
             let dishId = dishRow[dishTable[id]]
             let dishName = dishRow[dishTable[name]]
             let dishPhoto = dishRow[dishTable[photo]]
+            let dishFavourite = dishRow[dishTable[favourite]]
+            let dishDescription = dishRow[dishTable[description]]
             let dishCategoryId = dishRow[dishCategoriesTable[id]]
             let dishCategoryName = dishRow[dishCategoriesTable[categoryName]]
             let dishCategory = Category(id: dishCategoryId, name: dishCategoryName)
             let productAmountsForDish = fetchProductsAmountForDish(dishIdToSearch: dishId)
 
-            dish = Dish(id: dishId, name: dishName, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory)
+            dish = Dish(id: dishId, name: dishName, description: dishDescription, favourite: dishFavourite, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory)
         }
         return dish
     }
@@ -609,13 +618,13 @@ class DatabaseManager {
                 productAmountsForDish.append(productAmount)
             }
         } catch {
-            print("Error fetching dish (\(dishId): \(error)")
+            Alert.displayErrorAlert(message: "Error fetching dish (\(dishId): \(error)")
         }
         
         return productAmountsForDish
     }
     
-    func insertProductAmountForDish(dish: Dish){
+    func insertProductAmountForDish(dish: Dish) -> Bool {
         do {
             for productAmount in dish.productAmounts {
                 let insertProductAmountQuery = productAmountTable.insert(
@@ -624,74 +633,100 @@ class DatabaseManager {
                     self.amount <- productAmount.amount
                 )
                 try dbConnection.run(insertProductAmountQuery)
+                return true
             }
+            return true
         } catch {
-            print("Error inserting product amount: \(error)")
+            Alert.displayErrorAlert(message: "Error inserting product amount: \(error)")
+            return false
         }
     }
     
-    func removeProductAmountForDish(dish: Dish){
+    func removeProductAmountForDish(dish: Dish) -> Bool {
         let deleteProductAmountQuery = productAmountTable.filter(dishId == dish.id!).delete()
         
         do {
             try dbConnection.run(deleteProductAmountQuery)
+            return true
         } catch {
-            print("Error removing product amounts: \(error)")
+            Alert.displayErrorAlert(message: "\(Constants.errorRemoveProductAmount) : \(error)")
+            return false
         }
     }
     
-    func insertDish(dish: Dish) {
+    func insertDish(dish: Dish) -> Bool {
         
         let insertDishQuery = dishTable.insert(
             name <- dish.name,
             photo <- dish.photo,
+            favourite <- dish.favourite,
+            description <- dish.description,
             categoryId <- dish.category.id!)
         do {
             dish.id = try Int(dbConnection.run(insertDishQuery))
-            insertProductAmountForDish(dish: dish)
+            if (insertProductAmountForDish(dish: dish)){
+                return true
+            }
+            return false
         } catch {
-            print("Error inserting dish: \(error)")
+            Alert.displayErrorAlert(message: "\(Constants.errorInsertDish) : \(error)")
+            return false
         }
     }
     
-    func updateDish(dish: Dish){
+    func updateDish(dish: Dish) -> Bool {
         do {
             if let _ = try dbConnection.pluck(dishTable.filter(id == dish.id!)) {
                 
                 let updateDishQuery = dishTable.filter(id == dish.id!)
                     .update(name <- dish.name,
                             photo <- dish.photo,
+                            favourite <- dish.favourite,
+                            description <- dish.description,
                             categoryId <- dish.category.id!)
                 do {
                     try dbConnection.run(updateDishQuery)
-                    removeProductAmountForDish(dish: dish)
-                    insertProductAmountForDish(dish: dish)
+                    if (!removeProductAmountForDish(dish: dish)) {
+                        return false
+                    }
+                    if (!insertProductAmountForDish(dish: dish)) {
+                        return false
+                    }
                 } catch {
-                    print("Error updating dish: \(error)")
+                    Alert.displayErrorAlert(message: "Error updating dish: \(error)")
+                    return false
                 }
             }
         } catch {
-            print("Dish not found id: \(dish.id!)")
+            Alert.displayErrorAlert(message: "Dish not found id: \(dish.id!)")
+            return false
         }
+        return true
     }
     
-    func removeDish(dish: Dish) {
+    func removeDish(dish: Dish) -> Bool {
         let deleteQueryDish = dishTable.filter(id == dish.id!).delete()
         
         do {
             try dbConnection.run(deleteQueryDish)
+            return true
         } catch {
-            print("Error removing product: \(error)")
+            Alert.displayErrorAlert(message: "Error removing product: \(error)")
+            return false
         }
     }
     
-    func addDishToShoppingList(dish: Dish){
-        dish.productAmounts.forEach { productAmount in
-            addProductToShoppingList(productToBuy: productAmount)
+    func addDishToShoppingList(dish: Dish) -> Bool {
+        for productAmount in dish.productAmounts {
+            if addProductToShoppingList(productToBuy: productAmount) {
+                return false
+            }
         }
+        return true
     }
+
     
-    func addProductToShoppingList(productToBuy: ProductAmount) {
+    func addProductToShoppingList(productToBuy: ProductAmount) -> Bool {
         do {
             if let existingProduct = try dbConnection.pluck(productsToBuyTable.filter(productId == productToBuy.product.id!)) {
                 // Product exists, perform an update
@@ -701,9 +736,12 @@ class DatabaseManager {
             } else {
                 try dbConnection.run(productsToBuyTable.insert(productId <- productToBuy.product.id!,
                                                                amount <- productToBuy.amount))
+                return true
             }
+            return true
         } catch {
-            print("Error adding/updating product: \(error)")
+            Alert.displayErrorAlert(message: "Error adding/updating product: \(error)")
+            return false
         }
     }
     
@@ -737,30 +775,34 @@ class DatabaseManager {
             }
             
         } catch {
-            print("Error fetching products to buy: \(error)")
+            Alert.displayErrorAlert(message: "Error fetching products to buy: \(error)")
         }
         return productsToBuy
     }
     
-    func removeProductToBuy(productToBuy: ProductAmount) {
+    func removeProductToBuy(productToBuy: ProductAmount) -> Bool {
         let deleteQueryProductToBuy = productsToBuyTable.filter(productId == productToBuy.product.id!).delete()
         
         do {
             try dbConnection.run(deleteQueryProductToBuy)
+            return true
             
         } catch {
-            print("Error removing product: \(error)")
+            Alert.displayErrorAlert(message: "Error removing product: \(error)")
+            return false
         }
     }
     
-    func removeEatHistoryItem(historyItem: EatHistoryItem) {
+    func removeEatHistoryItem(historyItem: EatHistoryItem) -> Bool {
         let deleteQueryEatHistoryItem = eatHistoryTable.filter(id == historyItem.id!).delete()
         
         do {
             try dbConnection.run(deleteQueryEatHistoryItem)
+            return true
             
         } catch {
-            print("Error removing history item: \(error)")
+            Alert.displayErrorAlert(message: "Error removing history item: \(error)")
+            return false
         }
     }
 }

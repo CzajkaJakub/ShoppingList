@@ -35,8 +35,9 @@ public class Recipe {
     
     static func removeRecipe(recipe: Recipe) {
         if let index = Recipe.recipes.firstIndex(where: { $0.id == recipe.id }) {
-            DatabaseManager.shared.removeRecipe(recipe: recipe)
-            Recipe.recipes.remove(at: index)
+            if (DatabaseManager.shared.removeRecipe(recipe: recipe)){
+                Recipe.recipes.remove(at: index)
+            }
         }
     }
 }

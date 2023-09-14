@@ -13,6 +13,7 @@ class DishesViewController: UIViewController {
         return groupedDishes.values.sorted(by: { $0[0].category.name < $1[0].category.name })
     }
     
+    private var selectedDate: Date = Date()
     private var filteredDishesGroupedByCategory: [[Dish]] = []
     
     private lazy var addDishButton: UIBarButtonItem = {
@@ -75,10 +76,15 @@ class DishesViewController: UIViewController {
         
         editDishVC.selectedProducts = dish.productAmounts
         editDishVC.nameTextField.text = dish.name
+        editDishVC.dishDescriptionTextField.text = dish.description
         editDishVC.selectedPhoto = PhotoData.blobToUIImage(photoBlob: dish.photo)
         editDishVC.selectedOption = dish.category
         editDishVC.reloadPhoto()
         navigationController?.pushViewController(editDishVC, animated: true)
+    }
+    
+    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+        self.selectedDate = sender.date
     }
     
     @objc func editDishAction(_ gestureRecognizer: UILongPressGestureRecognizer) {
@@ -94,19 +100,59 @@ class DishesViewController: UIViewController {
                     self.openDishViewController(editMode: true, dish: dish)
                 }
                 
+                var favouriteButton: UIAlertAction! = nil
+                if (!dish.favourite) {
+                    favouriteButton = UIAlertAction(title: "Add to favourite", style: .default) { (_) in
+                        dish.favourite = true
+                        Dish.updateDish(dish: dish)
+                        self.reloadDishes()
+                    }
+                } else {
+                    favouriteButton = UIAlertAction(title: "Remove from favourite", style: .default) { (_) in
+                        dish.favourite = false
+                        Dish.updateDish(dish: dish)
+                        self.reloadDishes()
+                    }
+                }
+                
+                
                 let addNewAction = UIAlertAction(title: "Copy", style: .default) { (_) in
                     self.openDishViewController(editMode: false, dish: dish)
                 }
                 
                 let eatDishAction = UIAlertAction(title: "Eat dish", style: .default) { (_) in
-                    let eatItem = EatHistoryItem(dish: dish)
-                    EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
-                    Toast.showToast(message: "\(dish.name) was eaten!", parentView: self.view)
-                }
+                    
+                    let amountAlert = UIAlertController(title: "Wybierz date\n", message: nil, preferredStyle: .alert)
+                    
+                    let datePicker: UIDatePicker = {
+                        let datePicker = UIDatePicker()
+                        datePicker.datePickerMode = .date
+                        datePicker.date = Date()
+                        datePicker.translatesAutoresizingMaskIntoConstraints = false
+                        datePicker.addTarget(self, action: #selector(self.datePickerValueChanged(_:)), for: .valueChanged)
+                        return datePicker
+                    }()
+                    
+                    amountAlert.view.addSubview(datePicker)
+                    datePicker.topAnchor.constraint(equalTo: amountAlert.view.topAnchor, constant: 42).isActive = true
+                    datePicker.centerXAnchor.constraint(equalTo: amountAlert.view.centerXAnchor).isActive = true
+                    
+                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+                    let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
                 
+                        let eatItem = EatHistoryItem(dish: dish, eatDate: self!.selectedDate)
+                        EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
+                        Toast.showToast(message: "\(dish.name) was eaten!", parentView: self!.view)
+                    }
+                    
+                    amountAlert.addAction(cancelAction)
+                    amountAlert.addAction(addAction)
+                    self.present(amountAlert, animated: true, completion: nil)
+                }
                 
                 let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
                 
+                alertController.addAction(favouriteButton)
                 alertController.addAction(eatDishAction)
                 alertController.addAction(editAction)
                 alertController.addAction(addNewAction)
@@ -178,11 +224,17 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = dishesTable.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         let dish = filteredDishesGroupedByCategory[indexPath.section][indexPath.row]
-        
+                
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.text = "\(dish.name)"
+        
+        if (dish.favourite) {
+            nameLabel.backgroundColor = .yellow
+        }
+        
         cell.contentView.addSubview(nameLabel)
+        
         
         let dishImageView = TableViewComponent.createImageView(photoInCell: dish.photo)
         cell.contentView.addSubview(dishImageView)

@@ -6,6 +6,8 @@ class Dish {
     var id: Int?
     var photo: Blob
     var name: String
+    var favourite: Bool
+    var description: String?
     var productAmounts: [ProductAmount]
     var category: Category
     
@@ -34,9 +36,11 @@ class Dish {
         get { return round(_proteins * 100) / 100.0 }
     }
     
-    init(name: String, photo: UIImage, productAmounts: [ProductAmount], category: Category) {
+    init(name: String, description: String?, photo: UIImage, productAmounts: [ProductAmount], category: Category) {
         self.id = nil
         self.name = name
+        self.favourite = false
+        self.description = description
         self.photo = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)
         self.category = category
         self.productAmounts = productAmounts
@@ -46,11 +50,13 @@ class Dish {
         self._proteins = productAmounts.map {$0.product.protein * $0.amount / 100}.reduce(0, +)
     }
     
-    init(id: Int, name: String, photo: Blob, productAmounts: [ProductAmount], category: Category) {
+    init(id: Int, name: String, description: String?, favourite: Bool, photo: Blob, productAmounts: [ProductAmount], category: Category) {
         self.id = id
         self.name = name
         self.photo = photo
         self.category = category
+        self.favourite = favourite
+        self.description = description
         self.productAmounts = productAmounts
         self._calories = productAmounts.map {$0.product.calories * $0.amount / 100}.reduce(0, +)
         self._carbo = productAmounts.map {$0.product.carbo * $0.amount / 100}.reduce(0, +)
@@ -62,14 +68,16 @@ class Dish {
     
     static func removeDish(dish: Dish) {
         if let index = Dish.dishes.firstIndex(where: { $0.id == dish.id }) {
-            DatabaseManager.shared.removeDish(dish: dish)
-            Dish.dishes.remove(at: index)
+            if (DatabaseManager.shared.removeDish(dish: dish)) {
+                Dish.dishes.remove(at: index)
+            }
         }
     }
     
     static func addDish(dish: Dish) {
-        DatabaseManager.shared.insertDish(dish: dish)
-        Dish.dishes.append(dish)
+        if (DatabaseManager.shared.insertDish(dish: dish)) {
+            Dish.dishes.append(dish)
+        }
     }
     
     static func reloadDishesFromDatabase() {
@@ -78,8 +86,9 @@ class Dish {
     
     static func updateDish(dish: Dish){
         if let index = Dish.dishes.firstIndex(where: { $0.id == dish.id }) {
-            Dish.dishes[index] = dish
-            DatabaseManager.shared.updateDish(dish: dish)
+            if (DatabaseManager.shared.updateDish(dish: dish)) {
+                Dish.dishes[index] = dish
+            }
         }
     }
 }

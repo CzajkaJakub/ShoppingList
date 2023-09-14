@@ -11,7 +11,7 @@ class DateUtils {
     
     static let monthYearDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("MMMM yyyy")
+        formatter.setLocalizedDateFormatFromTemplate(Constants.dateFormat_MMMM_yyyy)
         return formatter
     }()
     

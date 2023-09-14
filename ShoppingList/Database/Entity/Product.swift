@@ -62,24 +62,27 @@ class Product {
     
     static func removeProduct(product: Product) {
         if let index = Product.products.firstIndex(where: { $0.id == product.id }) {
-            DatabaseManager.shared.removeProduct(product: product)
-            Product.products.remove(at: index)
-            ProductAmount.reloadProductsToBuyFromDatabase()
-            Dish.reloadDishesFromDatabase()
+            if (DatabaseManager.shared.removeProduct(product: product)) {
+                Product.products.remove(at: index)
+                ProductAmount.reloadProductsToBuyFromDatabase()
+                Dish.reloadDishesFromDatabase()
+            }
         }
     }
     
     static func addProduct(product: Product) {
-        DatabaseManager.shared.insertProduct(product: product)
-        Product.products.append(product)
+        if (DatabaseManager.shared.insertProduct(product: product)) {
+            Product.products.append(product)
+        }
     }
     
     static func updateProduct(product: Product) {
         if let index = Product.products.firstIndex(where: { $0.id == product.id }) {
-            Product.products[index] = product
-            DatabaseManager.shared.updateProduct(product: product)
-            Dish.reloadDishesFromDatabase()
-            ProductAmount.reloadProductsToBuyFromDatabase()
+            if (DatabaseManager.shared.updateProduct(product: product)) {
+                Product.products[index] = product
+                Dish.reloadDishesFromDatabase()
+                ProductAmount.reloadProductsToBuyFromDatabase()
+            }
         }
     }
     

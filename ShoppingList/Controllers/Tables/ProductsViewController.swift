@@ -13,6 +13,7 @@ class ProductsViewController: UIViewController {
         return groupedProducts.values.sorted(by: { $0[0].category.name < $1[0].category.name })
     }
     
+    private var selectedDate: Date = Date()
     private var filteredProductsGroupedByCategory: [[Product]] = []
     
     private lazy var addProductButton: UIBarButtonItem = {
@@ -84,6 +85,10 @@ class ProductsViewController: UIViewController {
         navigationController?.pushViewController(editProductVC, animated: true)
     }
     
+    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+        self.selectedDate = sender.date
+    }
+    
     @objc func editProductAction(_ gestureRecognizer: UILongPressGestureRecognizer) {
         if gestureRecognizer.state == .began {
             let point = gestureRecognizer.location(in: productsTable)
@@ -105,11 +110,26 @@ class ProductsViewController: UIViewController {
                 
                 let eatProductAction = UIAlertAction(title: "Eat product", style: .default) { (_) in
                     
-                    let amountAlert = UIAlertController(title: "Enter Amount", message: nil, preferredStyle: .alert)
+                    let amountAlert = UIAlertController(title: "Wpisz wartość\n", message: nil, preferredStyle: .alert)
+                    
                     amountAlert.addTextField { textField in
-                        textField.placeholder = "Enter Amount (grams)"
+                        textField.placeholder = "Wpisz wartość (gramy)"
                         textField.keyboardType = .decimalPad
                     }
+                    
+                    
+                    let datePicker: UIDatePicker = {
+                        let datePicker = UIDatePicker()
+                        datePicker.datePickerMode = .date
+                        datePicker.date = Date()
+                        datePicker.translatesAutoresizingMaskIntoConstraints = false
+                        datePicker.addTarget(self, action: #selector(self.datePickerValueChanged(_:)), for: .valueChanged)
+                        return datePicker
+                    }()
+                    
+                    amountAlert.view.addSubview(datePicker)
+                    datePicker.topAnchor.constraint(equalTo: amountAlert.view.topAnchor, constant: 42).isActive = true
+                    datePicker.centerXAnchor.constraint(equalTo: amountAlert.view.centerXAnchor).isActive = true
                     
                     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
                     let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
@@ -118,7 +138,7 @@ class ProductsViewController: UIViewController {
                         if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
                             
                             let productAmount = ProductAmount(product: product, amount: passedValue)
-                            let eatItem = EatHistoryItem(productAmount: productAmount)
+                            let eatItem = EatHistoryItem(productAmount: productAmount, eatDate: self!.selectedDate)
                             EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
                             Toast.showToast(message: "\(product.name) was eaten! (\(productAmount.amount) grams)", parentView: self!.view)
                             

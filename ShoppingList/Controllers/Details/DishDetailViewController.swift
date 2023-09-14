@@ -29,6 +29,13 @@ class DishDetailViewController: UIViewController {
             Kcal: \(dish.calories)  |  Carbs: \(dish.carbo)  |  Fat: \(dish.fat)  |  Protein: \(dish.proteins)
             """
         
+        let descriptionLabel = UILabel()
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        descriptionLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        descriptionLabel.textColor = .gray
+        descriptionLabel.numberOfLines = 0
+        descriptionLabel.text = dish.description
+        
         let productsList = UILabel()
         productsList.translatesAutoresizingMaskIntoConstraints = false
         productsList.font = UIFont.systemFont(ofSize: 14)
@@ -40,7 +47,7 @@ class DishDetailViewController: UIViewController {
 
         }.joined(separator: "\n")
         
-        let stackView = UIStackView(arrangedSubviews: [dishImageView, detailsLabel, productsList])
+        let stackView = UIStackView(arrangedSubviews: [dishImageView, detailsLabel, productsList, descriptionLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = TableViewComponent.stackViewAxis
         stackView.spacing = TableViewComponent.stackViewSpacing
