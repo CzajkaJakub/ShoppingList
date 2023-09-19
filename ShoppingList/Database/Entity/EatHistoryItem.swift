@@ -4,54 +4,54 @@ import UIKit
 
 class EatHistoryItem {
     var id: Int?
-    var dateTime: Date
-    var productAmount: ProductAmount?
     var dish: Dish?
+    var dateTime: Date
+    var amount: Double?
+    var product: Product?
     
-    init(dish: Dish, eatDate: Date) {
+    init(dish: Dish?, product: Product?, amount: Double?, eatDate: Date) {
         self.id = nil
         self.dish = dish
+        self.amount = amount
+        self.product = product
         self.dateTime = eatDate
-        self.productAmount = nil
     }
     
-    init(productAmount: ProductAmount, eatDate: Date) {
-        self.id = nil
-        self.dish = nil
-        self.dateTime = eatDate
-        self.productAmount = productAmount
-    }
-    
-    init(id: Int, dateValue: Int, productAmount: ProductAmount) {
+    init(id: Int, dateValue: Int, dish: Dish?, product: Product?, amount: Double?) {
         self.id = id
-        self.productAmount = productAmount
-        self.dish = nil
-        self.dateTime = DateUtils.convertDoubleToDate(dateNumberValue: dateValue)
-    }
-    
-    init(id: Int, dateValue: Int, dish: Dish) {
-        self.id = id
-        self.productAmount = nil
         self.dish = dish
+        self.amount = amount
+        self.product = product
         self.dateTime = DateUtils.convertDoubleToDate(dateNumberValue: dateValue)
     }
     
     static var eatHistory: [EatHistoryItem] = []
     
     static func addItemToEatHistory(eatItem: EatHistoryItem) {
-        if (DatabaseManager.shared.insertToEatHistory(eatItem: eatItem)) {
+        do {
+            try DatabaseManager.shared.insertToEatHistory(eatItem: eatItem)
             EatHistoryItem.eatHistory.append(eatItem)
+        } catch {
+            Alert.displayErrorAlert(message: "\(error)")
         }
     }
     
     static func reloadEatItemsByDate(searchDate: Date) {
-        EatHistoryItem.eatHistory = DatabaseManager.shared.fetchEatHistory(dateFrom: searchDate.startOfDay, dateTo: searchDate.endOfDay)
+        do {
+            EatHistoryItem.eatHistory = try DatabaseManager.shared.fetchEatHistory(dateFrom: searchDate.startOfDay, dateTo: searchDate.endOfDay)
+        } catch {
+            Alert.displayErrorAlert(message: "\(error)")
+        }
     }
     
     static func removeHistoryItem(historyItem: EatHistoryItem) {
         if let index = EatHistoryItem.eatHistory.firstIndex(where: { $0.id == historyItem.id }) {
-            if (DatabaseManager.shared.removeEatHistoryItem(historyItem: historyItem)) {
+            
+            do {
+                try DatabaseManager.shared.removeEatHistoryItem(historyItem: historyItem)
                 EatHistoryItem.eatHistory.remove(at: index)
+            } catch {
+                Alert.displayErrorAlert(message: "\(error)")
             }
         }
     }

@@ -124,6 +124,11 @@ class DishesViewController: UIViewController {
                     
                     let amountAlert = UIAlertController(title: "Wybierz date\n", message: nil, preferredStyle: .alert)
                     
+                    amountAlert.addTextField { textField in
+                        textField.placeholder = "Wpisz ilość zjedzonego dania (1 - 100 %)"
+                        textField.keyboardType = .decimalPad
+                    }
+                    
                     let datePicker: UIDatePicker = {
                         let datePicker = UIDatePicker()
                         datePicker.datePickerMode = .date
@@ -139,10 +144,17 @@ class DishesViewController: UIViewController {
                     
                     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
                     let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
-                
-                        let eatItem = EatHistoryItem(dish: dish, eatDate: self!.selectedDate)
-                        EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
-                        Toast.showToast(message: "\(dish.name) was eaten!", parentView: self!.view)
+                        
+                        let passedValueText = amountAlert.textFields?.first?.text!
+                        if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
+                            
+                            let eatItem = EatHistoryItem(dish: dish, product: nil, amount: passedValue, eatDate: self!.selectedDate)
+                            EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
+                            Toast.showToast(message: "\(dish.name) was eaten!", parentView: self!.view)
+                            
+                        } else {
+                            Toast.showToast(message: "Wrong value text!", parentView: self!.view)
+                        }
                     }
                     
                     amountAlert.addAction(cancelAction)

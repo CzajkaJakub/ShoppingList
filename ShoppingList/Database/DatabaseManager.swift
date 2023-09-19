@@ -4,6 +4,7 @@ import SQLite3
 import UIKit
 
 class DatabaseManager {
+    
     static let shared = DatabaseManager()
     private var dbConnection: Connection
     
@@ -12,12 +13,11 @@ class DatabaseManager {
     private var recipeTable = Table(Constants.recipeTable)
     private var productsTable = Table(Constants.productsTable)
     private var eatHistoryTable = Table(Constants.eatHistoryTable)
-    private var productsToBuyTable = Table(Constants.productsToBuyTable)
+    private var shoppingListTable = Table(Constants.productsToBuyTable)
     private var productAmountTable = Table(Constants.productAmountTable)
     private var dishCategoriesTable = Table(Constants.dishCategoriesTable)
     private var productCategoriesTable = Table(Constants.productCategoriesTable)
 
-    
     // Foreign keys columns
     private var dishId = Expression<Int?>(Constants.dishId)
     private var productId = Expression<Int?>(Constants.productId)
@@ -40,78 +40,66 @@ class DatabaseManager {
     
     private init() {
         let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appendingPathComponent("fitForYou.sqlite")
+            .appendingPathComponent(Constants.databaseName)
         
         print(fileURL)
         
         do {
             dbConnection = try Connection(fileURL.path, readonly: false)
             sqlite3_exec(dbConnection.handle, "PRAGMA foreign_keys = on", nil, nil, nil)
-            createProductCategoriesTableAndInsertData()
-            createDishCategoriesTableAndInsertData()
-            createProductTable()
-            createDishTable()
-            createProductsToBuyTable()
-            createProductAmountTable()
-            createEatHistoryTable()
-            createRecipeTable()
+            try createProductCategoriesTable()
+            try createDishCategoriesTable()
+            try createProductTable()
+            try createDishTable()
+            try createProductsToBuyTable()
+            try createProductAmountTable()
+            try createEatHistoryTable()
+            try createRecipeTable()
+            
+            try insertDataIntoProductCategoriesTable()
+            try insertDataIntoDishCategoriesTable()
+        
+            
+            
+            
+            
+            let updateQuery = eatHistoryTable.filter(amount == nil)
+                 .update(amount <- 1)
+             try dbConnection.run(updateQuery)
+            
+            
         } catch {
-            Alert.displayErrorAlert(message: "Error opening database: \(error)")
-            fatalError("Failed to open database")
+            fatalError("\(Constants.errorCreateDatabase): \(error)")
         }
     }
     
-    func reloadProductsDishesFromDatabase() {
-        Product.products = DatabaseManager.shared.fetchProducts()
-        Dish.dishes = DatabaseManager.shared.fetchDishes()
-        ProductAmount.productsToBuy = DatabaseManager.shared.fetchProductsToBuy()
-    }
+    // ############### INSERT DATA INTO TABLES SECTION ############### //
     
-    func createProductCategoriesTableAndInsertData() {
-        let createCategoriesTableQuery = productCategoriesTable.create(ifNotExists: true) { table in
-            table.column(id, primaryKey: .autoincrement)
-            table.column(categoryName, unique: true)
-        }
-        
-        do {
-            try dbConnection.run(createCategoriesTableQuery)
-        } catch {
-            Alert.displayErrorAlert(message: "Error creating categories table: \(error)")
-        }
-        
+    func insertDataIntoProductCategoriesTable() throws {
+
         let selectCategoriesIfNotExists = productCategoriesTable.count
         do {
             let categoryCount = try dbConnection.scalar(selectCategoriesIfNotExists)
-            
+
             if categoryCount == 0 {
                 let categoriesSql = Constants.productCategories.map { categoryName in
                     return productCategoriesTable.insert(self.categoryName <- categoryName)
                 }
-                
+
                 for query in categoriesSql {
                     do {
                         try dbConnection.run(query)
                     } catch {
-                        Alert.displayErrorAlert(message: "Error creating categories records: \(error)")
+                        throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.productCategoriesTable)): \(error)")
                     }
                 }
             }
         } catch {
-            Alert.displayErrorAlert(message: "Error counting categories records: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.productCategoriesTable)): \(error)")
         }
     }
     
-    func createDishCategoriesTableAndInsertData() {
-        let createCategoriesTableQuery = dishCategoriesTable.create(ifNotExists: true) { table in
-            table.column(id, primaryKey: .autoincrement)
-            table.column(categoryName, unique: true)
-        }
-        
-        do {
-            try dbConnection.run(createCategoriesTableQuery)
-        } catch {
-            Alert.displayErrorAlert(message: "Error creating dish categories table: \(error)")
-        }
+    func insertDataIntoDishCategoriesTable() throws {
         
         let selectCategoriesIfNotExists = dishCategoriesTable.count
         do {
@@ -126,16 +114,44 @@ class DatabaseManager {
                     do {
                         try dbConnection.run(query)
                     } catch {
-                        Alert.displayErrorAlert(message: "Error creating dish categories records: \(error)")
+                        throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.dishCategoriesTable)): \(error)")
                     }
                 }
             }
         } catch {
-            Alert.displayErrorAlert(message: "Error counting cdish ategories records: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.dishCategoriesTable)): \(error)")
         }
     }
     
-    func createProductTable(){
+    // ############### CREATE TABLES SECTION ############### //
+    
+    func createProductCategoriesTable() throws {
+        let createCategoriesTableQuery = productCategoriesTable.create(ifNotExists: true) { table in
+            table.column(id, primaryKey: .autoincrement)
+            table.column(categoryName, unique: true)
+        }
+        
+        do {
+            try dbConnection.run(createCategoriesTableQuery)
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.productCategoriesTable)): \(error)")
+        }
+    }
+    
+    func createDishCategoriesTable() throws {
+        let createCategoriesTableQuery = dishCategoriesTable.create(ifNotExists: true) { table in
+            table.column(id, primaryKey: .autoincrement)
+            table.column(categoryName, unique: true)
+        }
+        
+        do {
+            try dbConnection.run(createCategoriesTableQuery)
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.dishCategoriesTable)): \(error)")
+        }
+    }
+    
+    func createProductTable() throws {
         let createProductsTableQuery = productsTable.create(ifNotExists: true) { table in
             table.column(id, primaryKey: .autoincrement)
             table.column(name)
@@ -152,12 +168,12 @@ class DatabaseManager {
         do {
             try dbConnection.run(createProductsTableQuery)
         } catch {
-            Alert.displayErrorAlert(message: "Error creating products table: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.productsTable)): \(error)")
         }
     }
     
     
-    func createDishTable() {
+    func createDishTable() throws {
         let createDishTableQuery = dishTable.create(ifNotExists: true) { table in
             table.column(id, primaryKey: .autoincrement)
             table.column(name, unique: true)
@@ -171,11 +187,11 @@ class DatabaseManager {
         do {
             try dbConnection.run(createDishTableQuery)
         } catch {
-            Alert.displayErrorAlert(message: "Error creating dish table: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.dishTable)): \(error)")
         }
     }
     
-    func createProductAmountTable(){
+    func createProductAmountTable() throws {
         let createProductAmountTableQuery = productAmountTable.create(ifNotExists: true) { table in
             table.column(dishId)
             table.column(productId)
@@ -187,12 +203,12 @@ class DatabaseManager {
         do {
             try dbConnection.run(createProductAmountTableQuery)
         } catch {
-            Alert.displayErrorAlert(message: "Error creating product_amount table: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.productAmountTable)): \(error)")
         }
     }
     
-    func createProductsToBuyTable(){
-        let createProductsToBuyTableQuery = productsToBuyTable.create(ifNotExists: true) { table in
+    func createProductsToBuyTable() throws {
+        let createProductsToBuyTableQuery = shoppingListTable.create(ifNotExists: true) { table in
             table.column(productId)
             table.column(amount)
             table.foreignKey(productId, references: productsTable, id, update: .cascade, delete: .cascade)
@@ -201,11 +217,11 @@ class DatabaseManager {
         do {
             try dbConnection.run(createProductsToBuyTableQuery)
         } catch {
-            Alert.displayErrorAlert(message: "Error creating products_to_buy table: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.productsToBuyTable)): \(error)")
         }
     }
     
-    func createEatHistoryTable(){
+    func createEatHistoryTable() throws {
         let createEatHistoryTableQuery = eatHistoryTable.create(ifNotExists: true) { table in
             table.column(id, primaryKey: .autoincrement)
             table.column(dateTime)
@@ -219,11 +235,11 @@ class DatabaseManager {
         do {
             try dbConnection.run(createEatHistoryTableQuery)
         } catch {
-            Alert.displayErrorAlert(message: "Error creating eat history table: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.eatHistoryTable)): \(error)")
         }
     }
     
-    func createRecipeTable(){
+    func createRecipeTable() throws {
         let createRecipeTableQuery = recipeTable.create(ifNotExists: true) { table in
             table.column(id, primaryKey: .autoincrement)
             table.column(dateTime)
@@ -234,17 +250,64 @@ class DatabaseManager {
         do {
             try dbConnection.run(createRecipeTableQuery)
         } catch {
-            Alert.displayErrorAlert(message: "Error creating recipe table: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorCreateDatabase) (\(Constants.recipeTable)): \(error)")
+        }
+    }
+
+    // ############### UPDATE SECTION ############### //
+    
+    func updateProduct(product: Product) throws {
+        
+        do {
+            if let _ = try dbConnection.pluck(productsTable.filter(id == product.id!)) {
+                
+                let updateProductQuery = productsTable.filter(id == product.id!)
+                    .update(name <- product.name,
+                            calories <- product.calories,
+                            protein <- product.protein,
+                            fat <- product.fat,
+                            carbo <- product.carbo,
+                            photo <- product.photo,
+                            weightOfPiece <- product.weightOfPiece,
+                            categoryId <- product.category.id!)
+                
+                try dbConnection.run(updateProductQuery)
+            }
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorUpdate) (\(Constants.product)): \(error)")
         }
     }
     
-    func fetchRecipes(dateFrom: Date, dateTo: Date) -> [Recipe] {
+    func updateDish(dish: Dish) throws {
+        do {
+            if let _ = try dbConnection.pluck(dishTable.filter(id == dish.id!)) {
+                
+                let updateDishQuery = dishTable.filter(id == dish.id!)
+                    .update(name <- dish.name,
+                            photo <- dish.photo,
+                            favourite <- dish.favourite,
+                            description <- dish.description,
+                            categoryId <- dish.category.id!)
+                
+                try dbConnection.run(updateDishQuery)
+                try removeProductAmountForDish(dish: dish)
+                try insertProductAmountForDish(dish: dish)
+            }
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorUpdate) (\(Constants.dish)): \(error)")
+        }
+    }
+    
+    // ############### FETCHING SECTION ############### //
+    
+    func fetchRecipes(dateFrom: Date, dateTo: Date) throws -> [Recipe] {
         var recipes: [Recipe] = []
         
         let selectQuery = recipeTable
             .select(recipeTable[*])
             .filter(recipeTable[dateTime] >= DateUtils.convertDateToIntValue(dateToConvert: dateFrom) &&
-                    recipeTable[dateTime] <= DateUtils.convertDateToIntValue(dateToConvert: dateTo)).order(recipeTable[dateTime])
+                    recipeTable[dateTime] <= DateUtils.convertDateToIntValue(dateToConvert: dateTo))
+            .order(recipeTable[dateTime])
         
         do {
             for row in try dbConnection.prepare(selectQuery) {
@@ -256,61 +319,13 @@ class DatabaseManager {
                 let recipe = Recipe(id: recipeId, dateValue: dateTime, amount: amount!, photo: photo)
                 recipes.append(recipe)
             }
+            return recipes
         } catch {
-            Alert.displayErrorAlert(message: "Error selecting records: \(error)")
-        }
-        
-        return recipes
-    }
-    
-    func insertRecipe(recipe: Recipe) -> Bool {
-        let insertRecipeQuery = recipeTable.insert(
-            dateTime <- DateUtils.convertDateToIntValue(dateToConvert: recipe.dateTime),
-            amount <- recipe.amount,
-            photo <- recipe.photo
-        )
-        
-        do {
-            let recipeId = try dbConnection.run(insertRecipeQuery)
-            recipe.id = Int(recipeId)
-            return true
-        } catch {
-            Alert.displayErrorAlert(message: "Error inserting record: \(error)")
-            return false
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.recipe)): \(error)")
         }
     }
     
-    func removeRecipe(recipe: Recipe) -> Bool {
-        let deleteQuery = recipeTable.filter(id == recipe.id!).delete()
-        
-        do {
-            try dbConnection.run(deleteQuery)
-            return true
-        } catch {
-            Alert.displayErrorAlert(message: "Error removing recipe: \(error)")
-            return false
-        }
-    }
-    
-    func insertToEatHistory(eatItem: EatHistoryItem) -> Bool {
-        let insertEatItemQuery = eatHistoryTable.insert(
-            dateTime <- DateUtils.convertDateToIntValue(dateToConvert: eatItem.dateTime),
-            amount <- eatItem.productAmount?.amount,
-            productId <- eatItem.productAmount?.product.id,
-            dishId <- eatItem.dish?.id
-        )
-        
-        do {
-            let eatHistoryId = try dbConnection.run(insertEatItemQuery)
-            eatItem.id = Int(eatHistoryId)
-            return true
-        } catch {
-            Alert.displayErrorAlert(message: "Error inserting record: \(error)")
-            return false
-        }
-    }
-    
-    func fetchEatHistory(dateFrom: Date, dateTo: Date) -> [EatHistoryItem] {
+    func fetchEatHistory(dateFrom: Date, dateTo: Date) throws -> [EatHistoryItem] {
         var eatHistory: [EatHistoryItem] = []
         
         let selectQuery = eatHistoryTable
@@ -329,95 +344,131 @@ class DatabaseManager {
                 let eatHistoryId = row[eatHistoryTable[id]]
                 let dateTime = row[eatHistoryTable[dateTime]]
                 let productId = row[eatHistoryTable[productId]]
-                let dishIdToFetch = row[eatHistoryTable[dishId]]
+                let dishId = row[eatHistoryTable[dishId]]
                 let amount = row[eatHistoryTable[amount]]
                 
-                if productId != nil {
-                    let product = fetchProductcById(productIdToFetch: productId!)
-                    let productAmount = ProductAmount(product: product, amount: amount!)
-                    let eatHistoryItem = EatHistoryItem(id: eatHistoryId, dateValue: dateTime, productAmount: productAmount)
-                    eatHistory.append(eatHistoryItem)
-                } else {
-                    let dish = fetchDishById(dishIdToFetch: dishIdToFetch!)
-                    let eatHistoryItem = EatHistoryItem(id: eatHistoryId, dateValue: dateTime, dish: dish)
-                    eatHistory.append(eatHistoryItem)
-                }
-            }
-        } catch {
-            Alert.displayErrorAlert(message: "Error selecting records: \(error)")
-        }
-        
-        return eatHistory
-    }
-
-    func insertProduct(product: Product) -> Bool {
-        let insertQuery = productsTable.insert(
-            name <- product.name,
-            photo <- product.photo,
-            calories <- product.calories,
-            protein <- product.protein,
-            fat <- product.fat,
-            carbo <- product.carbo,
-            weightOfPiece <- product.weightOfPiece,
-            categoryId <- product.category.id!
-        )
-        
-        do {
-            let productId = try dbConnection.run(insertQuery)
-            product.id = Int(productId)
-            return true
-        } catch {
-            Alert.displayErrorAlert(message: "Error inserting record: \(error)")
-            return false
-        }
-    }
-    
-    func updateProduct(product: Product) -> Bool {
-        do {
-            if let _ = try dbConnection.pluck(productsTable.filter(id == product.id!)) {
+                let eatHistoryItem: EatHistoryItem!
                 
-                let updateProductQuery = productsTable.filter(id == product.id!)
-                    .update(name <- product.name,
-                            calories <- product.calories,
-                            protein <- product.protein,
-                            fat <- product.fat,
-                            carbo <- product.carbo,
-                            photo <- product.photo,
-                            weightOfPiece <- product.weightOfPiece,
-                            categoryId <- product.category.id!)
-                do {
-                    try dbConnection.run(updateProductQuery)
-                    return true
-                } catch {
-                    Alert.displayErrorAlert(message: "Error updating product: \(error)")
-                    return false
+                if productId != nil {
+                    let product = try fetchProductById(productIdToFetch: productId!)
+                    eatHistoryItem = EatHistoryItem(id: eatHistoryId, dateValue: dateTime, dish: nil, product: product, amount: amount!)
+                } else if dishId != nil {
+                    let dish = try fetchDishById(dishIdToFetch: dishId!)
+                    eatHistoryItem = EatHistoryItem(id: eatHistoryId, dateValue: dateTime, dish: dish, product: nil, amount: amount!)
+                } else {
+                    throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.eatHistory)): rekord historii nie ma idDish oraz idProduct")
                 }
+                
+                eatHistory.append(eatHistoryItem)
+            }
+            return eatHistory
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.eatHistory)): \(error)")
+        }
+    }
+    
+    func fetchDishes() throws -> [Dish] {
+        var dishes: [Dish] = []
+        do {
+            let dishFetchQuery = dishTable.select(dishTable[*]).order(dishTable[name])
+            
+            for dishRow in try dbConnection.prepare(dishFetchQuery) {
+                let dishId = dishRow[dishTable[id]]
+                let dishName = dishRow[dishTable[name]]
+                let dishPhoto = dishRow[dishTable[photo]]
+                let dishFavourite = dishRow[dishTable[favourite]]
+                let dishDescription = dishRow[dishTable[description]]
+                let dishCategoryId = dishRow[dishTable[categoryId]]
+
+                let dishCategory = try fetchDishCategoryById(dishCategoryToFetch: dishCategoryId)
+                let productAmountsForDish = try fetchProductsForDish(dishIdToSearch: dishId)
+                
+                dishes.append(Dish(id: dishId, name: dishName, description: dishDescription, favourite: dishFavourite, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory))
             }
         } catch {
-            Alert.displayErrorAlert(message: "Product not found id: \(product.id!)")
-            return false
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.dish)): \(error)")
         }
-        return true
+        return dishes
     }
     
+    func fetchDishById(dishIdToFetch: Int) throws -> Dish {
+        var dish: Dish!
+        let dishFetchQuery = dishTable.select(dishTable[*]).filter(dishTable[id] == dishIdToFetch)
+
+        do {
+            for dishRow in try! dbConnection.prepare(dishFetchQuery) {
+                let dishId = dishRow[dishTable[id]]
+                let dishName = dishRow[dishTable[name]]
+                let dishPhoto = dishRow[dishTable[photo]]
+                let dishFavourite = dishRow[dishTable[favourite]]
+                let dishDescription = dishRow[dishTable[description]]
+                let dishCategoryId = dishRow[dishTable[categoryId]]
+                
+                let productAmountsForDish = try fetchProductsForDish(dishIdToSearch: dishId)
+                let dishCategory = try fetchDishCategoryById(dishCategoryToFetch: dishCategoryId)
+                
+                dish = Dish(id: dishId, name: dishName, description: dishDescription, favourite: dishFavourite, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory)
+            }
+            return dish
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.dish)): \(error)")
+        }
+    }
     
-    func removeProduct(product: Product) -> Bool {
-        let deleteQuery = productsTable.filter(id == product.id!).delete()
+    func fetchProductsForDish(dishIdToSearch: Int) throws -> [ProductAmount] {
+        var productAmountsForDish: [ProductAmount] = []
+        
+        let productsForDishQuery = productAmountTable
+            .select(
+                productAmountTable[productId],
+                productAmountTable[amount]
+            )
+            .filter(productAmountTable[dishId] == dishIdToSearch)
         
         do {
-            try dbConnection.run(deleteQuery)
-            return true
+            for productRow in try dbConnection.prepare(productsForDishQuery) {
+                
+                let productId = productRow[productAmountTable[productId]]
+                let productAmount = productRow[productAmountTable[amount]]
+                let product = try fetchProductById(productIdToFetch: productId!)
+                
+                let productAmountForDish = ProductAmount(product: product, amount: productAmount!)
+                productAmountsForDish.append(productAmountForDish)
+            }
+            return productAmountsForDish
         } catch {
-            Alert.displayErrorAlert(message: "Error removing product: \(error)")
-            return false
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.productForDish)): \(error)")
         }
     }
     
-    func fetchProducts() -> [Product] {
+    func fetchShoppingList() throws -> [ProductAmount] {
+        var productsToBuy: [ProductAmount] = []
+        do {
+            let query = shoppingListTable.select(
+                shoppingListTable[productId],
+                shoppingListTable[amount]
+            )
+            
+            for row in try dbConnection.prepare(query) {
+                
+                let productId = row[shoppingListTable[productId]]
+                let productToBuyAmount = row[shoppingListTable[amount]]
+                
+                let product = try fetchProductById(productIdToFetch: productId!)
+                let productAmount = ProductAmount(product: product, amount: productToBuyAmount!)
+                
+                productsToBuy.append(productAmount)
+            }
+            return productsToBuy
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.productToBuy)): \(error)")
+        }
+    }
+    
+    func fetchProducts() throws -> [Product] {
         var products: [Product] = []
         
         let selectQuery = productsTable
-            .join(productCategoriesTable, on: productsTable[categoryId] == productCategoriesTable[id])
             .select(
                 productsTable[id],
                 productsTable[name],
@@ -427,14 +478,12 @@ class DatabaseManager {
                 productsTable[weightOfPiece],
                 productsTable[fat],
                 productsTable[carbo],
-                productCategoriesTable[id], // Use the alias directly instead of categoryId
-                productCategoriesTable[categoryName]
+                productsTable[categoryId]
             ).order(productsTable[name])
-        
         
         do {
             for row in try dbConnection.prepare(selectQuery) {
-                let dbId = row[productsTable[id]]
+                let productId = row[productsTable[id]]
                 let name = row[productsTable[name]]
                 let photoBlob = row[productsTable[photo]]
                 let kcal = row[productsTable[calories]]
@@ -442,83 +491,56 @@ class DatabaseManager {
                 let fat = row[productsTable[fat]]
                 let weightOfPiece = row[productsTable[weightOfPiece]]
                 let carbo = row[productsTable[carbo]]
-                let categoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
-                let categoryName = row[productCategoriesTable[categoryName]]
-                
-                let category = Category(id: categoryId, name: categoryName)
-                let product = Product(id: dbId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: category)
+                let categoryId = row[productsTable[categoryId]]
+
+                let category = try fetchProductCategoryById(productCategoryToFetch: categoryId)
+                let product = Product(id: productId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: category)
                 products.append(product)
             }
+            return products
         } catch {
-            Alert.displayErrorAlert(message: "Error selecting records: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.product)): \(error)")
         }
-        
-        return products
     }
     
-    
-    func fetchProductcById(productIdToFetch: Int) -> Product {
+    func fetchProductById(productIdToFetch: Int) throws -> Product {
         var product: Product!
         
         let selectQuery = productsTable
-            .join(productCategoriesTable, on: productsTable[categoryId] == productCategoriesTable[id])
             .select(
                 productsTable[id],
                 productsTable[name],
                 productsTable[photo],
                 productsTable[calories],
                 productsTable[protein],
-                productsTable[weightOfPiece],
                 productsTable[fat],
                 productsTable[carbo],
-                productCategoriesTable[id],
-                productCategoriesTable[categoryName]
+                productsTable[categoryId],
+                productsTable[weightOfPiece]
             ).filter(productsTable[id] == productIdToFetch)
-        
-        for row in try! dbConnection.prepare(selectQuery) {
-            let dbId = row[productsTable[id]]
-            let name = row[productsTable[name]]
-            let photo = row[productsTable[photo]]
-            let kcal = row[productsTable[calories]]
-            let protein = row[productsTable[protein]]
-            let weightOfPiece = row[productsTable[weightOfPiece]]
-            let fat = row[productsTable[fat]]
-            let carbo = row[productsTable[carbo]]
-            let categoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
-            let categoryName = row[productCategoriesTable[categoryName]]
-            
-            let category = Category(id: categoryId, name: categoryName)
-            product = Product(id: dbId, name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: category)
-        }
-        return product
-    }
-    
-    func fetchProductCategories() -> [Category] {
-        var categories: [Category] = []
-        
-        let selectQuery = productCategoriesTable
-            .select(
-                productCategoriesTable[id], // Use the alias directly instead of categoryId
-                productCategoriesTable[categoryName]
-            ).order(productCategoriesTable[categoryName])
         
         do {
             for row in try dbConnection.prepare(selectQuery) {
-                let categoryId = row[productCategoriesTable[id]] // Use the alias directly instead of categoryId
-                let categoryName = row[productCategoriesTable[categoryName]]
-                
-                let category = Category(id: categoryId, name: categoryName)
-                categories.append(category)
+                let dbId = row[productsTable[id]]
+                let name = row[productsTable[name]]
+                let photo = row[productsTable[photo]]
+                let kcal = row[productsTable[calories]]
+                let protein = row[productsTable[protein]]
+                let weightOfPiece = row[productsTable[weightOfPiece]]
+                let fat = row[productsTable[fat]]
+                let carbo = row[productsTable[carbo]]
+                let categoryId = row[productsTable[categoryId]]
+
+                let category = try fetchProductCategoryById(productCategoryToFetch: categoryId)
+                product = Product(id: dbId, name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: category)
             }
+            return product
         } catch {
-            Alert.displayErrorAlert(message: "Error selecting records: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.product)): \(error)")
         }
-        
-        return categories
     }
     
-    
-    func fetchDishCategories() -> [Category] {
+    func fetchDishCategories() throws -> [Category] {
         var categories: [Category] = []
         
         let selectQuery = dishCategoriesTable
@@ -535,126 +557,131 @@ class DatabaseManager {
                 let category = Category(id: categoryId, name: categoryName)
                 categories.append(category)
             }
+            return categories
         } catch {
-            Alert.displayErrorAlert(message: "Error selecting records: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.dishCategory)): \(error)")
         }
-        
-        return categories
     }
     
-    func fetchDishes() -> [Dish] {
-        var dishes: [Dish] = []
+    func fetchDishCategoryById(dishCategoryToFetch: Int) throws -> Category {
+        var category: Category!
+        
+        let selectQuery = dishCategoriesTable
+            .select(
+                dishCategoriesTable[id],
+                dishCategoriesTable[categoryName]
+            ).filter(dishCategoriesTable[id] == dishCategoryToFetch)
+        
         do {
-            let dishFetchQuery = dishTable.join(dishCategoriesTable, on: dishTable[categoryId] == dishCategoriesTable[id]).order(dishTable[name])
-            
-            for dishRow in try dbConnection.prepare(dishFetchQuery) {
-                let dishId = dishRow[dishTable[id]]
-                let dishName = dishRow[dishTable[name]]
-                let dishPhoto = dishRow[dishTable[photo]]
-                let dishFavourite = dishRow[dishTable[favourite]]
-                let dishDescription = dishRow[dishTable[description]]
-                let dishCategoryId = dishRow[dishCategoriesTable[id]]
-                let dishCategoryName = dishRow[dishCategoriesTable[categoryName]]
-                let dishCategory = Category(id: dishCategoryId, name: dishCategoryName)
-                let productAmountsForDish = fetchProductsAmountForDish(dishIdToSearch: dishId)
+            for row in try dbConnection.prepare(selectQuery) {
+                let categoryId = row[dishCategoriesTable[id]]
+                let categoryName = row[dishCategoriesTable[categoryName]]
                 
-                dishes.append(Dish(id: dishId, name: dishName, description: dishDescription, favourite: dishFavourite, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory))
-                
+                category = Category(id: categoryId, name: categoryName)
             }
+            return category
         } catch {
-            Alert.displayErrorAlert(message: "Error fetching dish: \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.dishCategory)): \(error)")
         }
-        return dishes
     }
     
-    func fetchDishById(dishIdToFetch: Int) -> Dish {
-        var dish: Dish!
-        let dishFetchQuery = dishTable.join(dishCategoriesTable, on: dishTable[categoryId] == dishCategoriesTable[id]).filter(dishTable[id] == dishIdToFetch)
-
-        for dishRow in try! dbConnection.prepare(dishFetchQuery) {
-            let dishId = dishRow[dishTable[id]]
-            let dishName = dishRow[dishTable[name]]
-            let dishPhoto = dishRow[dishTable[photo]]
-            let dishFavourite = dishRow[dishTable[favourite]]
-            let dishDescription = dishRow[dishTable[description]]
-            let dishCategoryId = dishRow[dishCategoriesTable[id]]
-            let dishCategoryName = dishRow[dishCategoriesTable[categoryName]]
-            let dishCategory = Category(id: dishCategoryId, name: dishCategoryName)
-            let productAmountsForDish = fetchProductsAmountForDish(dishIdToSearch: dishId)
-
-            dish = Dish(id: dishId, name: dishName, description: dishDescription, favourite: dishFavourite, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory)
-        }
-        return dish
-    }
-    
-    func fetchProductsAmountForDish(dishIdToSearch: Int) -> [ProductAmount] {
-        var productAmountsForDish: [ProductAmount] = []
+    func fetchProductCategories() throws -> [Category] {
+        var categories: [Category] = []
         
-        let productsForDishQuery = productAmountTable.join(productsTable, on: productAmountTable[productId] == productsTable[id])
-            .join(productCategoriesTable, on: productsTable[categoryId] == productCategoriesTable[id])
-            .select(productsTable[*], productAmountTable[*], productCategoriesTable[*])
-            .filter(productAmountTable[dishId] == dishIdToSearch)
-            .order(productsTable[name])
+        let selectQuery = productCategoriesTable
+            .select(
+                productCategoriesTable[id],
+                productCategoriesTable[categoryName]
+            ).order(productCategoriesTable[categoryName])
         
         do {
-            for productRow in try dbConnection.prepare(productsForDishQuery) {
-                let productId = productRow[productsTable[id]]
-                let productName = productRow[productsTable[name]]
-                let productPhoto = productRow[productsTable[photo]]
-                let productKcal = productRow[productsTable[calories]]
-                let productProtein = productRow[productsTable[protein]]
-                let weightOfPiece = productRow[productsTable[weightOfPiece]]
-                let productFat = productRow[productsTable[fat]]
-                let productCarbo = productRow[productsTable[carbo]]
-                let productCategoryId = productRow[productCategoriesTable[id]]
-                let productCategoryName = productRow[productCategoriesTable[categoryName]]
+            for row in try dbConnection.prepare(selectQuery) {
+                let categoryId = row[productCategoriesTable[id]]
+                let categoryName = row[productCategoriesTable[categoryName]]
                 
-                let dishAmount = productRow[productAmountTable[amount]]
-                
-                let productCategory = Category(id: productCategoryId, name: productCategoryName)
-                let product = Product(id: productId, name: productName, photo: productPhoto, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, weightOfPiece: weightOfPiece, category: productCategory)
-                
-                let productAmount = ProductAmount(product: product, amount: dishAmount!)
-                productAmountsForDish.append(productAmount)
+                let category = Category(id: categoryId, name: categoryName)
+                categories.append(category)
             }
+            return categories
         } catch {
-            Alert.displayErrorAlert(message: "Error fetching dish (\(dishId): \(error)")
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.productCategory)): \(error)")
         }
-        
-        return productAmountsForDish
     }
     
-    func insertProductAmountForDish(dish: Dish) -> Bool {
+    func fetchProductCategoryById(productCategoryToFetch: Int) throws -> Category {
+        var category: Category!
+        
+        let selectQuery = productCategoriesTable
+            .select(
+                productCategoriesTable[id],
+                productCategoriesTable[categoryName]
+            ).filter(productCategoriesTable[id] == productCategoryToFetch)
+        
         do {
-            for productAmount in dish.productAmounts {
-                let insertProductAmountQuery = productAmountTable.insert(
-                    self.dishId <- Int(dish.id!),
-                    self.productId <- productAmount.product.id!,
-                    self.amount <- productAmount.amount
-                )
-                try dbConnection.run(insertProductAmountQuery)
-                return true
+            for row in try dbConnection.prepare(selectQuery) {
+                let categoryId = row[productCategoriesTable[id]]
+                let categoryName = row[productCategoriesTable[categoryName]]
+                
+                category = Category(id: categoryId, name: categoryName)
             }
-            return true
+            return category
         } catch {
-            Alert.displayErrorAlert(message: "Error inserting product amount: \(error)")
-            return false
+            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.productCategory)): \(error)")
         }
     }
     
-    func removeProductAmountForDish(dish: Dish) -> Bool {
-        let deleteProductAmountQuery = productAmountTable.filter(dishId == dish.id!).delete()
+    // ############### INSERT SECTION ############### //
+    
+    
+    func insertRecipe(recipe: Recipe) throws {
+        let insertRecipeQuery = recipeTable.insert(
+            dateTime <- DateUtils.convertDateToIntValue(dateToConvert: recipe.dateTime),
+            amount <- recipe.amount,
+            photo <- recipe.photo
+        )
         
         do {
-            try dbConnection.run(deleteProductAmountQuery)
-            return true
+            recipe.id = try Int(dbConnection.run(insertRecipeQuery))
         } catch {
-            Alert.displayErrorAlert(message: "\(Constants.errorRemoveProductAmount) : \(error)")
-            return false
+            throw DatabaseError.runtimeError("\(Constants.errorInsert) (\(Constants.recipe)): \(error)")
         }
     }
     
-    func insertDish(dish: Dish) -> Bool {
+    func insertToEatHistory(eatItem: EatHistoryItem) throws {
+        let insertEatItemQuery = eatHistoryTable.insert(
+            dateTime <- DateUtils.convertDateToIntValue(dateToConvert: eatItem.dateTime),
+            amount <- eatItem.amount,
+            productId <- eatItem.product?.id,
+            dishId <- eatItem.dish?.id
+        )
+        
+        do {
+            eatItem.id = try Int(dbConnection.run(insertEatItemQuery))
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorInsert) (\(Constants.eatHistoryItem)): \(error)")
+        }
+    }
+    
+    func insertProduct(product: Product) throws {
+        let insertQuery = productsTable.insert(
+            name <- product.name,
+            photo <- product.photo,
+            calories <- product.calories,
+            protein <- product.protein,
+            fat <- product.fat,
+            carbo <- product.carbo,
+            weightOfPiece <- product.weightOfPiece,
+            categoryId <- product.category.id!
+        )
+        
+        do {
+            product.id = try Int(dbConnection.run(insertQuery))
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorInsert) (\(Constants.product)): \(error)")
+        }
+    }
+    
+    func insertDish(dish: Dish) throws {
         
         let insertDishQuery = dishTable.insert(
             name <- dish.name,
@@ -664,145 +691,102 @@ class DatabaseManager {
             categoryId <- dish.category.id!)
         do {
             dish.id = try Int(dbConnection.run(insertDishQuery))
-            if (insertProductAmountForDish(dish: dish)){
-                return true
-            }
-            return false
+            try insertProductAmountForDish(dish: dish)
         } catch {
-            Alert.displayErrorAlert(message: "\(Constants.errorInsertDish) : \(error)")
-            return false
+            throw DatabaseError.runtimeError("\(Constants.errorInsert) (\(Constants.dish)): \(error)")
         }
     }
     
-    func updateDish(dish: Dish) -> Bool {
+    func insertProductAmountForDish(dish: Dish) throws {
         do {
-            if let _ = try dbConnection.pluck(dishTable.filter(id == dish.id!)) {
-                
-                let updateDishQuery = dishTable.filter(id == dish.id!)
-                    .update(name <- dish.name,
-                            photo <- dish.photo,
-                            favourite <- dish.favourite,
-                            description <- dish.description,
-                            categoryId <- dish.category.id!)
-                do {
-                    try dbConnection.run(updateDishQuery)
-                    if (!removeProductAmountForDish(dish: dish)) {
-                        return false
-                    }
-                    if (!insertProductAmountForDish(dish: dish)) {
-                        return false
-                    }
-                } catch {
-                    Alert.displayErrorAlert(message: "Error updating dish: \(error)")
-                    return false
-                }
+            for productAmount in dish.productAmounts {
+                let insertProductAmountQuery = productAmountTable.insert(
+                    self.dishId <- Int(dish.id!),
+                    self.productId <- productAmount.product.id!,
+                    self.amount <- productAmount.amount
+                )
+                try dbConnection.run(insertProductAmountQuery)
             }
         } catch {
-            Alert.displayErrorAlert(message: "Dish not found id: \(dish.id!)")
-            return false
+            throw DatabaseError.runtimeError("\(Constants.errorInsert) (\(Constants.productAmount)): \(error)")
         }
-        return true
     }
     
-    func removeDish(dish: Dish) -> Bool {
-        let deleteQueryDish = dishTable.filter(id == dish.id!).delete()
-        
+    func insertProductToShoppingList(productToBuy: ProductAmount) throws {
         do {
-            try dbConnection.run(deleteQueryDish)
-            return true
-        } catch {
-            Alert.displayErrorAlert(message: "Error removing product: \(error)")
-            return false
-        }
-    }
-    
-    func addDishToShoppingList(dish: Dish) -> Bool {
-        for productAmount in dish.productAmounts {
-            if addProductToShoppingList(productToBuy: productAmount) {
-                return false
-            }
-        }
-        return true
-    }
-
-    
-    func addProductToShoppingList(productToBuy: ProductAmount) -> Bool {
-        do {
-            if let existingProduct = try dbConnection.pluck(productsToBuyTable.filter(productId == productToBuy.product.id!)) {
-                // Product exists, perform an update
-                let updateQuery = productsToBuyTable.filter(productId == productToBuy.product.id!)
+            
+            if let existingProduct = try dbConnection.pluck(shoppingListTable.filter(productId == productToBuy.product.id!)) {
+                let updateQuery = shoppingListTable.filter(productId == productToBuy.product.id!)
                     .update(amount <- existingProduct[amount]! + productToBuy.amount)
                 try dbConnection.run(updateQuery)
             } else {
-                try dbConnection.run(productsToBuyTable.insert(productId <- productToBuy.product.id!,
+                try dbConnection.run(shoppingListTable.insert(productId <- productToBuy.product.id!,
                                                                amount <- productToBuy.amount))
-                return true
             }
-            return true
         } catch {
-            Alert.displayErrorAlert(message: "Error adding/updating product: \(error)")
-            return false
+            throw DatabaseError.runtimeError("\(Constants.errorInsertOrUpdate) (\(Constants.product)): \(error)")
         }
     }
     
-    func fetchProductsToBuy() -> [ProductAmount] {
-        var productsToBuy: [ProductAmount] = []
-        do {
-            let query = productsToBuyTable.join(productsTable, on: productsToBuyTable[productId] == productsTable[id])
-                .join(productCategoriesTable, on: productsTable[categoryId] == productCategoriesTable[id])
-                .select( productsTable[*], productsToBuyTable[*], productCategoriesTable[*])
-                .order(productsTable[name])
-            
-            for row in try dbConnection.prepare(query) {
-                
-                let productId = row[productsTable[id]]
-                let productName = row[productsTable[name]]
-                let productPhoto = row[productsTable[photo]]
-                let productKcal = row[productsTable[calories]]
-                let productProtein = row[productsTable[protein]]
-                let weightOfPiece = row[productsTable[weightOfPiece]]
-                let productFat = row[productsTable[fat]]
-                let productCarbo = row[productsTable[carbo]]
-                let productCategoryId = row[productCategoriesTable[id]]
-                let productCategoryName = row[productCategoriesTable[categoryName]]
-                
-                let productToBuyAmount = row[productsToBuyTable[amount]]
-                
-                let product = Product(id: productId, name: productName, photo: productPhoto, kcal: productKcal, carbo: productCarbo, fat: productFat, protein: productProtein, weightOfPiece: weightOfPiece, category: Category(id: productCategoryId, name: productCategoryName))
-                
-                let productAmount = ProductAmount(product: product, amount: productToBuyAmount!)
-                productsToBuy.append(productAmount)
-            }
-            
-        } catch {
-            Alert.displayErrorAlert(message: "Error fetching products to buy: \(error)")
-        }
-        return productsToBuy
-    }
+    // ############### REMOVE SECTION ############### //
     
-    func removeProductToBuy(productToBuy: ProductAmount) -> Bool {
-        let deleteQueryProductToBuy = productsToBuyTable.filter(productId == productToBuy.product.id!).delete()
+    func removeProductToBuy(productToBuy: ProductAmount) throws {
+        let deleteQueryProductToBuy = shoppingListTable.filter(productId == productToBuy.product.id!).delete()
         
         do {
             try dbConnection.run(deleteQueryProductToBuy)
-            return true
-            
         } catch {
-            Alert.displayErrorAlert(message: "Error removing product: \(error)")
-            return false
+            throw DatabaseError.runtimeError("\(Constants.errorRemove) (\(Constants.product)): \(error)")
         }
     }
     
-    func removeEatHistoryItem(historyItem: EatHistoryItem) -> Bool {
+    func removeEatHistoryItem(historyItem: EatHistoryItem) throws {
         let deleteQueryEatHistoryItem = eatHistoryTable.filter(id == historyItem.id!).delete()
         
         do {
             try dbConnection.run(deleteQueryEatHistoryItem)
-            return true
-            
         } catch {
-            Alert.displayErrorAlert(message: "Error removing history item: \(error)")
-            return false
+            throw DatabaseError.runtimeError("\(Constants.errorRemove) (\(Constants.historyItem)): \(error)")
+        }
+    }
+    
+    func removeDish(dish: Dish) throws {
+        let deleteQueryDish = dishTable.filter(id == dish.id!).delete()
+        
+        do {
+            try dbConnection.run(deleteQueryDish)
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorRemove) (\(Constants.dish)): \(error)")
+        }
+    }
+    
+    func removeProductAmountForDish(dish: Dish) throws {
+        let deleteProductAmountQuery = productAmountTable.filter(dishId == dish.id!).delete()
+        
+        do {
+            try dbConnection.run(deleteProductAmountQuery)
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorRemove) (\(Constants.productAmount)): \(error)")
+        }
+    }
+    
+    func removeProduct(product: Product) throws {
+        let deleteQuery = productsTable.filter(id == product.id!).delete()
+        
+        do {
+            try dbConnection.run(deleteQuery)
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorRemove) (\(Constants.product)): \(error)")
+        }
+    }
+    
+    func removeRecipe(recipe: Recipe) throws {
+        let deleteQuery = recipeTable.filter(id == recipe.id!).delete()
+        
+        do {
+            try dbConnection.run(deleteQuery)
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorRemove) (\(Constants.recipe)): \(error)")
         }
     }
 }

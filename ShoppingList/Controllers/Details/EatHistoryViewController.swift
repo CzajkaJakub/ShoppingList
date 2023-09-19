@@ -12,13 +12,13 @@ class EatHistoryViewController: UIViewController {
     }()
     
     private var eatHistoryGroupedByCategory: [[EatHistoryItem]] {
-        let products = EatHistoryItem.eatHistory.filter { $0.productAmount != nil }
+        let products = EatHistoryItem.eatHistory.filter { $0.product != nil }
         let dishes = EatHistoryItem.eatHistory.filter { $0.dish != nil }
         
-        let groupedProducts = Dictionary(grouping: products) { $0.productAmount!.product.category.name }
+        let groupedProducts = Dictionary(grouping: products) { $0.product!.category.name }
         let groupedDishes = Dictionary(grouping: dishes) { $0.dish!.category.name }
         
-        let sortedProducts = groupedProducts.values.sorted(by: { $0[0].productAmount!.product.category.name < $1[0].productAmount!.product.category.name })
+        let sortedProducts = groupedProducts.values.sorted(by: { $0[0].product!.category.name < $1[0].product!.category.name })
         let sortedDishes = groupedDishes.values.sorted(by: { $0[0].dish!.category.name < $1[0].dish!.category.name })
         
         return sortedProducts + sortedDishes
@@ -90,16 +90,16 @@ class EatHistoryViewController: UIViewController {
         var totalProteins = 0.0
         
         for item in EatHistoryItem.eatHistory {
-            if let productAmount = item.productAmount {
-                totalCalories += productAmount.product.calories * productAmount.amount / 100
-                totalCarbo += productAmount.product.carbo * productAmount.amount / 100
-                totalFat += productAmount.product.fat * productAmount.amount / 100
-                totalProteins += productAmount.product.protein * productAmount.amount / 100
+            if let product = item.product {
+                totalCalories += product.calories * item.amount! / 100
+                totalCarbo += product.carbo * item.amount! / 100
+                totalFat += product.fat * item.amount! / 100
+                totalProteins += product.protein * item.amount! / 100
             } else if let dish = item.dish {
-                totalCalories += dish.calories
-                totalCarbo += dish.carbo
-                totalFat += dish.fat
-                totalProteins += dish.proteins
+                totalCalories += dish.calories * item.amount!
+                totalCarbo += dish.carbo * item.amount!
+                totalFat += dish.fat * item.amount!
+                totalProteins += dish.proteins * item.amount!
             } else {
                 Toast.showToast(message: "Error powiedz Kubie", parentView: self.view)
             }
@@ -143,7 +143,7 @@ extension EatHistoryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let historyItem = eatHistoryGroupedByCategory[section][0]
-        let categoryName = historyItem.dish != nil ? historyItem.dish!.category.name : historyItem.productAmount!.product.category.name
+        let categoryName = historyItem.dish != nil ? historyItem.dish!.category.name : historyItem.product!.category.name
         return TableViewComponent.createHeaderForTable(tableView: tableView, headerName: categoryName)
     }
     
@@ -162,12 +162,12 @@ extension EatHistoryViewController: UITableViewDelegate, UITableViewDataSource {
 
         if let dish = eatItem.dish {
             name = dish.name
-            calories = dish.calories
             photo = dish.photo
-        } else if let productAmount = eatItem.productAmount {
-            name = productAmount.product.name
-            calories = productAmount.product.calories * productAmount.amount / 100
-            photo = productAmount.product.photo
+            calories = dish.calories * eatItem.amount!
+        } else if let product = eatItem.product {
+            name = product.name
+            calories = product.calories * eatItem.amount! / 100
+            photo = product.photo
         }
         
         var detailsText = ""

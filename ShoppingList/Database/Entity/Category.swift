@@ -17,16 +17,19 @@ class Category {
     static var productCategories: [Category] = []
     static var dishCategories: [Category] = []
     
-    static func reloadCategoriesFromDatabase() {
-        Category.dishCategories = DatabaseManager.shared.fetchDishCategories()
-        Category.productCategories = DatabaseManager.shared.fetchProductCategories()
-    }
-    
     static func reloadProductCategoriesFromDatabase() {
-        Category.productCategories = DatabaseManager.shared.fetchProductCategories()
+        do {
+            Category.productCategories = try DatabaseManager.shared.fetchProductCategories()
+        } catch {
+            Alert.displayErrorAlert(message: "\(error)")
+        }
     }
     
     static func reloadDishCategoriesFromDatabase() {
-        Category.dishCategories = DatabaseManager.shared.fetchDishCategories()
+        do {
+            Category.dishCategories = try DatabaseManager.shared.fetchDishCategories()
+        } catch {
+            Alert.displayErrorAlert(message: "\(error)")
+        }
     }
 }

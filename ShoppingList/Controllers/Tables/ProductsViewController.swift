@@ -137,10 +137,9 @@ class ProductsViewController: UIViewController {
                         let passedValueText = amountAlert.textFields?.first?.text!
                         if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
                             
-                            let productAmount = ProductAmount(product: product, amount: passedValue)
-                            let eatItem = EatHistoryItem(productAmount: productAmount, eatDate: self!.selectedDate)
+                            let eatItem = EatHistoryItem(dish: nil, product: product, amount: passedValue, eatDate: self!.selectedDate)
                             EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
-                            Toast.showToast(message: "\(product.name) was eaten! (\(productAmount.amount) grams)", parentView: self!.view)
+                            Toast.showToast(message: "\(product.name) was eaten!", parentView: self!.view)
                             
                         } else {
                             Toast.showToast(message: "Wrong value text!", parentView: self!.view)

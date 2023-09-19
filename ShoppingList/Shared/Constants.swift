@@ -2,14 +2,35 @@ import Foundation
 
 class Constants {
     
+    //formats
     public static let dateFormat_MMMM_yyyy = "MMMM yyyy"
+    
+    //informations
     public static let error = "Wystapil blad!"
     public static let ok = "OK"
     
-    // Database errors
-    public static let errorInsertDish = "Wystapil blad podczas zapisu nowego dania"
-    public static let errorRemoveProductAmount = "Wystapil blad podczas kasowania produktow dla dania"
-
+    //database
+    public static let databaseName = "fitForYou4.sqlite"
+    
+    // Database info
+    public static let errorInsert = "Wystapil blad podczas zapisu"
+    public static let errorUpdate = "Wystąpił błąd poczas aktualizacji"
+    public static let errorRemove = "Wystapil blad podczas kasowania"
+    public static let errorFetch = "Błąd podczas pobierania"
+    public static let errorInsertOrUpdate = "Wystąpił błąd podczas tworzenia lub aktualizowania"
+    public static let errorCreateDatabase = "Błąd podczas tworzenia bazy danych"
+    
+    public static let dish = "posiłek"
+    public static let recipe = "paragon"
+    public static let product = "produkt"
+    public static let productAmount = "ilość produktów"
+    public static let historyItem = "historyczny posiłek"
+    public static let productToBuy = "produkt do kupienia"
+    public static let productCategory = "Kategoria produktu"
+    public static let productForDish = "produkt dania"
+    public static let dishCategory = "Kategoria dania"
+    public static let eatHistoryItem = "Historia zjedzonych posiłków"
+    public static let eatHistory = "Historia posiłków"
     
     // Tables
     static let productsTable = "products"

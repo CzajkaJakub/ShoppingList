@@ -36,11 +36,15 @@ class MainTabViewController: UITabBarController, UITabBarControllerDelegate {
     }
     
     func loadDataFromDatabase() {
-        Product.products = DatabaseManager.shared.fetchProducts()
-        Category.dishCategories = DatabaseManager.shared.fetchDishCategories()
-        Category.productCategories = DatabaseManager.shared.fetchProductCategories()
-        Dish.dishes = DatabaseManager.shared.fetchDishes()
-        ProductAmount.productsToBuy = DatabaseManager.shared.fetchProductsToBuy()
+        do {
+            Product.products = try DatabaseManager.shared.fetchProducts()
+            Category.dishCategories = try DatabaseManager.shared.fetchDishCategories()
+            Category.productCategories = try DatabaseManager.shared.fetchProductCategories()
+            Dish.dishes = try DatabaseManager.shared.fetchDishes()
+            ProductAmount.productsToBuy = try DatabaseManager.shared.fetchShoppingList()
+        } catch {
+            Alert.displayErrorAlert(message: "\(error)")
+        }
     }
 }
 

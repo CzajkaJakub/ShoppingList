@@ -68,26 +68,43 @@ class Dish {
     
     static func removeDish(dish: Dish) {
         if let index = Dish.dishes.firstIndex(where: { $0.id == dish.id }) {
-            if (DatabaseManager.shared.removeDish(dish: dish)) {
+            
+            do {
+                try DatabaseManager.shared.removeDish(dish: dish)
                 Dish.dishes.remove(at: index)
+            } catch {
+                Alert.displayErrorAlert(message: "\(error)")
             }
         }
     }
     
     static func addDish(dish: Dish) {
-        if (DatabaseManager.shared.insertDish(dish: dish)) {
+        
+        do {
+            try DatabaseManager.shared.insertDish(dish: dish)
             Dish.dishes.append(dish)
+        } catch {
+            Alert.displayErrorAlert(message: "\(error)")
         }
     }
     
     static func reloadDishesFromDatabase() {
-        Dish.dishes = DatabaseManager.shared.fetchDishes()
+        
+        do {
+            Dish.dishes = try DatabaseManager.shared.fetchDishes()
+        } catch {
+            Alert.displayErrorAlert(message: "\(error)")
+        }
     }
     
     static func updateDish(dish: Dish){
         if let index = Dish.dishes.firstIndex(where: { $0.id == dish.id }) {
-            if (DatabaseManager.shared.updateDish(dish: dish)) {
+            
+            do {
+                try DatabaseManager.shared.updateDish(dish: dish)
                 Dish.dishes[index] = dish
+            } catch {
+                Alert.displayErrorAlert(message: "\(error)")
             }
         }
     }

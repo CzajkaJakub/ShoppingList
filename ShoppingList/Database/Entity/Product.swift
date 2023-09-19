@@ -62,31 +62,47 @@ class Product {
     
     static func removeProduct(product: Product) {
         if let index = Product.products.firstIndex(where: { $0.id == product.id }) {
-            if (DatabaseManager.shared.removeProduct(product: product)) {
+            
+            do {
+                try DatabaseManager.shared.removeProduct(product: product)
                 Product.products.remove(at: index)
                 ProductAmount.reloadProductsToBuyFromDatabase()
                 Dish.reloadDishesFromDatabase()
+            } catch {
+                Alert.displayErrorAlert(message: "\(error)")
             }
         }
     }
     
     static func addProduct(product: Product) {
-        if (DatabaseManager.shared.insertProduct(product: product)) {
+        
+        do {
+            try DatabaseManager.shared.insertProduct(product: product)
             Product.products.append(product)
+        } catch {
+            Alert.displayErrorAlert(message: "\(error)")
         }
     }
     
     static func updateProduct(product: Product) {
         if let index = Product.products.firstIndex(where: { $0.id == product.id }) {
-            if (DatabaseManager.shared.updateProduct(product: product)) {
+            
+            do {
+                try DatabaseManager.shared.updateProduct(product: product)
                 Product.products[index] = product
                 Dish.reloadDishesFromDatabase()
                 ProductAmount.reloadProductsToBuyFromDatabase()
+            } catch {
+                Alert.displayErrorAlert(message: "\(error)")
             }
         }
     }
     
     static func reloadProductsFromDatabase() {
-        Product.products = DatabaseManager.shared.fetchProducts()
+        do {
+            Product.products = try DatabaseManager.shared.fetchProducts()
+        } catch {
+            Alert.displayErrorAlert(message: "\(error)")
+        }
     }
 }

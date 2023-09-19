@@ -41,6 +41,7 @@
 		0CF62CEA2AA4D8A2005AFD9D /* RecipesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF62CE92AA4D8A2005AFD9D /* RecipesViewController.swift */; };
 		0CF62CEC2AA4E408005AFD9D /* AddRecipeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF62CEB2AA4E408005AFD9D /* AddRecipeViewController.swift */; };
 		0CF6A8E32AA10DF700AEA39D /* ProductSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF6A8E22AA10DF700AEA39D /* ProductSelectionViewController.swift */; };
+		0CF963B22AB983E4003C48EE /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF963B12AB983E4003C48EE /* Error.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -79,6 +80,7 @@
 		0CF62CE92AA4D8A2005AFD9D /* RecipesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipesViewController.swift; sourceTree = "<group>"; };
 		0CF62CEB2AA4E408005AFD9D /* AddRecipeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecipeViewController.swift; sourceTree = "<group>"; };
 		0CF6A8E22AA10DF700AEA39D /* ProductSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductSelectionViewController.swift; sourceTree = "<group>"; };
+		0CF963B12AB983E4003C48EE /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +120,7 @@
 				0CC8D3952A9FD099002B7B0F /* Extensions.swift */,
 				0CED2E7B2AB228E10061BB29 /* Constants.swift */,
 				0C59DD072AB352F90046830C /* Alert.swift */,
+				0CF963B12AB983E4003C48EE /* Error.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -311,6 +314,7 @@
 				0CC7D19E2A5B2D0F005DB139 /* ProductsViewController.swift in Sources */,
 				0CC7D19C2A5B2CFF005DB139 /* AddProductViewController.swift in Sources */,
 				0C98E2392A7E8E4F00A33054 /* StringUtils.swift in Sources */,
+				0CF963B22AB983E4003C48EE /* Error.swift in Sources */,
 				0CC7D17F2A5AE2E7005DB139 /* AppDelegate.swift in Sources */,
 				0CC7D1A02A5B2D22005DB139 /* AddDishViewController.swift in Sources */,
 				0CA539F02A9540AD001CDD2F /* DateUtils.swift in Sources */,
