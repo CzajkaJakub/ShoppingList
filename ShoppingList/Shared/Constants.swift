@@ -10,7 +10,7 @@ class Constants {
     public static let ok = "OK"
     
     //database
-    public static let databaseName = "fitForYou4.sqlite"
+    public static let databaseName = "fitForYou.sqlite"
     
     // Database info
     public static let errorInsert = "Wystapil blad podczas zapisu"
@@ -76,6 +76,7 @@ class Constants {
         "Napoje",
         "Chemia gospodarcza",
         "Owoce morza",
+        "Alkohole",
         "Pasty",
         "Inne"
     ]
@@ -84,6 +85,7 @@ class Constants {
     static let dishCategories = [
         "Śniadanie",
         "Obiad",
+        "Kawa",
         "Kolacja"
     ]
 }

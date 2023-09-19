@@ -58,16 +58,6 @@ class DatabaseManager {
             
             try insertDataIntoProductCategoriesTable()
             try insertDataIntoDishCategoriesTable()
-        
-            
-            
-            
-            
-            let updateQuery = eatHistoryTable.filter(amount == nil)
-                 .update(amount <- 1)
-             try dbConnection.run(updateQuery)
-            
-            
         } catch {
             fatalError("\(Constants.errorCreateDatabase): \(error)")
         }
