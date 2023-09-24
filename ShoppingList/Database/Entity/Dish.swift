@@ -6,14 +6,16 @@ class Dish {
     var id: Int?
     var photo: Blob
     var name: String
+    var archived: Bool
     var favourite: Bool
-    var description: String?
-    var productAmounts: [ProductAmount]
     var category: Category
+    var description: String?
+    var amountOfPortion: Double?
+    var productAmounts: [ProductAmount]
     
-    private var _calories: Double
-    private var _carbo: Double
     private var _fat: Double
+    private var _carbo: Double
+    private var _calories: Double
     private var _proteins: Double
     
     var calories: Double {
@@ -36,32 +38,37 @@ class Dish {
         get { return round(_proteins * 100) / 100.0 }
     }
     
-    init(name: String, description: String?, photo: UIImage, productAmounts: [ProductAmount], category: Category) {
+    init(name: String, description: String?, photo: UIImage, archived: Bool, amountOfPortion: Double?, productAmounts: [ProductAmount], category: Category) {
         self.id = nil
         self.name = name
+        self.name = name
         self.favourite = false
-        self.description = description
-        self.photo = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)
         self.category = category
+        self.archived = archived
+        self.description = description
         self.productAmounts = productAmounts
-        self._calories = productAmounts.map {$0.product.calories * $0.amount / 100}.reduce(0, +)
-        self._carbo = productAmounts.map {$0.product.carbo * $0.amount / 100}.reduce(0, +)
+        self.amountOfPortion = amountOfPortion
+        self.photo = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)
         self._fat = productAmounts.map {$0.product.fat * $0.amount / 100}.reduce(0, +)
+        self._carbo = productAmounts.map {$0.product.carbo * $0.amount / 100}.reduce(0, +)
         self._proteins = productAmounts.map {$0.product.protein * $0.amount / 100}.reduce(0, +)
+        self._calories = productAmounts.map {$0.product.calories * $0.amount / 100}.reduce(0, +)
     }
     
-    init(id: Int, name: String, description: String?, favourite: Bool, photo: Blob, productAmounts: [ProductAmount], category: Category) {
+    init(id: Int, name: String, description: String?, favourite: Bool, photo: Blob, archived: Bool, amountOfPortion: Double?, productAmounts: [ProductAmount], category: Category) {
         self.id = id
         self.name = name
         self.photo = photo
         self.category = category
         self.favourite = favourite
+        self.archived = archived
         self.description = description
         self.productAmounts = productAmounts
-        self._calories = productAmounts.map {$0.product.calories * $0.amount / 100}.reduce(0, +)
-        self._carbo = productAmounts.map {$0.product.carbo * $0.amount / 100}.reduce(0, +)
+        self.amountOfPortion = amountOfPortion
         self._fat = productAmounts.map {$0.product.fat * $0.amount / 100}.reduce(0, +)
+        self._carbo = productAmounts.map {$0.product.carbo * $0.amount / 100}.reduce(0, +)
         self._proteins = productAmounts.map {$0.product.protein * $0.amount / 100}.reduce(0, +)
+        self._calories = productAmounts.map {$0.product.calories * $0.amount / 100}.reduce(0, +)
     }
     
     static var dishes: [Dish] = []
@@ -88,24 +95,29 @@ class Dish {
         }
     }
     
+    static func archiveDish(dish: Dish) {
+        if let index = Dish.dishes.firstIndex(where: { $0.id == dish.id }) {
+            
+            do {
+                try DatabaseManager.shared.archiveDish(dish: dish)
+                Dish.dishes.remove(at: index)
+            } catch {
+                Alert.displayErrorAlert(message: "\(error)")
+            }
+        }
+    }
+    
+    static func updateDish(dish: Dish){
+        Dish.archiveDish(dish: dish)
+        Dish.addDish(dish: dish)
+    }
+    
     static func reloadDishesFromDatabase() {
         
         do {
             Dish.dishes = try DatabaseManager.shared.fetchDishes()
         } catch {
             Alert.displayErrorAlert(message: "\(error)")
-        }
-    }
-    
-    static func updateDish(dish: Dish){
-        if let index = Dish.dishes.firstIndex(where: { $0.id == dish.id }) {
-            
-            do {
-                try DatabaseManager.shared.updateDish(dish: dish)
-                Dish.dishes[index] = dish
-            } catch {
-                Alert.displayErrorAlert(message: "\(error)")
-            }
         }
     }
 }

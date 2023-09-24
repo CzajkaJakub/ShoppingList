@@ -24,19 +24,22 @@ class DatabaseManager {
     private var categoryId = Expression<Int>(Constants.categoryId)
 
     // Columns
-    private var id = Expression<Int>(Constants.id)
-    private var fat = Expression<Double>(Constants.fat)
-    private var name = Expression<String>(Constants.name)
-    private var photo = Expression<Blob>(Constants.photo)
-    private var carbo = Expression<Double>(Constants.carbo)
-    private var amount = Expression<Double?>(Constants.amount)
-    private var dateTime = Expression<Int>(Constants.dateTime)
-    private var protein = Expression<Double>(Constants.protein)
-    private var calories = Expression<Double>(Constants.calories)
-    private var favourite = Expression<Bool>(Constants.favourite)
-    private var description = Expression<String?>(Constants.description)
-    private var categoryName = Expression<String>(Constants.categoryName)
-    private var weightOfPiece = Expression<Double?>(Constants.weightOfPiece)
+    private var id = Expression<Int>(Constants.idColumn)
+    private var fat = Expression<Double>(Constants.fatColumn)
+    private var name = Expression<String>(Constants.nameColumn)
+    private var photo = Expression<Blob>(Constants.photoColumn)
+    private var carbo = Expression<Double>(Constants.carboColumn)
+    private var amount = Expression<Double?>(Constants.amountColumn)
+    private var dateTime = Expression<Int>(Constants.dateTimeColumn)
+    private var protein = Expression<Double>(Constants.proteinColumn)
+    private var archived = Expression<Bool>(Constants.archivedColumn)
+    private var calories = Expression<Double>(Constants.caloriesColumn)
+    private var favourite = Expression<Bool>(Constants.favouriteColumn)
+    private var description = Expression<String?>(Constants.descriptionColumn)
+    private var categoryName = Expression<String>(Constants.categoryNameColumn)
+    private var weightOfPiece = Expression<Double?>(Constants.weightOfPieceColumn)
+    private var weightOfProduct = Expression<Double?>(Constants.weightOfProductColumn)
+    private var amountOfPortion = Expression<Double?>(Constants.amountOfPortionColumn)
     
     private init() {
         let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
@@ -118,7 +121,7 @@ class DatabaseManager {
     func createProductCategoriesTable() throws {
         let createCategoriesTableQuery = productCategoriesTable.create(ifNotExists: true) { table in
             table.column(id, primaryKey: .autoincrement)
-            table.column(categoryName, unique: true)
+            table.column(categoryName)
         }
         
         do {
@@ -144,14 +147,16 @@ class DatabaseManager {
     func createProductTable() throws {
         let createProductsTableQuery = productsTable.create(ifNotExists: true) { table in
             table.column(id, primaryKey: .autoincrement)
-            table.column(name)
-            table.column(photo)
-            table.column(calories)
-            table.column(protein)
             table.column(fat)
+            table.column(name)
             table.column(carbo)
+            table.column(photo)
+            table.column(protein)
+            table.column(archived)
+            table.column(calories)
             table.column(categoryId)
             table.column(weightOfPiece)
+            table.column(weightOfProduct)
             table.foreignKey(categoryId, references: productCategoriesTable, id, update: .cascade, delete: .cascade)
         }
         
@@ -166,11 +171,13 @@ class DatabaseManager {
     func createDishTable() throws {
         let createDishTableQuery = dishTable.create(ifNotExists: true) { table in
             table.column(id, primaryKey: .autoincrement)
-            table.column(name, unique: true)
-            table.column(favourite)
-            table.column(description)
+            table.column(name)
             table.column(photo)
+            table.column(archived)
+            table.column(favourite)
             table.column(categoryId)
+            table.column(description)
+            table.column(amountOfPortion)
             table.foreignKey(categoryId, references: dishCategoriesTable, id, update: .cascade, delete: .cascade)
         }
         
@@ -246,6 +253,18 @@ class DatabaseManager {
 
     // ############### UPDATE SECTION ############### //
     
+    func archiveProduct(product: Product) throws {
+        
+        do {
+            let archiveProductQuery = productsTable.filter(id == product.id!)
+                .update(archived <- true)
+            
+            try dbConnection.run(archiveProductQuery)
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorArchive) (\(Constants.product)): \(error)")
+        }
+    }
+    
     func updateProduct(product: Product) throws {
         
         do {
@@ -253,18 +272,32 @@ class DatabaseManager {
                 
                 let updateProductQuery = productsTable.filter(id == product.id!)
                     .update(name <- product.name,
-                            calories <- product.calories,
-                            protein <- product.protein,
                             fat <- product.fat,
-                            carbo <- product.carbo,
                             photo <- product.photo,
+                            carbo <- product.carbo,
+                            protein <- product.protein,
+                            archived <- product.archived,
+                            calories <- product.calories,
+                            categoryId <- product.category.id!,
                             weightOfPiece <- product.weightOfPiece,
-                            categoryId <- product.category.id!)
+                            weightOfProduct <- product.weightOfProduct)
                 
                 try dbConnection.run(updateProductQuery)
             }
         } catch {
             throw DatabaseError.runtimeError("\(Constants.errorUpdate) (\(Constants.product)): \(error)")
+        }
+    }
+    
+    func archiveDish(dish: Dish) throws {
+        
+        do {
+            let archiveDishQuery = dishTable.filter(id == dish.id!)
+                .update(archived <- true)
+            
+            try dbConnection.run(archiveDishQuery)
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorArchive) (\(Constants.dish)): \(error)")
         }
     }
     
@@ -275,9 +308,11 @@ class DatabaseManager {
                 let updateDishQuery = dishTable.filter(id == dish.id!)
                     .update(name <- dish.name,
                             photo <- dish.photo,
+                            archived <- dish.archived,
                             favourite <- dish.favourite,
+                            categoryId <- dish.category.id!,
                             description <- dish.description,
-                            categoryId <- dish.category.id!)
+                            amountOfPortion <- dish.amountOfPortion)
                 
                 try dbConnection.run(updateDishQuery)
                 try removeProductAmountForDish(dish: dish)
@@ -319,12 +354,7 @@ class DatabaseManager {
         var eatHistory: [EatHistoryItem] = []
         
         let selectQuery = eatHistoryTable
-            .select(
-                eatHistoryTable[id],
-                eatHistoryTable[amount],
-                eatHistoryTable[dateTime],
-                eatHistoryTable[dishId],
-                eatHistoryTable[productId])
+            .select(eatHistoryTable[*])
             .filter(eatHistoryTable[dateTime] >= DateUtils.convertDateToIntValue(dateToConvert: dateFrom) &&
                     eatHistoryTable[dateTime] <= DateUtils.convertDateToIntValue(dateToConvert: dateTo))
             .order(eatHistoryTable[dateTime])
@@ -360,20 +390,22 @@ class DatabaseManager {
     func fetchDishes() throws -> [Dish] {
         var dishes: [Dish] = []
         do {
-            let dishFetchQuery = dishTable.select(dishTable[*]).order(dishTable[name])
+            let dishFetchQuery = dishTable.select(dishTable[*]).filter(dishTable[archived] == false).order(dishTable[name])
             
             for dishRow in try dbConnection.prepare(dishFetchQuery) {
                 let dishId = dishRow[dishTable[id]]
                 let dishName = dishRow[dishTable[name]]
                 let dishPhoto = dishRow[dishTable[photo]]
+                let archived = dishRow[dishTable[archived]]
                 let dishFavourite = dishRow[dishTable[favourite]]
-                let dishDescription = dishRow[dishTable[description]]
                 let dishCategoryId = dishRow[dishTable[categoryId]]
+                let dishDescription = dishRow[dishTable[description]]
+                let amountOfPortion = dishRow[dishTable[amountOfPortion]]
 
                 let dishCategory = try fetchDishCategoryById(dishCategoryToFetch: dishCategoryId)
                 let productAmountsForDish = try fetchProductsForDish(dishIdToSearch: dishId)
                 
-                dishes.append(Dish(id: dishId, name: dishName, description: dishDescription, favourite: dishFavourite, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory))
+                dishes.append(Dish(id: dishId, name: dishName, description: dishDescription, favourite: dishFavourite, photo: dishPhoto, archived: archived, amountOfPortion: amountOfPortion, productAmounts: productAmountsForDish, category: dishCategory))
             }
         } catch {
             throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.dish)): \(error)")
@@ -390,14 +422,16 @@ class DatabaseManager {
                 let dishId = dishRow[dishTable[id]]
                 let dishName = dishRow[dishTable[name]]
                 let dishPhoto = dishRow[dishTable[photo]]
+                let archived = dishRow[dishTable[archived]]
                 let dishFavourite = dishRow[dishTable[favourite]]
-                let dishDescription = dishRow[dishTable[description]]
                 let dishCategoryId = dishRow[dishTable[categoryId]]
+                let dishDescription = dishRow[dishTable[description]]
+                let amountOfPortion = dishRow[dishTable[amountOfPortion]]
                 
                 let productAmountsForDish = try fetchProductsForDish(dishIdToSearch: dishId)
                 let dishCategory = try fetchDishCategoryById(dishCategoryToFetch: dishCategoryId)
                 
-                dish = Dish(id: dishId, name: dishName, description: dishDescription, favourite: dishFavourite, photo: dishPhoto, productAmounts: productAmountsForDish, category: dishCategory)
+                dish = Dish(id: dishId, name: dishName, description: dishDescription, favourite: dishFavourite, photo: dishPhoto, archived: archived, amountOfPortion: amountOfPortion, productAmounts: productAmountsForDish, category: dishCategory)
             }
             return dish
         } catch {
@@ -460,31 +494,26 @@ class DatabaseManager {
         
         let selectQuery = productsTable
             .select(
-                productsTable[id],
-                productsTable[name],
-                productsTable[photo],
-                productsTable[calories],
-                productsTable[protein],
-                productsTable[weightOfPiece],
-                productsTable[fat],
-                productsTable[carbo],
-                productsTable[categoryId]
-            ).order(productsTable[name])
+                productsTable[*])
+            .filter(productsTable[archived] == false)
+            .order(productsTable[name])
         
         do {
             for row in try dbConnection.prepare(selectQuery) {
-                let productId = row[productsTable[id]]
+                let fat = row[productsTable[fat]]
                 let name = row[productsTable[name]]
-                let photoBlob = row[productsTable[photo]]
+                let carbo = row[productsTable[carbo]]
+                let productId = row[productsTable[id]]
                 let kcal = row[productsTable[calories]]
                 let protein = row[productsTable[protein]]
-                let fat = row[productsTable[fat]]
-                let weightOfPiece = row[productsTable[weightOfPiece]]
-                let carbo = row[productsTable[carbo]]
+                let photoBlob = row[productsTable[photo]]
+                let archived = row[productsTable[archived]]
                 let categoryId = row[productsTable[categoryId]]
+                let weightOfPiece = row[productsTable[weightOfPiece]]
+                let weightOfProduct = row[productsTable[weightOfProduct]]
 
                 let category = try fetchProductCategoryById(productCategoryToFetch: categoryId)
-                let product = Product(id: productId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: category)
+                let product = Product(id: productId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, archived: archived, category: category)
                 products.append(product)
             }
             return products
@@ -498,31 +527,25 @@ class DatabaseManager {
         
         let selectQuery = productsTable
             .select(
-                productsTable[id],
-                productsTable[name],
-                productsTable[photo],
-                productsTable[calories],
-                productsTable[protein],
-                productsTable[fat],
-                productsTable[carbo],
-                productsTable[categoryId],
-                productsTable[weightOfPiece]
+                productsTable[*]
             ).filter(productsTable[id] == productIdToFetch)
         
         do {
             for row in try dbConnection.prepare(selectQuery) {
-                let dbId = row[productsTable[id]]
+                let fat = row[productsTable[fat]]
                 let name = row[productsTable[name]]
-                let photo = row[productsTable[photo]]
+                let carbo = row[productsTable[carbo]]
+                let productId = row[productsTable[id]]
                 let kcal = row[productsTable[calories]]
                 let protein = row[productsTable[protein]]
-                let weightOfPiece = row[productsTable[weightOfPiece]]
-                let fat = row[productsTable[fat]]
-                let carbo = row[productsTable[carbo]]
+                let photoBlob = row[productsTable[photo]]
+                let archived = row[productsTable[archived]]
                 let categoryId = row[productsTable[categoryId]]
+                let weightOfPiece = row[productsTable[weightOfPiece]]
+                let weightOfProduct = row[productsTable[weightOfProduct]]
 
                 let category = try fetchProductCategoryById(productCategoryToFetch: categoryId)
-                product = Product(id: dbId, name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: category)
+                product = Product(id: productId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, archived: archived, category: category)
             }
             return product
         } catch {
@@ -654,14 +677,16 @@ class DatabaseManager {
     
     func insertProduct(product: Product) throws {
         let insertQuery = productsTable.insert(
+            fat <- product.fat,
             name <- product.name,
             photo <- product.photo,
-            calories <- product.calories,
-            protein <- product.protein,
-            fat <- product.fat,
             carbo <- product.carbo,
+            protein <- product.protein,
+            archived <- product.archived,
+            calories <- product.calories,
+            categoryId <- product.category.id!,
             weightOfPiece <- product.weightOfPiece,
-            categoryId <- product.category.id!
+            weightOfProduct <- product.weightOfProduct
         )
         
         do {
@@ -676,9 +701,11 @@ class DatabaseManager {
         let insertDishQuery = dishTable.insert(
             name <- dish.name,
             photo <- dish.photo,
+            archived <- dish.archived,
             favourite <- dish.favourite,
+            categoryId <- dish.category.id!,
             description <- dish.description,
-            categoryId <- dish.category.id!)
+            amountOfPortion <- dish.amountOfPortion)
         do {
             dish.id = try Int(dbConnection.run(insertDishQuery))
             try insertProductAmountForDish(dish: dish)

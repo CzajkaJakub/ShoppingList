@@ -1,12 +1,17 @@
 import Foundation
 
-class ProductAmount {
+class ProductAmount: NSCopying {
     var product: Product
     var amount: Double
     
     init(product: Product, amount: Double) {
         self.product = product
         self.amount = amount
+    }
+    
+    func copy(with zone: NSZone? = nil) -> Any {
+        let copyPA = ProductAmount(product: self.product, amount: self.amount)
+        return copyPA
     }
     
     static var productsToBuy: [ProductAmount] = []

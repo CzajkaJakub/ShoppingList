@@ -70,6 +70,15 @@ class AddProductViewController: UIViewController {
         return weightOfPieceTextField
     }()
     
+    internal let weightOfProductTextField: UITextField = {
+        let weightOfPieceTextField = UITextField()
+        weightOfPieceTextField.placeholder = "Weight of product"
+        weightOfPieceTextField.borderStyle = .roundedRect
+        weightOfPieceTextField.translatesAutoresizingMaskIntoConstraints = false
+        weightOfPieceTextField.keyboardType = .decimalPad
+        return weightOfPieceTextField
+    }()
+    
     private lazy var saveButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(saveProduct))
     }()
@@ -115,7 +124,7 @@ class AddProductViewController: UIViewController {
     
     private func setupConstraints() {
         
-        let stackView = UIStackView(arrangedSubviews: [productImageView, nameTextField, kcalTextField, proteinTextField, fatTextField, carboTextField, weightOfPieceTextField, selectListTextField])
+        let stackView = UIStackView(arrangedSubviews: [productImageView, nameTextField, kcalTextField, proteinTextField, fatTextField, carboTextField, weightOfPieceTextField, weightOfProductTextField, selectListTextField])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = TableViewComponent.stackViewAxis
         stackView.spacing = TableViewComponent.stackViewSpacing
@@ -203,13 +212,14 @@ class AddProductViewController: UIViewController {
         }
         
         let weightOfPiece = weightOfPieceTextField.text != nil ? StringUtils.convertTextFieldToDouble(stringValue: weightOfPieceTextField.text!) : nil
+        let weightOfProduct = weightOfProductTextField.text != nil ? StringUtils.convertTextFieldToDouble(stringValue: weightOfProductTextField.text!) : nil
         
         if editedProduct != nil {
             let photoBlob = try! PhotoData.convertUIImageToResizedBlob(imageToResize: selectedPhoto)
-            let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: Category(id: selectedOption.id!, name: selectedOption.name))
+            let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, archived: false, category: Category(id: selectedOption.id!, name: selectedOption.name))
             Product.updateProduct(product: productToUpdate)
         } else {
-            let productToSave = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, category: Category(id: selectedOption.id!, name: selectedOption.name))
+            let productToSave = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, archived: false, category: Category(id: selectedOption.id!, name: selectedOption.name))
             Product.addProduct(product: productToSave)
         }
         

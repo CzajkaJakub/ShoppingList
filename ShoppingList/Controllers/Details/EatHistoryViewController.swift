@@ -159,15 +159,18 @@ extension EatHistoryViewController: UITableViewDelegate, UITableViewDataSource {
         var name: String!
         var calories: Double!
         var photo: Blob!
+        var archived: Bool!
 
         if let dish = eatItem.dish {
             name = dish.name
             photo = dish.photo
             calories = dish.calories * eatItem.amount!
+            archived = dish.archived
         } else if let product = eatItem.product {
             name = product.name
             calories = product.calories * eatItem.amount! / 100
             photo = product.photo
+            archived = product.archived
         }
         
         var detailsText = ""
@@ -178,6 +181,9 @@ extension EatHistoryViewController: UITableViewDelegate, UITableViewDataSource {
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.text = name
+        if (archived) {
+            nameLabel.textColor = .red
+        }
         cell.contentView.addSubview(nameLabel)
         
         let detailsLabel = UILabel()

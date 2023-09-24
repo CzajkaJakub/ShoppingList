@@ -31,7 +31,7 @@ class ProductsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.clearSearchTerm()
-        self.title = "Products"
+        self.title = Constants.products
     }
     
     override func viewDidLoad() {
@@ -44,8 +44,7 @@ class ProductsViewController: UIViewController {
         navigationItem.leftBarButtonItems = [clearSearchButton]
         view.addSubview(productsTable)
         
-        // Add a long-press gesture recognizer to the table view
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(editProductAction(_:)))
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(holdProductActions(_:)))
         productsTable.addGestureRecognizer(longPressGesture)
     }
     
@@ -78,6 +77,7 @@ class ProductsViewController: UIViewController {
         editProductVC.kcalTextField.text = String(product.calories)
         editProductVC.fatTextField.text = String(product.fat)
         editProductVC.proteinTextField.text = String(product.protein)
+        editProductVC.weightOfProductTextField.text = product.weightOfProduct != nil ? String(product.weightOfProduct!) : nil
         editProductVC.weightOfPieceTextField.text = product.weightOfPiece != nil ? String(product.weightOfPiece!) : nil
         editProductVC.selectedPhoto = UIImage(data: Data(product.photo.bytes))
         editProductVC.selectedOption = product.category
@@ -89,31 +89,29 @@ class ProductsViewController: UIViewController {
         self.selectedDate = sender.date
     }
     
-    @objc func editProductAction(_ gestureRecognizer: UILongPressGestureRecognizer) {
+    @objc func holdProductActions(_ gestureRecognizer: UILongPressGestureRecognizer) {
         if gestureRecognizer.state == .began {
             let point = gestureRecognizer.location(in: productsTable)
             
             if let indexPath = productsTable.indexPathForRow(at: point) {
                 let product = filteredProductsGroupedByCategory[indexPath.section][indexPath.row]
                 
-                let alertController = UIAlertController(title: "Options", message: "Choose an action:", preferredStyle: .actionSheet)
+                let alertController = UIAlertController(title: Constants.chooseAction, message: nil, preferredStyle: .actionSheet)
                 
-                let editAction = UIAlertAction(title: "Edit", style: .default) { (_) in
-                    
+                let editAction = UIAlertAction(title: Constants.edit, style: .default) { (_) in
                     self.openProductViewController(editMode: true, product: product)
                 }
                 
-                let addNewAction = UIAlertAction(title: "Copy", style: .default) { (_) in
+                let addNewAction = UIAlertAction(title: Constants.copy, style: .default) { (_) in
                     self.openProductViewController(editMode: false, product: product)
                 }
                 
-                
-                let eatProductAction = UIAlertAction(title: "Eat product", style: .default) { (_) in
+                let eatProductAction = UIAlertAction(title: Constants.eatProduct, style: .default) { (_) in
                     
-                    let amountAlert = UIAlertController(title: "Wpisz wartość\n", message: nil, preferredStyle: .alert)
+                    let amountAlert = UIAlertController(title: "\(Constants.enterAmountInGrams)\n", message: nil, preferredStyle: .alert)
                     
                     amountAlert.addTextField { textField in
-                        textField.placeholder = "Wpisz wartość (gramy)"
+                        textField.placeholder = Constants.enterAmount
                         textField.keyboardType = .decimalPad
                     }
                     
@@ -131,18 +129,17 @@ class ProductsViewController: UIViewController {
                     datePicker.topAnchor.constraint(equalTo: amountAlert.view.topAnchor, constant: 42).isActive = true
                     datePicker.centerXAnchor.constraint(equalTo: amountAlert.view.centerXAnchor).isActive = true
                     
-                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-                    let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
+                    let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
+                    let addAction = UIAlertAction(title: Constants.add, style: .default) { [weak self] _ in
                         
                         let passedValueText = amountAlert.textFields?.first?.text!
                         if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
                             
                             let eatItem = EatHistoryItem(dish: nil, product: product, amount: passedValue, eatDate: self!.selectedDate)
                             EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
-                            Toast.showToast(message: "\(product.name) was eaten!", parentView: self!.view)
                             
                         } else {
-                            Toast.showToast(message: "Wrong value text!", parentView: self!.view)
+                            Toast.showToast(message: Constants.enteredWrongDoubleValueMessage, parentView: self!.view)
                         }
                     }
                     
@@ -151,32 +148,31 @@ class ProductsViewController: UIViewController {
                     self.present(amountAlert, animated: true, completion: nil)
                 }
                 
-                let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+                let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
                 
-                alertController.addAction(eatProductAction)
                 alertController.addAction(editAction)
                 alertController.addAction(addNewAction)
+                alertController.addAction(eatProductAction)
                 alertController.addAction(cancelAction)
             
                 present(alertController, animated: true, completion: nil)
-                
             }
         }
     }
     
     @objc func showSearchAlert() {
-        let alertController = UIAlertController(title: "Search", message: "Enter a search term", preferredStyle: .alert)
+        let alertController = UIAlertController(title: Constants.search, message: nil, preferredStyle: .alert)
         alertController.addTextField { textField in
-            textField.placeholder = "Search term"
+            textField.placeholder = Constants.searchTerm
         }
 
-        let searchAction = UIAlertAction(title: "Search", style: .default) { [weak self] _ in
+        let searchAction = UIAlertAction(title: Constants.search, style: .default) { [weak self] _ in
             if let searchTerm = alertController.textFields?.first?.text {
                 self?.filterProducts(searchTerm: searchTerm)
             }
         }
 
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
 
         alertController.addAction(searchAction)
         alertController.addAction(cancelAction)
@@ -233,12 +229,20 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
         
         let detailsLabel = UILabel()
         detailsLabel.translatesAutoresizingMaskIntoConstraints = false
-        detailsLabel.font = UIFont.systemFont(ofSize: 12)
+        detailsLabel.font = UIFont.systemFont(ofSize: 11)
         detailsLabel.textColor = .gray
-        detailsLabel.text = """
-            Kcal: \(product.calories)  |  Carbs: \(product.carbo)  |  Fat: \(product.fat)  |  Protein: \(product.protein)
-            """
+        detailsLabel.numberOfLines = 0
+        detailsLabel.text = "\(Constants.calories): \(product.calories)  |  \(Constants.carbo): \(product.carbo)\n\(Constants.fat): \(product.fat)  |  \(Constants.protein): \(product.protein)"
         cell.contentView.addSubview(detailsLabel)
+        
+        let pieceAmountLabel = product.weightOfPiece != nil ? String(product.weightOfPiece!.rounded(toPlaces: 2)) : Constants.dash
+        let productAmountLabel = product.weightOfProduct != nil ? String(product.weightOfProduct!.rounded(toPlaces: 2)) : Constants.dash
+        let productDetailsLabel = UILabelPadding(insets: TableViewComponent.defaultLabelPadding, labelText: "\(pieceAmountLabel) \(Constants.grams)\n\(productAmountLabel) \(Constants.productWeight)")
+        
+        productDetailsLabel.layer.cornerRadius = 10.0
+        productDetailsLabel.layer.borderWidth = 1.8
+        productDetailsLabel.layer.borderColor = UIColor.systemBlue.cgColor
+        cell.contentView.addSubview(productDetailsLabel)
         
         let productImageView = TableViewComponent.createImageView(photoInCell: product.photo)
         cell.contentView.addSubview(productImageView)
@@ -248,24 +252,29 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
             productImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
             
             nameLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
-            nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 10),
+            nameLabel.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 5),
+            
+            productDetailsLabel.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -10),
+            productDetailsLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
             
             detailsLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 10),
-            detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -10)
+            detailsLabel.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor, constant: -5)
         ])
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let addProductToShoppingListAction = UIContextualAction(style: .normal, title: "Add product to shopping list") { [weak self] (action, view, completionHandler) in
-            let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to add this product to list?", preferredStyle: .alert)
+        
+        let addProductToShoppingListAction = UIContextualAction(style: .normal, title: Constants.shoppingList) { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: Constants.confirm, message: Constants.addToShoppingListMessage, preferredStyle: .alert)
             confirmationAlert.addTextField { textField in
-                textField.placeholder = "Enter Amount"
+                textField.placeholder = Constants.enterAmount
                 textField.keyboardType = .decimalPad
             }
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-            let addAction = UIAlertAction(title: "Add", style: .destructive) { (_) in
+            
+            let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
+            let addAction = UIAlertAction(title: Constants.add, style: .destructive) { (_) in
                 if let amountText = confirmationAlert.textFields?.first?.text,
                    let amount = Double(amountText) {
                     self?.addProductToShoppingList(at: indexPath, amount: amount)
@@ -275,38 +284,40 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
             confirmationAlert.addAction(cancelAction)
             confirmationAlert.addAction(addAction)
             self?.present(confirmationAlert, animated: true, completion: nil)
-            completionHandler(true) // Call the completion handler to indicate that the action was performed
+            completionHandler(true)
         }
-        addProductToShoppingListAction.backgroundColor = .blue // Customize the action button background color
+        
+        addProductToShoppingListAction.backgroundColor = .blue
         
         let configuration = UISwipeActionsConfiguration(actions: [addProductToShoppingListAction])
-        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let removeDishAction = UIContextualAction(style: .normal, title: "Remove product") { [weak self] (action, view, completionHandler) in
-            let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to remove this product?", preferredStyle: .alert)
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-            let removeAction = UIAlertAction(title: "Remove", style: .destructive) { (_) in
-                self?.removeProduct(at: indexPath)
+        let archiveProductAction = UIContextualAction(style: .normal, title: Constants.archive) { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: Constants.confirm, message: Constants.archiveMessage, preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
+            let archiveAction = UIAlertAction(title: Constants.archive, style: .destructive) { (_) in
+                self?.archiveProduct(at: indexPath)
             }
             confirmationAlert.addAction(cancelAction)
-            confirmationAlert.addAction(removeAction)
+            confirmationAlert.addAction(archiveAction)
             self?.present(confirmationAlert, animated: true, completion: nil)
-            completionHandler(true) // Call the completion handler to indicate that the action was performed
+            completionHandler(true)
         }
-        removeDishAction.backgroundColor = .red // Customize the action button background color
         
-        let configuration = UISwipeActionsConfiguration(actions: [removeDishAction])
-        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        archiveProductAction.backgroundColor = .darkGray
+        
+        let configuration = UISwipeActionsConfiguration(actions: [archiveProductAction])
+        configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }
     
-    private func removeProduct(at indexPath: IndexPath) {
+    private func archiveProduct(at indexPath: IndexPath) {
         let product = filteredProductsGroupedByCategory[indexPath.section][indexPath.row]
-        Product.removeProduct(product: product)
+        Product.archiveProduct(product: product)
         reloadProducts()
     }
     

@@ -2,14 +2,10 @@ import Foundation
 import SQLite
 import UIKit
 
-enum PhotoDataError: Error {
-    case conversionFailed
-}
-
 public class PhotoData {
     
-    private static let targetPhotoSize = CGSize(width: 800, height: 1200)
-    private static let compressionQuality = 0.7
+    private static let targetPhotoSize = CGSize(width: 2500, height: 2500)
+    private static let compressionQuality = 1.0
     
     public static func convertUIImageToResizedBlob(imageToResize: UIImage) throws -> Blob {
         let resizedImage = self.resizeImage(image: imageToResize, targetSize: targetPhotoSize)

@@ -73,12 +73,13 @@ class DishesViewController: UIViewController {
         if editMode == true {
             editDishVC.editedDish = dish
         }
-        
-        editDishVC.selectedProducts = dish.productAmounts
+                
         editDishVC.nameTextField.text = dish.name
         editDishVC.dishDescriptionTextField.text = dish.description
+        editDishVC.selectedProducts = dish.productAmounts.map { $0.copy() as! ProductAmount }
         editDishVC.selectedPhoto = PhotoData.blobToUIImage(photoBlob: dish.photo)
         editDishVC.selectedOption = dish.category
+        editDishVC.amountOfPortionTextField.text = dish.amountOfPortion != nil ? String(dish.amountOfPortion!) : nil
         editDishVC.reloadPhoto()
         navigationController?.pushViewController(editDishVC, animated: true)
     }
@@ -282,20 +283,20 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let removeDishAction = UIContextualAction(style: .normal, title: "Remove dish") { [weak self] (action, view, completionHandler) in
+        let archiveDish = UIContextualAction(style: .normal, title: "Archive dish") { [weak self] (action, view, completionHandler) in
             let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to remove this dish?", preferredStyle: .alert)
             let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
             let removeAction = UIAlertAction(title: "Remove", style: .destructive) { (_) in
-                self?.removeDish(at: indexPath)
+                self?.archiveDish(at: indexPath)
             }
             confirmationAlert.addAction(cancelAction)
             confirmationAlert.addAction(removeAction)
             self?.present(confirmationAlert, animated: true, completion: nil)
             completionHandler(true) // Call the completion handler to indicate that the action was performed
         }
-        removeDishAction.backgroundColor = .red // Customize the action button background color
+        archiveDish.backgroundColor = .blue // Customize the action button background color
         
-        let configuration = UISwipeActionsConfiguration(actions: [removeDishAction])
+        let configuration = UISwipeActionsConfiguration(actions: [archiveDish])
         configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
         return configuration
     }
@@ -311,9 +312,9 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         navigationController?.pushViewController(dishDetailViewController, animated: true)
     }
     
-    func removeDish(at indexPath: IndexPath) {
+    func archiveDish(at indexPath: IndexPath) {
         let dish = filteredDishesGroupedByCategory[indexPath.section][indexPath.row]
-        Dish.removeDish(dish: dish)
+        Dish.archiveDish(dish: dish)
         reloadDishes()
     }
     

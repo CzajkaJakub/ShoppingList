@@ -25,7 +25,7 @@ class ShoppingListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = "Shopping list"
+        self.title = Constants.shoppingList
         self.productsTable.addGestureRecognizer(longPressRecognizer)
         
         productsTable.delegate = self
@@ -92,13 +92,13 @@ extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource
         nameLabel.text = "\(productAmounts.product.name)"
         cell.contentView.addSubview(nameLabel)
         
-        let piecesLabel = productAmounts.product.weightOfPiece != nil ? "| \((productAmounts.amount / productAmounts.product.weightOfPiece!).rounded(toPlaces: 2)) szt." : ""
-        let detailsLabel = UILabelPadding(insets: TableViewComponent.defaultLabelPadding, labelText: "\(productAmounts.amount) gr \(piecesLabel)")
+        let pieceAmountLabel = productAmounts.product.weightOfPiece != nil ? "\n\((productAmounts.amount / productAmounts.product.weightOfPiece!).rounded(toPlaces: 2)) szt." : ""
+        let productAmountLabel = productAmounts.product.weightOfProduct != nil ? "\n\((productAmounts.amount / productAmounts.product.weightOfProduct!).rounded(toPlaces: 2)) opa." : ""
+        let detailsLabel = UILabelPadding(insets: TableViewComponent.defaultLabelPadding, labelText: "\(productAmounts.amount) gr\(pieceAmountLabel)\(productAmountLabel)")
         
-        // Set up rounded border
-        detailsLabel.layer.cornerRadius = 10.0 // Adjust the radius as needed for your design
-        detailsLabel.layer.borderWidth = 1.8  // Width of the border
-        detailsLabel.layer.borderColor = UIColor.systemBlue.cgColor // Color of the border
+        detailsLabel.layer.cornerRadius = 10.0
+        detailsLabel.layer.borderWidth = 1.8
+        detailsLabel.layer.borderColor = UIColor.systemBlue.cgColor
         cell.contentView.addSubview(detailsLabel)
   
         let productImageView = TableViewComponent.createImageView(photoInCell: productAmounts.product.photo)
@@ -120,14 +120,14 @@ extension ShoppingListViewController: UITableViewDelegate, UITableViewDataSource
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let removeDishAction = UIContextualAction(style: .normal, title: "Remove product") { [weak self] (action, view, completionHandler) in
+        let removeProductAction = UIContextualAction(style: .normal, title: Constants.removeProduct) { [weak self] (action, view, completionHandler) in
             self?.removeProductToBuy(at: indexPath)
-            completionHandler(true) // Call the completion handler to indicate that the action was performed
+            completionHandler(true)
         }
-        removeDishAction.backgroundColor = .red // Customize the action button background color
+        removeProductAction.backgroundColor = .red
         
-        let configuration = UISwipeActionsConfiguration(actions: [removeDishAction])
-        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        let configuration = UISwipeActionsConfiguration(actions: [removeProductAction])
+        configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }
     

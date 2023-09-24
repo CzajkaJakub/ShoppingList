@@ -41,6 +41,14 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         return dishImageView
     }()
     
+    internal let amountOfPortionTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "Amount of portion"
+        textField.borderStyle = .roundedRect
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.keyboardType = .decimalPad
+        return textField
+    }()
     
     private let selectListTextField: UITextField = {
         let textField = UITextField()
@@ -100,7 +108,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     
     private func setupConstraints() {
         
-        let stackView = UIStackView(arrangedSubviews: [selectListTextField, nameTextField, dishDescriptionTextField, dishImageView])
+        let stackView = UIStackView(arrangedSubviews: [selectListTextField, nameTextField, dishDescriptionTextField, amountOfPortionTextField, dishImageView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = TableViewComponent.stackViewAxis
         stackView.spacing = TableViewComponent.stackViewSpacing
@@ -184,7 +192,8 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         guard let photo = selectedPhoto,
               let name = nameTextField.text,
               let category = selectedOption,
-              let description = dishDescriptionTextField.text
+              let description = dishDescriptionTextField.text,
+              let amountOfPortion = StringUtils.convertTextFieldToDouble(stringValue: amountOfPortionTextField.text!)
         else {
             Toast.showToast(message: "Invalid input", parentView: self.view)
             return
@@ -193,10 +202,10 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         let photoBlob = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)
         
         if editedDish != nil {
-            let dishToUpdate = Dish(id: editedDish.id!, name: name, description: description, favourite: editedDish.favourite, photo: photoBlob, productAmounts: selectedProducts, category: category)
+            let dishToUpdate = Dish(id: editedDish.id!, name: name, description: description, favourite: editedDish.favourite, photo: photoBlob, archived: false, amountOfPortion: amountOfPortion, productAmounts: selectedProducts, category: category)
             Dish.updateDish(dish: dishToUpdate)
         } else {
-            let dishToSave = Dish(name: name, description: description, photo: photo, productAmounts: selectedProducts, category: category)
+            let dishToSave = Dish(name: name, description: description, photo: photo, archived: false, amountOfPortion: amountOfPortion, productAmounts: selectedProducts, category: category)
             Dish.addDish(dish: dishToSave)
         }
         

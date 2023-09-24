@@ -24,8 +24,9 @@ class UILabelPadding: UILabel {
     
     private func setupUILabel(labelText: String){
         super.translatesAutoresizingMaskIntoConstraints = false
-        super.font = UIFont.systemFont(ofSize: 13)
-        super.textColor = .black
+        super.font = UIFont.systemFont(ofSize: 11)
+        super.textAlignment = .center
+        super.numberOfLines = 0
         super.text = labelText
     }
     
