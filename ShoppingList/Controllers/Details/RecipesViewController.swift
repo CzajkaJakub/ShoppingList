@@ -81,10 +81,8 @@ class RecipesViewController: UIViewController {
         setupUI()
     }
     
-    private func setupUI() {
-        view.backgroundColor = .white
-        
-        recipeLabel.text = "Sum : \(Recipe.recipes.map {$0.amount}.reduce(0, +).rounded(toPlaces: 2))"
+    private func setupUI() {        
+        recipeLabel.text = "\(Constants.sum) : \(Recipe.recipes.map {$0.amount}.reduce(0, +).rounded(toPlaces: 2))"
         
         NSLayoutConstraint.activate([
             recipeLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -129,7 +127,7 @@ extension RecipesViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return TableViewComponent.createHeaderForTable(tableView: tableView, headerName: "Recipes")
+        return TableViewComponent.createHeaderForTable(tableView: tableView, headerName: Constants.recipes)
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -166,14 +164,14 @@ extension RecipesViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let removeDishAction = UIContextualAction(style: .normal, title: "Remove recipe") { [weak self] (action, view, completionHandler) in
+        let removeDishAction = UIContextualAction(style: .normal, title: Constants.removeRecipe) { [weak self] (action, view, completionHandler) in
             self?.removeRecipe(at: indexPath)
-            completionHandler(true) // Call the completion handler to indicate that the action was performed
+            completionHandler(true)
         }
-        removeDishAction.backgroundColor = .red // Customize the action button background color
+        removeDishAction.backgroundColor = .red
         
         let configuration = UISwipeActionsConfiguration(actions: [removeDishAction])
-        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }
     

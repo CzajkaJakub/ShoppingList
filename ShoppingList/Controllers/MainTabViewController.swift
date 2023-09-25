@@ -10,17 +10,17 @@ class MainTabViewController: UITabBarController, UITabBarControllerDelegate {
         let vc1 = UINavigationController(rootViewController: ShoppingListViewController())
         vc1.view.backgroundColor = .systemBackground
         vc1.tabBarItem.image = UIImage(systemName: "cart")
-        vc1.tabBarItem.title = "Shopping list"
+        vc1.tabBarItem.title = Constants.shoppingList
         
         let vc2 = UINavigationController(rootViewController: ProductsViewController())
         vc2.view.backgroundColor = .systemBackground
         vc2.tabBarItem.image = UIImage(systemName: "folder.fill")
-        vc2.tabBarItem.title = "Products"
+        vc2.tabBarItem.title = Constants.products
         
         let vc3 = UINavigationController(rootViewController: DishesViewController())
         vc3.view.backgroundColor = .systemBackground
         vc3.tabBarItem.image = UIImage(systemName: "folder.circle")
-        vc3.tabBarItem.title = "Dishes"
+        vc3.tabBarItem.title = Constants.dishes
         
         let vc4 = UINavigationController(rootViewController: EatHistoryViewController())
         vc4.view.backgroundColor = .systemBackground

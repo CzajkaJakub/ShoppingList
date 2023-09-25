@@ -18,7 +18,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     
     internal let nameTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Dish Name"
+        textField.placeholder = Constants.dishName
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -26,7 +26,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     
     internal let dishDescriptionTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Opis dania / komentarz"
+        textField.placeholder = Constants.description
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -43,7 +43,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     
     internal let amountOfPortionTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Amount of portion"
+        textField.placeholder = Constants.amountOfPortion
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .decimalPad
@@ -52,7 +52,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     
     private let selectListTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Select an category"
+        textField.placeholder = Constants.selectCategory
         textField.textAlignment = .center
         textField.font = UIFont.systemFont(ofSize: 16)
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -78,7 +78,6 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .white
         view.layer.cornerRadius = 16
         
         if self.selectedOption == nil { self.selectedOption = Category.dishCategories.first }
@@ -130,26 +129,21 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
     
     @objc private func showSelectList() {
         let selectList = UIPickerView()
-        selectList.delegate = self // Conform to the UIPickerViewDelegate protocol
-        selectList.dataSource = self // Conform to the UIPickerViewDataSource protocol
+        selectList.delegate = self
+        selectList.dataSource = self
         
-        // Create an action sheet to contain the select list
-        let selectListActionSheet = UIAlertController(title: "Select an option", message: nil, preferredStyle: .actionSheet)
+        let selectListActionSheet = UIAlertController(title: Constants.chooseAction, message: nil, preferredStyle: .actionSheet)
         selectListActionSheet.view.addSubview(selectList)
         
-        // Define the constraints for the select list within the action sheet
         selectList.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             selectList.leadingAnchor.constraint(equalTo: selectListActionSheet.view.leadingAnchor),
             selectList.trailingAnchor.constraint(equalTo: selectListActionSheet.view.trailingAnchor),
             selectList.topAnchor.constraint(equalTo: selectListActionSheet.view.topAnchor),
-            selectList.bottomAnchor.constraint(equalTo: selectListActionSheet.view.bottomAnchor, constant: -44) // Adjust the constant as needed
+            selectList.bottomAnchor.constraint(equalTo: selectListActionSheet.view.bottomAnchor, constant: -44)
         ])
         
-        // Add a "Cancel" button to dismiss the action sheet
-        selectListActionSheet.addAction(UIAlertAction(title: "Choose", style: .cancel, handler: nil))
-        
-        // Present the action sheet
+        selectListActionSheet.addAction(UIAlertAction(title: Constants.chooseAction, style: .cancel, handler: nil))
         present(selectListActionSheet, animated: true, completion: nil)
     }
     
@@ -158,10 +152,10 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         
-        let imageSourceAlert = UIAlertController(title: "Select source of photo", message: nil, preferredStyle: .alert)
+        let imageSourceAlert = UIAlertController(title: Constants.selectPhotoSource, message: nil, preferredStyle: .alert)
         
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-            let librarySourceButton = UIAlertAction(title: "Library", style: .default) { [weak self] _ in
+            let librarySourceButton = UIAlertAction(title: Constants.library, style: .default) { [weak self] _ in
                 imagePicker.sourceType = .photoLibrary
                 self?.present(imagePicker, animated: true, completion: nil)
             }
@@ -169,7 +163,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         }
         
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            let cameraSourceButton = UIAlertAction(title: "Camera", style: .default) { [weak self] _ in
+            let cameraSourceButton = UIAlertAction(title: Constants.camera, style: .default) { [weak self] _ in
                 imagePicker.sourceType = .camera
                 self?.present(imagePicker, animated: true, completion: nil)
             }
@@ -177,11 +171,11 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
         }
         
         if imageSourceAlert.actions.isEmpty {
-            print("Photo library and camera are not available.")
+            Alert.displayErrorAlert(message: Constants.cameraOrLibraryNotAvailable)
             return
         }
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
         imageSourceAlert.addAction(cancelAction)
         
         self.present(imageSourceAlert, animated: true, completion: nil)
@@ -195,7 +189,7 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
               let description = dishDescriptionTextField.text,
               let amountOfPortion = StringUtils.convertTextFieldToDouble(stringValue: amountOfPortionTextField.text!)
         else {
-            Toast.showToast(message: "Invalid input", parentView: self.view)
+            Toast.showToast(message: Constants.fillEmptyFields, parentView: self.view)
             return
         }
         
@@ -209,18 +203,17 @@ class AddDishViewController: UIViewController, UITableViewDelegate {
             Dish.addDish(dish: dishToSave)
         }
         
-        // Show an alert or perform any other UI update to indicate successful save
-        let alertController = UIAlertController(title: "Success", message: "Dish saved successfully.", preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        let alertController = UIAlertController(title: Constants.success, message: Constants.dishWasSaved, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: Constants.ok, style: .default, handler: nil)
         alertController.addAction(okAction)
         present(alertController, animated: true, completion: nil)
         clearFields()
     }
     
     @objc private func clearFields() {
-        let alertController = UIAlertController(title: "Clear Fields", message: "Are you sure you want to clear the dish?", preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        alertController.addAction(UIAlertAction(title: "Clear", style: .destructive, handler: { _ in
+        let alertController = UIAlertController(title: Constants.clearFields, message: nil, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil))
+        alertController.addAction(UIAlertAction(title: Constants.clear, style: .destructive, handler: { _ in
             self.dishImageView.image = nil
             self.imageViewHeightConstraint?.isActive = false
             self.nameTextField.text = nil
@@ -342,10 +335,9 @@ extension AddDishViewController: UITableViewDataSource {
         let piecesLabel = productAmount.product.weightOfPiece != nil ? "| \((productAmount.amount / productAmount.product.weightOfPiece!).rounded(toPlaces: 2)) szt." : ""
         let detailsLabel = UILabelPadding(insets: TableViewComponent.defaultLabelPadding, labelText: "\(productAmount.amount) gr \(piecesLabel)")
         
-        // Set up rounded border
-        detailsLabel.layer.cornerRadius = 10.0 // Adjust the radius as needed for your design
-        detailsLabel.layer.borderWidth = 1.8  // Width of the border
-        detailsLabel.layer.borderColor = UIColor.systemBlue.cgColor // Color of the border
+        detailsLabel.layer.cornerRadius = 10.0
+        detailsLabel.layer.borderWidth = 1.8
+        detailsLabel.layer.borderColor = UIColor.systemBlue.cgColor
         cell.contentView.addSubview(detailsLabel)
         
         let productImageView = TableViewComponent.createImageView(photoInCell: productAmount.product.photo)
@@ -367,14 +359,14 @@ extension AddDishViewController: UITableViewDataSource {
     
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let addProductToShoppingListAction = UIContextualAction(style: .normal, title: "Edit amount") { [weak self] (action, view, completionHandler) in
-            let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to add this product to list?", preferredStyle: .alert)
+        let addProductToShoppingListAction = UIContextualAction(style: .normal, title: Constants.editAmount) { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: Constants.confirm, message: Constants.addToShoppingListMessage, preferredStyle: .alert)
             confirmationAlert.addTextField { textField in
-                textField.placeholder = "Enter Amount"
+                textField.placeholder = Constants.enterAmount
                 textField.keyboardType = .decimalPad
             }
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-            let addAction = UIAlertAction(title: "Add", style: .destructive) { (_) in
+            let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
+            let addAction = UIAlertAction(title: Constants.add, style: .destructive) { (_) in
                 if let amountText = confirmationAlert.textFields?.first?.text,
                    let amount = Double(amountText) {
                     self?.updateAmount(at: indexPath, amount: amount)
@@ -384,25 +376,25 @@ extension AddDishViewController: UITableViewDataSource {
             confirmationAlert.addAction(cancelAction)
             confirmationAlert.addAction(addAction)
             self?.present(confirmationAlert, animated: true, completion: nil)
-            completionHandler(true) // Call the completion handler to indicate that the action was performed
+            completionHandler(true)
         }
-        addProductToShoppingListAction.backgroundColor = .blue // Customize the action button background color
+        addProductToShoppingListAction.backgroundColor = .blue
         
         let configuration = UISwipeActionsConfiguration(actions: [addProductToShoppingListAction])
-        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let removeDishAction = UIContextualAction(style: .normal, title: "Remove product") { [weak self] (action, view, completionHandler) in
+        let removeDishAction = UIContextualAction(style: .normal, title: Constants.removeProduct) { [weak self] (action, view, completionHandler) in
             self?.removeProductToBuy(at: indexPath)
-            completionHandler(true) // Call the completion handler to indicate that the action was performed
+            completionHandler(true)
         }
-        removeDishAction.backgroundColor = .red // Customize the action button background color
+        removeDishAction.backgroundColor = .red
         
         let configuration = UISwipeActionsConfiguration(actions: [removeDishAction])
-        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }
     

@@ -82,7 +82,6 @@ class EatHistoryViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
         
         var totalCalories = 0.0
         var totalCarbo = 0.0
@@ -101,7 +100,7 @@ class EatHistoryViewController: UIViewController {
                 totalFat += dish.fat * item.amount!
                 totalProteins += dish.proteins * item.amount!
             } else {
-                Toast.showToast(message: "Error powiedz Kubie", parentView: self.view)
+                Alert.displayErrorAlert(message: Constants.errorCalculation)
             }
         }
         
@@ -110,10 +109,7 @@ class EatHistoryViewController: UIViewController {
         totalFat = totalFat.rounded(toPlaces: 2)
         totalProteins = totalProteins.rounded(toPlaces: 2)
         
-        
-        eatValueLabel.text = """
-            Kcal: \(totalCalories)  |  Carbs: \(totalCarbo)\nFat: \(totalFat)  |  Protein: \(totalProteins)
-            """
+        eatValueLabel.text = "\(Constants.calories): \(totalCalories)  |  \(Constants.carbo): \(totalCarbo)\n\(Constants.fat): \(totalFat)  |  \(Constants.protein): \(totalProteins)"
         
         NSLayoutConstraint.activate([
             eatValueLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -175,7 +171,7 @@ extension EatHistoryViewController: UITableViewDelegate, UITableViewDataSource {
         
         var detailsText = ""
         if let calories = calories {
-            detailsText = "Kcal: \(calories)"
+            detailsText = "\(Constants.calories): \(calories)"
         }
         
         let nameLabel = UILabel()
@@ -212,10 +208,10 @@ extension EatHistoryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let removeDishAction = UIContextualAction(style: .normal, title: "Remove") { [weak self] (action, view, completionHandler) in
-            let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to remove it?", preferredStyle: .alert)
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-            let removeAction = UIAlertAction(title: "Remove", style: .destructive) { (_) in
+        let removeDishAction = UIContextualAction(style: .normal, title: Constants.remove) { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: Constants.confirm, message: Constants.removeRecipeMessage, preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
+            let removeAction = UIAlertAction(title: Constants.remove, style: .destructive) { (_) in
                 self?.removeEatHistoryItem(at: indexPath)
             }
             confirmationAlert.addAction(cancelAction)
@@ -223,10 +219,10 @@ extension EatHistoryViewController: UITableViewDelegate, UITableViewDataSource {
             self?.present(confirmationAlert, animated: true, completion: nil)
             completionHandler(true)
         }
-        removeDishAction.backgroundColor = .red // Customize the action button background color
+        removeDishAction.backgroundColor = .red
         
         let configuration = UISwipeActionsConfiguration(actions: [removeDishAction])
-        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }
     

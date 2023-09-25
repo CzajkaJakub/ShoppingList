@@ -35,7 +35,7 @@ class DishesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = "Dishes"
+        self.title = Constants.dishes
         
         dishesTable.delegate = self
         dishesTable.dataSource = self
@@ -45,7 +45,6 @@ class DishesViewController: UIViewController {
         
         view.addSubview(dishesTable)
         
-        // Add a long-press gesture recognizer to the table view
         let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(editDishAction(_:)))
         dishesTable.addGestureRecognizer(longPressGesture)
     }
@@ -95,21 +94,21 @@ class DishesViewController: UIViewController {
             if let indexPath = dishesTable.indexPathForRow(at: point) {
                 let dish = filteredDishesGroupedByCategory[indexPath.section][indexPath.row]
                 
-                let alertController = UIAlertController(title: "Options", message: "Choose an action:", preferredStyle: .actionSheet)
+                let alertController = UIAlertController(title: Constants.chooseAction, message: nil, preferredStyle: .actionSheet)
                 
-                let editAction = UIAlertAction(title: "Edit", style: .default) { (_) in
+                let editAction = UIAlertAction(title: Constants.edit, style: .default) { (_) in
                     self.openDishViewController(editMode: true, dish: dish)
                 }
                 
                 var favouriteButton: UIAlertAction! = nil
                 if (!dish.favourite) {
-                    favouriteButton = UIAlertAction(title: "Add to favourite", style: .default) { (_) in
+                    favouriteButton = UIAlertAction(title: Constants.addToFavourite, style: .default) { (_) in
                         dish.favourite = true
                         Dish.updateDish(dish: dish)
                         self.reloadDishes()
                     }
                 } else {
-                    favouriteButton = UIAlertAction(title: "Remove from favourite", style: .default) { (_) in
+                    favouriteButton = UIAlertAction(title: Constants.removeFromFavourite, style: .default) { (_) in
                         dish.favourite = false
                         Dish.updateDish(dish: dish)
                         self.reloadDishes()
@@ -117,16 +116,16 @@ class DishesViewController: UIViewController {
                 }
                 
                 
-                let addNewAction = UIAlertAction(title: "Copy", style: .default) { (_) in
+                let addNewAction = UIAlertAction(title: Constants.copy, style: .default) { (_) in
                     self.openDishViewController(editMode: false, dish: dish)
                 }
                 
-                let eatDishAction = UIAlertAction(title: "Eat dish", style: .default) { (_) in
+                let eatDishAction = UIAlertAction(title: Constants.eatDish, style: .default) { (_) in
                     
-                    let amountAlert = UIAlertController(title: "Wybierz date\n", message: nil, preferredStyle: .alert)
+                    let amountAlert = UIAlertController(title: "\(Constants.enterDate)\n", message: nil, preferredStyle: .alert)
                     
                     amountAlert.addTextField { textField in
-                        textField.placeholder = "Wpisz ilość zjedzonego dania (1 - 100 %)"
+                        textField.placeholder = Constants.enterAmountDishAmount
                         textField.keyboardType = .decimalPad
                     }
                     
@@ -143,18 +142,17 @@ class DishesViewController: UIViewController {
                     datePicker.topAnchor.constraint(equalTo: amountAlert.view.topAnchor, constant: 42).isActive = true
                     datePicker.centerXAnchor.constraint(equalTo: amountAlert.view.centerXAnchor).isActive = true
                     
-                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-                    let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
+                    let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
+                    let addAction = UIAlertAction(title: Constants.add, style: .default) { [weak self] _ in
                         
                         let passedValueText = amountAlert.textFields?.first?.text!
                         if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
                             
                             let eatItem = EatHistoryItem(dish: dish, product: nil, amount: passedValue, eatDate: self!.selectedDate)
                             EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
-                            Toast.showToast(message: "\(dish.name) was eaten!", parentView: self!.view)
                             
                         } else {
-                            Toast.showToast(message: "Wrong value text!", parentView: self!.view)
+                            Toast.showToast(message: Constants.enteredWrongDoubleValueMessage, parentView: self!.view)
                         }
                     }
                     
@@ -191,18 +189,18 @@ class DishesViewController: UIViewController {
     }
     
     @objc func showSearchAlert() {
-        let alertController = UIAlertController(title: "Search", message: "Enter a search term", preferredStyle: .alert)
+        let alertController = UIAlertController(title: Constants.search, message: nil, preferredStyle: .alert)
         alertController.addTextField { textField in
-            textField.placeholder = "Search term"
+            textField.placeholder = Constants.searchTerm
         }
 
-        let searchAction = UIAlertAction(title: "Search", style: .default) { [weak self] _ in
+        let searchAction = UIAlertAction(title: Constants.search, style: .default) { [weak self] _ in
             if let searchTerm = alertController.textFields?.first?.text {
                 self?.filterDishes(searchTerm: searchTerm)
             }
         }
 
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
 
         alertController.addAction(searchAction)
         alertController.addAction(cancelAction)
@@ -240,10 +238,11 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
                 
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.numberOfLines = 0
         nameLabel.text = "\(dish.name)"
         
         if (dish.favourite) {
-            nameLabel.backgroundColor = .yellow
+            nameLabel.textColor = .yellow
         }
         
         cell.contentView.addSubview(nameLabel)
@@ -257,47 +256,49 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
             dishImageView.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
             
             nameLabel.leadingAnchor.constraint(equalTo: dishImageView.trailingAnchor, constant: 10),
+            nameLabel.trailingAnchor.constraint(equalTo: cell.trailingAnchor, constant: -10),
             nameLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
         ])
         return cell
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let addDishToShoppingListAction = UIContextualAction(style: .normal, title: "Add meal to shopping list") { [weak self] (action, view, completionHandler) in
-            let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to add this dish to list?", preferredStyle: .alert)
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-            let addAction = UIAlertAction(title: "Add", style: .destructive) { (_) in
+        let addDishToShoppingListAction = UIContextualAction(style: .normal, title: Constants.shoppingList) { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: Constants.confirm, message: Constants.addToShoppingListMessage, preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
+            let addAction = UIAlertAction(title: Constants.add, style: .destructive) { (_) in
                 self?.addDishToShoppingList(at: indexPath)
             }
             confirmationAlert.addAction(cancelAction)
             confirmationAlert.addAction(addAction)
             self?.present(confirmationAlert, animated: true, completion: nil)
-            completionHandler(true) // Call the completion handler to indicate that the action was performed
+            completionHandler(true)
         }
-        addDishToShoppingListAction.backgroundColor = .blue // Customize the action button background color
+        addDishToShoppingListAction.backgroundColor = .blue
         
         let configuration = UISwipeActionsConfiguration(actions: [addDishToShoppingListAction])
-        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let archiveDish = UIContextualAction(style: .normal, title: "Archive dish") { [weak self] (action, view, completionHandler) in
-            let confirmationAlert = UIAlertController(title: "Confirm", message: "Are you sure you want to remove this dish?", preferredStyle: .alert)
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-            let removeAction = UIAlertAction(title: "Remove", style: .destructive) { (_) in
+        let archiveDish = UIContextualAction(style: .normal, title: Constants.archive) { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: Constants.confirm, message: Constants.archiveMessage, preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
+            let removeAction = UIAlertAction(title: Constants.archive, style: .destructive) { (_) in
                 self?.archiveDish(at: indexPath)
             }
             confirmationAlert.addAction(cancelAction)
             confirmationAlert.addAction(removeAction)
             self?.present(confirmationAlert, animated: true, completion: nil)
-            completionHandler(true) // Call the completion handler to indicate that the action was performed
+            completionHandler(true)
         }
-        archiveDish.backgroundColor = .blue // Customize the action button background color
+        
+        archiveDish.backgroundColor = .blue
         
         let configuration = UISwipeActionsConfiguration(actions: [archiveDish])
-        configuration.performsFirstActionWithFullSwipe = false // Allow partial swipe to trigger the action
+        configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }
     

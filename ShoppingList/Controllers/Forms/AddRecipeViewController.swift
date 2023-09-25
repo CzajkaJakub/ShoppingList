@@ -17,7 +17,7 @@ class AddRecipeViewController: UIViewController {
     
     internal let recipeValueTextField: UITextField = {
         let recipeValueTextField = UITextField()
-        recipeValueTextField.placeholder = "Value"
+        recipeValueTextField.placeholder = Constants.recipeValue
         recipeValueTextField.borderStyle = .roundedRect
         recipeValueTextField.translatesAutoresizingMaskIntoConstraints = false
         recipeValueTextField.keyboardType = .decimalPad
@@ -83,10 +83,10 @@ class AddRecipeViewController: UIViewController {
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         
-        let imageSourceAlert = UIAlertController(title: "Select source of photo", message: nil, preferredStyle: .alert)
+        let imageSourceAlert = UIAlertController(title: Constants.selectPhotoSource, message: nil, preferredStyle: .alert)
         
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-            let librarySourceButton = UIAlertAction(title: "Library", style: .default) { [weak self] _ in
+            let librarySourceButton = UIAlertAction(title: Constants.library, style: .default) { [weak self] _ in
                 imagePicker.sourceType = .photoLibrary
                 self?.present(imagePicker, animated: true, completion: nil)
             }
@@ -94,7 +94,7 @@ class AddRecipeViewController: UIViewController {
         }
         
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            let cameraSourceButton = UIAlertAction(title: "Camera", style: .default) { [weak self] _ in
+            let cameraSourceButton = UIAlertAction(title: Constants.camera, style: .default) { [weak self] _ in
                 imagePicker.sourceType = .camera
                 self?.present(imagePicker, animated: true, completion: nil)
             }
@@ -102,11 +102,11 @@ class AddRecipeViewController: UIViewController {
         }
         
         if imageSourceAlert.actions.isEmpty {
-            print("Photo library and camera are not available.")
+            Alert.displayErrorAlert(message: Constants.cameraOrLibraryNotAvailable)
             return
         }
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
         imageSourceAlert.addAction(cancelAction)
         
         self.present(imageSourceAlert, animated: true, completion: nil)
@@ -118,16 +118,15 @@ class AddRecipeViewController: UIViewController {
         guard let photo = selectedPhoto,
               let recipeValue = StringUtils.convertTextFieldToDouble(stringValue: recipeValueTextField.text!)
         else {
-            Toast.showToast(message: "Invalid input", parentView: self.view)
+            Toast.showToast(message: Constants.fillEmptyFields, parentView: self.view)
             return
         }
         
         Recipe.addRecipe(recipe: Recipe(date: selectedDate, amount: recipeValue, photo: photo))
         
-        // Show an alert or perform any other UI update to indicate successful save
-        let alertController = UIAlertController(title: "Success", message: "Recipe saved successfully.", preferredStyle: .alert)
+        let alertController = UIAlertController(title: Constants.success, message: Constants.recipeWasSaved, preferredStyle: .alert)
         
-        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+        alertController.addAction(UIAlertAction(title: Constants.ok, style: .default, handler: { _ in
             self.recipeImageView.image = nil
             self.imageViewHeightConstraint?.isActive = false
             self.recipeValueTextField.text = nil
@@ -137,9 +136,9 @@ class AddRecipeViewController: UIViewController {
     }
     
     @objc private func clearFields() {
-        let alertController = UIAlertController(title: "Clear Fields", message: "Are you sure you want to clear the recipe?", preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        alertController.addAction(UIAlertAction(title: "Clear", style: .destructive, handler: { _ in
+        let alertController = UIAlertController(title: Constants.clearFields, message: nil, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil))
+        alertController.addAction(UIAlertAction(title: Constants.clear, style: .destructive, handler: { _ in
             self.recipeImageView.image = nil
             self.imageViewHeightConstraint?.isActive = false
             self.recipeValueTextField.text = nil
@@ -165,8 +164,6 @@ class AddRecipeViewController: UIViewController {
     }
 }
 
-
-// UIImagePickerControllerDelegate method to handle the captured photo
 extension AddRecipeViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let image = info[.originalImage] as? UIImage {

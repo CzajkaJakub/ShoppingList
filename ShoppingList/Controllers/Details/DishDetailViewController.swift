@@ -11,7 +11,6 @@ class DishDetailViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
         
         let dishImageView = UIImageView()
         dishImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -25,9 +24,8 @@ class DishDetailViewController: UIViewController {
         detailsLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         detailsLabel.textColor = .gray
         detailsLabel.numberOfLines = 0
-        detailsLabel.text = """
-            Kcal: \(dish.calories)  |  Carbs: \(dish.carbo)  |  Fat: \(dish.fat)  |  Protein: \(dish.proteins)
-            """
+        detailsLabel.text = "\(Constants.calories): \(dish.calories)  |  \(Constants.carbo): \(dish.carbo)  |  \(Constants.fat): \(dish.fat)  |  \(Constants.protein): \(dish.proteins)"
+
         
         let descriptionLabel = UILabel()
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -39,11 +37,10 @@ class DishDetailViewController: UIViewController {
         let productsList = UILabel()
         productsList.translatesAutoresizingMaskIntoConstraints = false
         productsList.font = UIFont.systemFont(ofSize: 14)
-        productsList.textColor = .black
         productsList.numberOfLines = 0
         productsList.text = dish.productAmounts.map { productAmount in
             let piecesLabel = productAmount.product.weightOfPiece != nil ? "| \((productAmount.amount / productAmount.product.weightOfPiece!).rounded(toPlaces: 2)) szt." : ""
-            return "\(productAmount.product.name) ( \(productAmount.amount) grams \(piecesLabel) )"
+            return "\(productAmount.product.name) ( \(productAmount.amount) \(Constants.grams) \(piecesLabel) )"
 
         }.joined(separator: "\n")
         

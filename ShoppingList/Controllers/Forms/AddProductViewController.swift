@@ -10,7 +10,7 @@ class AddProductViewController: UIViewController {
     
     internal let nameTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Product Name"
+        textField.placeholder = Constants.productName
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -27,7 +27,7 @@ class AddProductViewController: UIViewController {
     
     internal let kcalTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Kcal / 100g"
+        textField.placeholder = Constants.caloriesPer100Grams
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .decimalPad
@@ -36,7 +36,7 @@ class AddProductViewController: UIViewController {
     
     internal let carboTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Carbo / 100g"
+        textField.placeholder = Constants.carboPer100Grams
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .decimalPad
@@ -45,7 +45,7 @@ class AddProductViewController: UIViewController {
     
     internal let fatTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Fat / 100g"
+        textField.placeholder = Constants.fatPer100Grams
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .decimalPad
@@ -54,7 +54,7 @@ class AddProductViewController: UIViewController {
     
     internal let proteinTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Protein / 100g"
+        textField.placeholder = Constants.proteinPer100Grams
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.keyboardType = .decimalPad
@@ -63,7 +63,7 @@ class AddProductViewController: UIViewController {
     
     internal let weightOfPieceTextField: UITextField = {
         let weightOfPieceTextField = UITextField()
-        weightOfPieceTextField.placeholder = "Weight of piece"
+        weightOfPieceTextField.placeholder = Constants.weightOfPiece
         weightOfPieceTextField.borderStyle = .roundedRect
         weightOfPieceTextField.translatesAutoresizingMaskIntoConstraints = false
         weightOfPieceTextField.keyboardType = .decimalPad
@@ -72,7 +72,7 @@ class AddProductViewController: UIViewController {
     
     internal let weightOfProductTextField: UITextField = {
         let weightOfPieceTextField = UITextField()
-        weightOfPieceTextField.placeholder = "Weight of product"
+        weightOfPieceTextField.placeholder = Constants.weightOfProduct
         weightOfPieceTextField.borderStyle = .roundedRect
         weightOfPieceTextField.translatesAutoresizingMaskIntoConstraints = false
         weightOfPieceTextField.keyboardType = .decimalPad
@@ -93,7 +93,7 @@ class AddProductViewController: UIViewController {
     
     private let selectListTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Select an category"
+        textField.placeholder = Constants.selectCategory
         textField.textAlignment = .center
         textField.font = UIFont.systemFont(ofSize: 16)
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -104,7 +104,6 @@ class AddProductViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
         view.layer.cornerRadius = 16
         
         if self.selectedOption == nil { self.selectedOption = Category.productCategories.first }
@@ -141,26 +140,21 @@ class AddProductViewController: UIViewController {
     
     @objc private func showSelectList() {
         let selectList = UIPickerView()
-        selectList.delegate = self // Conform to the UIPickerViewDelegate protocol
-        selectList.dataSource = self // Conform to the UIPickerViewDataSource protocol
+        selectList.delegate = self
+        selectList.dataSource = self
         
-        // Create an action sheet to contain the select list
-        let selectListActionSheet = UIAlertController(title: "Select an option", message: nil, preferredStyle: .actionSheet)
+        let selectListActionSheet = UIAlertController(title: Constants.chooseAction, message: nil, preferredStyle: .actionSheet)
         selectListActionSheet.view.addSubview(selectList)
         
-        // Define the constraints for the select list within the action sheet
         selectList.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             selectList.leadingAnchor.constraint(equalTo: selectListActionSheet.view.leadingAnchor),
             selectList.trailingAnchor.constraint(equalTo: selectListActionSheet.view.trailingAnchor),
             selectList.topAnchor.constraint(equalTo: selectListActionSheet.view.topAnchor),
-            selectList.bottomAnchor.constraint(equalTo: selectListActionSheet.view.bottomAnchor, constant: -44) // Adjust the constant as needed
+            selectList.bottomAnchor.constraint(equalTo: selectListActionSheet.view.bottomAnchor, constant: -44)
         ])
         
-        // Add a "Cancel" button to dismiss the action sheet
-        selectListActionSheet.addAction(UIAlertAction(title: "Chose", style: .cancel, handler: nil))
-        
-        // Present the action sheet
+        selectListActionSheet.addAction(UIAlertAction(title: Constants.chooseAction, style: .cancel, handler: nil))
         present(selectListActionSheet, animated: true, completion: nil)
     }
     
@@ -168,10 +162,10 @@ class AddProductViewController: UIViewController {
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         
-        let imageSourceAlert = UIAlertController(title: "Select source of photo", message: nil, preferredStyle: .alert)
+        let imageSourceAlert = UIAlertController(title: Constants.selectPhotoSource, message: nil, preferredStyle: .alert)
         
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-            let librarySourceButton = UIAlertAction(title: "Library", style: .default) { [weak self] _ in
+            let librarySourceButton = UIAlertAction(title: Constants.library, style: .default) { [weak self] _ in
                 imagePicker.sourceType = .photoLibrary
                 self?.present(imagePicker, animated: true, completion: nil)
             }
@@ -179,7 +173,7 @@ class AddProductViewController: UIViewController {
         }
         
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            let cameraSourceButton = UIAlertAction(title: "Camera", style: .default) { [weak self] _ in
+            let cameraSourceButton = UIAlertAction(title: Constants.camera, style: .default) { [weak self] _ in
                 imagePicker.sourceType = .camera
                 self?.present(imagePicker, animated: true, completion: nil)
             }
@@ -187,11 +181,11 @@ class AddProductViewController: UIViewController {
         }
         
         if imageSourceAlert.actions.isEmpty {
-            print("Photo library and camera are not available.")
+            Alert.displayErrorAlert(message: Constants.cameraOrLibraryNotAvailable)
             return
         }
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
         imageSourceAlert.addAction(cancelAction)
         
         self.present(imageSourceAlert, animated: true, completion: nil)
@@ -207,7 +201,7 @@ class AddProductViewController: UIViewController {
               let fat = StringUtils.convertTextFieldToDouble(stringValue: fatTextField.text!),
               let protein = StringUtils.convertTextFieldToDouble(stringValue: proteinTextField.text!)
         else {
-            Toast.showToast(message: "Invalid input", parentView: self.view)
+            Toast.showToast(message: Constants.fillEmptyFields, parentView: self.view)
             return
         }
         
@@ -223,18 +217,17 @@ class AddProductViewController: UIViewController {
             Product.addProduct(product: productToSave)
         }
         
-        // Show an alert or perform any other UI update to indicate successful save
-        let alertController = UIAlertController(title: "Success", message: "Product saved successfully.", preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        let alertController = UIAlertController(title: Constants.success, message: Constants.productWasSaved, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: Constants.ok, style: .default, handler: nil)
         alertController.addAction(okAction)
         present(alertController, animated: true, completion: nil)
         clearFields()
     }
     
     @objc private func clearFields() {
-        let alertController = UIAlertController(title: "Clear Fields", message: "Are you sure you want to clear the product?", preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        alertController.addAction(UIAlertAction(title: "Clear", style: .destructive, handler: { _ in
+        let alertController = UIAlertController(title: Constants.clearFields, message: nil, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil))
+        alertController.addAction(UIAlertAction(title: Constants.clear, style: .destructive, handler: { _ in
             self.productImageView.image = nil
             self.imageViewHeightConstraint?.isActive = false
             self.nameTextField.text = nil
@@ -268,33 +261,25 @@ class AddProductViewController: UIViewController {
 }
 
 extension AddProductViewController: UIPickerViewDelegate, UIPickerViewDataSource {
-    // Implement the required methods for UIPickerViewDataSource and UIPickerViewDelegate here
     
-    // Example UIPickerViewDataSource methods:
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        // Return the number of components (columns) in the select list
         return 1
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        // Return the number of rows in the select list
-        return Category.productCategories.count // Replace with your actual array of select options
+        return Category.productCategories.count
     }
     
-    // Example UIPickerViewDelegate method:
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        // Return the title for each row in the select list
-        return Category.productCategories[row].name // Replace with your actual array of select options
+        return Category.productCategories[row].name
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        // Handle the selection of a row in the select list
-        selectedOption = Category.productCategories[row] // Replace with your actual array of select options
+        selectedOption = Category.productCategories[row]
         selectListTextField.text = selectedOption.name
     }
 }
 
-// UIImagePickerControllerDelegate method to handle the captured photo
 extension AddProductViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let image = info[.originalImage] as? UIImage {

@@ -7,7 +7,7 @@ public final class PopUpModalViewController: UIViewController {
     
     private lazy var closeButton: UIButton = {
         var config = UIButton.Configuration.borderedTinted()
-        config.title = "Close"
+        config.title = Constants.close
         config.image = UIImage(systemName: "xmark")
         config.imagePadding = 6
         config.baseBackgroundColor = UIColor.black
@@ -31,7 +31,7 @@ public final class PopUpModalViewController: UIViewController {
         super.viewDidLoad()
 
         self.view.addSubview(imageView)
-        self.view.addSubview(closeButton) // Add the closeButton to the view hierarchy
+        self.view.addSubview(closeButton)
         self.view.backgroundColor = UIColor.black.withAlphaComponent(0.4)
         imageView.image = PhotoData.resizeImage(imageBlob: self.blobImageToDisplay, targetSize: CGSize(width: self.view.bounds.width * 0.8, height: self.view.bounds.height * 0.8))
 
@@ -39,9 +39,8 @@ public final class PopUpModalViewController: UIViewController {
             self.imageView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
             self.imageView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
 
-            // Position the closeButton
             self.closeButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            self.closeButton.topAnchor.constraint(equalTo: self.imageView.bottomAnchor, constant: 16), // Adjust the constant as needed
+            self.closeButton.topAnchor.constraint(equalTo: self.imageView.bottomAnchor, constant: 16),
         ])
     }
 

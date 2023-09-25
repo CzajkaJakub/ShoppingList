@@ -24,7 +24,7 @@ class ProductSelectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        title = "Select Product"
+        title = Constants.selectProduct
         setupTableView()
     }
     
@@ -44,18 +44,18 @@ class ProductSelectionViewController: UIViewController {
     }
     
     @objc func showSearchAlert() {
-        let alertController = UIAlertController(title: "Search", message: "Enter a search term", preferredStyle: .alert)
+        let alertController = UIAlertController(title: Constants.search, message: nil, preferredStyle: .alert)
         alertController.addTextField { textField in
-            textField.placeholder = "Search term"
+            textField.placeholder = Constants.searchTerm
         }
 
-        let searchAction = UIAlertAction(title: "Search", style: .default) { [weak self] _ in
+        let searchAction = UIAlertAction(title: Constants.search, style: .default) { [weak self] _ in
             if let searchTerm = alertController.textFields?.first?.text {
                 self?.filterProducts(searchTerm: searchTerm)
             }
         }
 
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
 
         alertController.addAction(searchAction)
         alertController.addAction(cancelAction)
@@ -124,21 +124,20 @@ extension ProductSelectionViewController: UITableViewDataSource, UITableViewDele
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let product = filteredProductsGroupedByCategory[indexPath.section][indexPath.row]
         
-        let amountAlert = UIAlertController(title: "Enter Amount", message: nil, preferredStyle: .alert)
+        let amountAlert = UIAlertController(title: Constants.enterAmount, message: nil, preferredStyle: .alert)
         amountAlert.addTextField { textField in
-            textField.placeholder = "Enter Amount (grams)"
+            textField.placeholder = Constants.enterAmountInGrams
             textField.keyboardType = .decimalPad
         }
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        let addAction = UIAlertAction(title: "Add", style: .default) { [weak self] _ in
+        let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
+        let addAction = UIAlertAction(title: Constants.add, style: .default) { [weak self] _ in
             
             let passedValueText = amountAlert.textFields?.first?.text!
             if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
                 self?.delegate?.didSelectProduct(product, amount: passedValue)
-                Toast.showToast(message: "\(product.name) (\(passedValue) grams) added!", parentView: self!.view)
             } else {
-                Toast.showToast(message: "Wrong value text!", parentView: self!.view)
+                Toast.showToast(message: Constants.enteredWrongDoubleValueMessage, parentView: self!.view)
             }
         }
         

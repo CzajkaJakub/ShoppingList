@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  ShoppingList
-//
-//  Created by Patrycja on 09/07/2023.
-//
-
 import UIKit
 
 @main
