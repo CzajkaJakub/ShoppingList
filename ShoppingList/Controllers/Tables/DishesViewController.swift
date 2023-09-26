@@ -242,7 +242,7 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
         nameLabel.text = "\(dish.name)"
         
         if (dish.favourite) {
-            nameLabel.textColor = .yellow
+            nameLabel.textColor = UIColor(named: Constants.favouriteDishLabelColor)
         }
         
         cell.contentView.addSubview(nameLabel)

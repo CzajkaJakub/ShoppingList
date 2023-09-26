@@ -5,6 +5,9 @@ class Constants {
     //formats
     public static let dateFormat_MMMM_yyyy = "MMMM yyyy"
     
+    //colors
+    public static let favouriteDishLabelColor = "favouriteDishLabelColor"
+    
     //informations
     public static let ok = "OK"
     public static let error = "Wystapil blad!"

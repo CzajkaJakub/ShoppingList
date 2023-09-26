@@ -65,13 +65,9 @@ class ProductsViewController: UIViewController {
         navigationController?.pushViewController(AddProductViewController(), animated: true)
     }
     
-    private func openProductViewController(editMode: Bool, product: Product){
+    private func openProductViewController(product: Product){
         let editProductVC = AddProductViewController()
-
-        if editMode == true {
-            editProductVC.editedProduct = product
-        }
-        
+        editProductVC.editedProduct = product
         editProductVC.nameTextField.text = product.name
         editProductVC.carboTextField.text = String(product.carbo)
         editProductVC.kcalTextField.text = String(product.calories)
@@ -99,11 +95,7 @@ class ProductsViewController: UIViewController {
                 let alertController = UIAlertController(title: Constants.chooseAction, message: nil, preferredStyle: .actionSheet)
                 
                 let editAction = UIAlertAction(title: Constants.edit, style: .default) { (_) in
-                    self.openProductViewController(editMode: true, product: product)
-                }
-                
-                let addNewAction = UIAlertAction(title: Constants.copy, style: .default) { (_) in
-                    self.openProductViewController(editMode: false, product: product)
+                    self.openProductViewController(product: product)
                 }
                 
                 let eatProductAction = UIAlertAction(title: Constants.eatProduct, style: .default) { (_) in
@@ -151,7 +143,6 @@ class ProductsViewController: UIViewController {
                 let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
                 
                 alertController.addAction(editAction)
-                alertController.addAction(addNewAction)
                 alertController.addAction(eatProductAction)
                 alertController.addAction(cancelAction)
             
@@ -215,6 +206,17 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return TableViewComponent.headerHeight
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let product = filteredProductsGroupedByCategory[indexPath.section][indexPath.row]
+        
+        let popupVC = PopUpModalViewController()
+        popupVC.blobImageToDisplay = product.photo
+        
+        popupVC.modalPresentationStyle = .overFullScreen
+        popupVC.modalTransitionStyle = .crossDissolve
+        self.present(popupVC, animated: true)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
