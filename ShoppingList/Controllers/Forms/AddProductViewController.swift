@@ -210,10 +210,10 @@ class AddProductViewController: UIViewController {
         
         if editedProduct != nil {
             let photoBlob = try! PhotoData.convertUIImageToResizedBlob(imageToResize: selectedPhoto)
-            let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, archived: false, category: Category(id: selectedOption.id!, name: selectedOption.name))
+            let productToUpdate = Product(id: editedProduct.id!, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, category: Category(id: selectedOption.id!, name: selectedOption.name))
             Product.updateProduct(product: productToUpdate)
         } else {
-            let productToSave = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, archived: false, category: Category(id: selectedOption.id!, name: selectedOption.name))
+            let productToSave = Product(name: name, photo: photo, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, category: Category(id: selectedOption.id!, name: selectedOption.name))
             Product.addProduct(product: productToSave)
         }
         

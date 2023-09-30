@@ -55,7 +55,9 @@ class Constants {
     public static let removeFromFavourite = "Skasuj z ulubionych"
     public static let addToFavourite = "Dodaj do ulubionych"
     public static let addToShoppingListMessage = "Czy na pewno chcesz dodać do listy zakupów?"
+    public static let clearShoppingListMessage = "Czy na pewno chcesz wyczyścić liste zakupów?"
     public static let removeRecipeMessage = "Czy na pewno chcesz skasować paragon?"
+    public static let removeMessage = "Czy na pewno chcesz skasować produkt?"
     public static let eatProduct = "Oznacz produkt jako zjedzony"
     public static let eatDish = "Oznacz posiłek jako zjedzony"
     public static let fat = "Tłuszcz"
@@ -159,6 +161,8 @@ class Constants {
         "Kawa",
         "Obiad",
         "Kolacja",
-        "Śniadanie"
+        "Przekąska",
+        "Śniadanie",
+        "II Śniadanie"
     ]
 }

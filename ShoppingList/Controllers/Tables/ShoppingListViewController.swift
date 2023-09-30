@@ -8,6 +8,10 @@ class ShoppingListViewController: UIViewController {
         return productsTable
     }()
     
+    private lazy var clearShoppingListButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(clearShoppingList))
+    }()
+    
     private var productsToBuyGroupedByCategory: [[ProductAmount]] {
         let groupedProducts = Dictionary(grouping: ProductAmount.productsToBuy, by: { $0.product.category.name })
         return groupedProducts.values.sorted(by: { $0[0].product.category.name < $1[0].product.category.name })
@@ -21,6 +25,7 @@ class ShoppingListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = Constants.shoppingList
+        navigationItem.rightBarButtonItems = [self.clearShoppingListButton]
         
         productsTable.delegate = self
         productsTable.dataSource = self
@@ -35,6 +40,16 @@ class ShoppingListViewController: UIViewController {
     
     @objc private func reloadProducts() {
         productsTable.reloadData()
+    }
+    
+    @objc private func clearShoppingList() {
+        let clearShoppingListAction = UIAlertController(title: Constants.confirm, message: Constants.clearShoppingListMessage, preferredStyle: .alert)
+        clearShoppingListAction.addAction(UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil))
+        clearShoppingListAction.addAction(UIAlertAction(title: Constants.clear, style: .destructive, handler: { _ in
+            ProductAmount.clearShoppingList()
+            self.reloadProducts()
+        }))
+        present(clearShoppingListAction, animated: true, completion: nil)
     }
 }
 

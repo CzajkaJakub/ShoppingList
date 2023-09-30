@@ -152,7 +152,6 @@ class DatabaseManager {
             table.column(carbo)
             table.column(photo)
             table.column(protein)
-            table.column(archived)
             table.column(calories)
             table.column(categoryId)
             table.column(weightOfPiece)
@@ -253,18 +252,6 @@ class DatabaseManager {
 
     // ############### UPDATE SECTION ############### //
     
-    func archiveProduct(product: Product) throws {
-        
-        do {
-            let archiveProductQuery = productsTable.filter(id == product.id!)
-                .update(archived <- true)
-            
-            try dbConnection.run(archiveProductQuery)
-        } catch {
-            throw DatabaseError.runtimeError("\(Constants.errorArchive) (\(Constants.product)): \(error)")
-        }
-    }
-    
     func updateProduct(product: Product) throws {
         
         do {
@@ -276,7 +263,6 @@ class DatabaseManager {
                             photo <- product.photo,
                             carbo <- product.carbo,
                             protein <- product.protein,
-                            archived <- product.archived,
                             calories <- product.calories,
                             categoryId <- product.category.id!,
                             weightOfPiece <- product.weightOfPiece,
@@ -495,7 +481,6 @@ class DatabaseManager {
         let selectQuery = productsTable
             .select(
                 productsTable[*])
-            .filter(productsTable[archived] == false)
             .order(productsTable[name])
         
         do {
@@ -507,13 +492,12 @@ class DatabaseManager {
                 let kcal = row[productsTable[calories]]
                 let protein = row[productsTable[protein]]
                 let photoBlob = row[productsTable[photo]]
-                let archived = row[productsTable[archived]]
                 let categoryId = row[productsTable[categoryId]]
                 let weightOfPiece = row[productsTable[weightOfPiece]]
                 let weightOfProduct = row[productsTable[weightOfProduct]]
 
                 let category = try fetchProductCategoryById(productCategoryToFetch: categoryId)
-                let product = Product(id: productId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, archived: archived, category: category)
+                let product = Product(id: productId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, category: category)
                 products.append(product)
             }
             return products
@@ -539,13 +523,12 @@ class DatabaseManager {
                 let kcal = row[productsTable[calories]]
                 let protein = row[productsTable[protein]]
                 let photoBlob = row[productsTable[photo]]
-                let archived = row[productsTable[archived]]
                 let categoryId = row[productsTable[categoryId]]
                 let weightOfPiece = row[productsTable[weightOfPiece]]
                 let weightOfProduct = row[productsTable[weightOfProduct]]
 
                 let category = try fetchProductCategoryById(productCategoryToFetch: categoryId)
-                product = Product(id: productId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, archived: archived, category: category)
+                product = Product(id: productId, name: name, photo: photoBlob, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, category: category)
             }
             return product
         } catch {
@@ -682,7 +665,6 @@ class DatabaseManager {
             photo <- product.photo,
             carbo <- product.carbo,
             protein <- product.protein,
-            archived <- product.archived,
             calories <- product.calories,
             categoryId <- product.category.id!,
             weightOfPiece <- product.weightOfPiece,
@@ -746,6 +728,16 @@ class DatabaseManager {
     }
     
     // ############### REMOVE SECTION ############### //
+    
+    func removeAllProductsToBuy() throws {
+        let deleteQueryProductToBuy = shoppingListTable.delete()
+        
+        do {
+            try dbConnection.run(deleteQueryProductToBuy)
+        } catch {
+            throw DatabaseError.runtimeError("\(Constants.errorRemove) (\(Constants.product)): \(error)")
+        }
+    }
     
     func removeProductToBuy(productToBuy: ProductAmount) throws {
         let deleteQueryProductToBuy = shoppingListTable.filter(productId == productToBuy.product.id!).delete()

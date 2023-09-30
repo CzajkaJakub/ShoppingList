@@ -35,6 +35,10 @@ class EatHistoryViewController: UIViewController {
     
     var searchDate: Date = Date()
     
+    private lazy var addToShoppingListButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addDishesToShoppingList))
+    }()
+    
     private lazy var nextDayButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .fastForward, target: self, action: #selector(nextDayAction))
     }()
@@ -43,13 +47,12 @@ class EatHistoryViewController: UIViewController {
         return UIBarButtonItem(barButtonSystemItem: .rewind, target: self, action: #selector(previousDayAction))
     }()
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = DateUtils.convertDateToMediumFormat(dateToConvert: self.searchDate)
         EatHistoryItem.reloadEatItemsByDate(searchDate: self.searchDate)
         
-        navigationItem.rightBarButtonItem = self.nextDayButton
+        navigationItem.rightBarButtonItems = [self.nextDayButton, self.addToShoppingListButton]
         navigationItem.leftBarButtonItem = self.previousDayButton
         view.addSubview(eatHistoryTable)
         view.addSubview(eatValueLabel)
@@ -62,6 +65,21 @@ class EatHistoryViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         reloadView()
+    }
+    
+    @objc private func addDishesToShoppingList() {
+        let addHistoryItemsToShoppingList = UIAlertController(title: Constants.confirm, message: Constants.addToShoppingListMessage, preferredStyle: .alert)
+        addHistoryItemsToShoppingList.addAction(UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil))
+        addHistoryItemsToShoppingList.addAction(UIAlertAction(title: Constants.add, style: .destructive, handler: { _ in
+            EatHistoryItem.eatHistory.forEach{ historyItem in
+                if historyItem.dish != nil {
+                    ProductAmount.addProductToBuy(dish: historyItem.dish!)
+                } else if historyItem.product != nil {
+                    ProductAmount.addProductTuBuy(productAmount: ProductAmount(product: historyItem.product!, amount: historyItem.amount!))
+                }
+            }
+        }))
+        present(addHistoryItemsToShoppingList, animated: true, completion: nil)
     }
     
     @objc private func nextDayAction() {
@@ -166,7 +184,7 @@ extension EatHistoryViewController: UITableViewDelegate, UITableViewDataSource {
             name = product.name
             calories = product.calories * eatItem.amount! / 100
             photo = product.photo
-            archived = product.archived
+            archived = false
         }
         
         var detailsText = ""

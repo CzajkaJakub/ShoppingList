@@ -15,6 +15,17 @@ class DishesViewController: UIViewController {
     
     private var selectedDate: Date = Date()
     private var filteredDishesGroupedByCategory: [[Dish]] = []
+    private var isFavouriteDishesButtonSelected = false
+    private var searchTerm = ""
+    
+    private lazy var favouriteButton: UIBarButtonItem = {
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(systemName: "star"), for: .normal)
+        button.addTarget(self, action: #selector(starButtonTapped), for: .touchUpInside)
+                
+        let barButtonItem = UIBarButtonItem(customView: button)
+        return barButtonItem
+    }()
     
     private lazy var addDishButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addDishView))
@@ -41,7 +52,7 @@ class DishesViewController: UIViewController {
         dishesTable.dataSource = self
         
         navigationItem.rightBarButtonItems = [addDishButton, searchButton]
-        navigationItem.leftBarButtonItems = [clearSearchButton]
+        navigationItem.leftBarButtonItems = [favouriteButton, clearSearchButton]
         
         view.addSubview(dishesTable)
         
@@ -63,7 +74,8 @@ class DishesViewController: UIViewController {
     }
     
     @objc private func clearSearchTerm() {
-        self.filterDishes(searchTerm: nil)
+        self.searchTerm = ""
+        self.filterDishes()
     }
     
     private func openDishViewController(editMode: Bool, dish: Dish){
@@ -139,6 +151,7 @@ class DishesViewController: UIViewController {
                     }()
                     
                     amountAlert.view.addSubview(datePicker)
+                    
                     datePicker.topAnchor.constraint(equalTo: amountAlert.view.topAnchor, constant: 42).isActive = true
                     datePicker.centerXAnchor.constraint(equalTo: amountAlert.view.centerXAnchor).isActive = true
                     
@@ -174,19 +187,41 @@ class DishesViewController: UIViewController {
         }
     }
     
-    func filterDishes(searchTerm: String?) {
-        if searchTerm == nil || searchTerm!.isEmpty {
+    func filterDishes() {
+        if searchTerm.isEmpty {
             filteredDishesGroupedByCategory = allDishesGroupedByCategory
         } else {
             filteredDishesGroupedByCategory = allDishesGroupedByCategory.map { dishes in
                 dishes.filter { dish in
                     let dishName = dish.name.lowercased()
-                    return dishName.contains(searchTerm!.lowercased())
+                    return dishName.contains(searchTerm.lowercased())
                 }
             }.filter { !$0.isEmpty }
         }
-        dishesTable.reloadData()
+        
+        if isFavouriteDishesButtonSelected {
+            filteredDishesGroupedByCategory = filteredDishesGroupedByCategory.map { dishes in
+                dishes.filter { dish in
+                    return dish.favourite
+                }
+            }.filter { !$0.isEmpty }
+        }
+        
+        self.reloadDishes()
     }
+    
+    @objc private func starButtonTapped() {
+        isFavouriteDishesButtonSelected.toggle()
+        
+        let favouriteStarImage = isFavouriteDishesButtonSelected ? "star.fill" : "star"
+        if let button = favouriteButton.customView as? UIButton {
+            button.setImage(UIImage(systemName: favouriteStarImage), for: .normal)
+        }
+        
+        self.filterDishes()
+    }
+        
+    
     
     @objc func showSearchAlert() {
         let alertController = UIAlertController(title: Constants.search, message: nil, preferredStyle: .alert)
@@ -196,7 +231,8 @@ class DishesViewController: UIViewController {
 
         let searchAction = UIAlertAction(title: Constants.search, style: .default) { [weak self] _ in
             if let searchTerm = alertController.textFields?.first?.text {
-                self?.filterDishes(searchTerm: searchTerm)
+                self?.searchTerm = searchTerm
+                self?.filterDishes()
             }
         }
 
@@ -316,7 +352,7 @@ extension DishesViewController: UITableViewDelegate, UITableViewDataSource {
     func archiveDish(at indexPath: IndexPath) {
         let dish = filteredDishesGroupedByCategory[indexPath.section][indexPath.row]
         Dish.archiveDish(dish: dish)
-        reloadDishes()
+        self.filterDishes()
     }
     
     func addDishToShoppingList(at indexPath: IndexPath) {

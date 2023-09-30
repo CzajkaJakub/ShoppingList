@@ -28,6 +28,15 @@ class ProductAmount: NSCopying {
         }
     }
     
+    static func clearShoppingList() {
+        do {
+            try DatabaseManager.shared.removeAllProductsToBuy()
+            ProductAmount.productsToBuy.removeAll()
+        } catch {
+            Alert.displayErrorAlert(message: "\(error)")
+        }
+    }
+    
     static func addProductToBuy(dish: Dish) {
         for productAmount in dish.productAmounts {
             addProductTuBuy(productAmount: productAmount)

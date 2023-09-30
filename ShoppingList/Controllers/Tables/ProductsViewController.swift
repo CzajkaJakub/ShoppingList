@@ -53,10 +53,6 @@ class ProductsViewController: UIViewController {
         productsTable.frame = view.bounds
     }
     
-    @objc private func reloadProducts() {
-        productsTable.reloadData()
-    }
-    
     @objc private func clearSearchTerm() {
         self.filterProducts(searchTerm: nil)
     }
@@ -298,29 +294,29 @@ extension ProductsViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let archiveProductAction = UIContextualAction(style: .normal, title: Constants.archive) { [weak self] (action, view, completionHandler) in
-            let confirmationAlert = UIAlertController(title: Constants.confirm, message: Constants.archiveMessage, preferredStyle: .alert)
+        let removeProductAction = UIContextualAction(style: .normal, title: Constants.remove) { [weak self] (action, view, completionHandler) in
+            let confirmationAlert = UIAlertController(title: Constants.confirm, message: Constants.removeMessage, preferredStyle: .alert)
             let cancelAction = UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil)
-            let archiveAction = UIAlertAction(title: Constants.archive, style: .destructive) { (_) in
-                self?.archiveProduct(at: indexPath)
+            let removeAction = UIAlertAction(title: Constants.remove, style: .destructive) { (_) in
+                self?.removeProduct(at: indexPath)
             }
             confirmationAlert.addAction(cancelAction)
-            confirmationAlert.addAction(archiveAction)
+            confirmationAlert.addAction(removeAction)
             self?.present(confirmationAlert, animated: true, completion: nil)
             completionHandler(true)
         }
         
-        archiveProductAction.backgroundColor = .darkGray
+        removeProductAction.backgroundColor = .red
         
-        let configuration = UISwipeActionsConfiguration(actions: [archiveProductAction])
+        let configuration = UISwipeActionsConfiguration(actions: [removeProductAction])
         configuration.performsFirstActionWithFullSwipe = false
         return configuration
     }
     
-    private func archiveProduct(at indexPath: IndexPath) {
+    private func removeProduct(at indexPath: IndexPath) {
         let product = filteredProductsGroupedByCategory[indexPath.section][indexPath.row]
-        Product.archiveProduct(product: product)
-        reloadProducts()
+        Product.removeProduct(product: product)
+        self.filterProducts(searchTerm: nil)
     }
     
     private func addProductToShoppingList(at indexPath: IndexPath, amount: Double) {
