@@ -2,7 +2,7 @@ import Foundation
 import SQLite
 import UIKit
 
-class EatHistoryItem {
+class EatHistory {
     var id: Int?
     var dish: Dish?
     var dateTime: Date
@@ -25,12 +25,12 @@ class EatHistoryItem {
         self.dateTime = DateUtils.convertDoubleToDate(dateNumberValue: dateValue)
     }
     
-    static var eatHistory: [EatHistoryItem] = []
+    static var eatHistory: [EatHistory] = []
     
-    static func addItemToEatHistory(eatItem: EatHistoryItem) {
+    static func addItemToEatHistory(eatItem: EatHistory) {
         do {
             try DatabaseManager.shared.insertToEatHistory(eatItem: eatItem)
-            EatHistoryItem.eatHistory.append(eatItem)
+            EatHistory.eatHistory.append(eatItem)
         } catch {
             Alert.displayErrorAlert(message: "\(error)")
         }
@@ -38,18 +38,18 @@ class EatHistoryItem {
     
     static func reloadEatItemsByDate(searchDate: Date) {
         do {
-            EatHistoryItem.eatHistory = try DatabaseManager.shared.fetchEatHistory(dateFrom: searchDate.startOfDay, dateTo: searchDate.endOfDay)
+            EatHistory.eatHistory = try DatabaseManager.shared.fetchEatHistory(dateFrom: searchDate.startOfDay, dateTo: searchDate.endOfDay)
         } catch {
             Alert.displayErrorAlert(message: "\(error)")
         }
     }
     
-    static func removeHistoryItem(historyItem: EatHistoryItem) {
-        if let index = EatHistoryItem.eatHistory.firstIndex(where: { $0.id == historyItem.id }) {
+    static func removeHistoryItem(historyItem: EatHistory) {
+        if let index = EatHistory.eatHistory.firstIndex(where: { $0.id == historyItem.id }) {
             
             do {
                 try DatabaseManager.shared.removeEatHistoryItem(historyItem: historyItem)
-                EatHistoryItem.eatHistory.remove(at: index)
+                EatHistory.eatHistory.remove(at: index)
             } catch {
                 Alert.displayErrorAlert(message: "\(error)")
             }
