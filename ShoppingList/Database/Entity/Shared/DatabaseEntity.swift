@@ -2,7 +2,13 @@
 //  DatabaseEntity.swift
 //  ShoppingList
 //
-//  Created by Patrycja on 21/08/2024.
+//  Created by jczajka on 21/08/2024.
 //
 
 import Foundation
+
+protocol DatabaseEntity {
+    
+    // database marker
+
+}

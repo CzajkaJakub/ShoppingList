@@ -3,14 +3,25 @@ import SQLite
 import SQLite3
 import UIKit
 
-class DatabaseManager {
+class DatabaseSqlManager: DatabaseSchemaHelper {
     
-    static let shared = DatabaseManager()
     private var dbConnection: Connection
+    static let shared = DatabaseSqlManager()
     
+    override private init() {
+        
+        let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+            .appendingPathComponent(Constants.databaseName)
+        
+        print(fileURL)
+        
+        do {
+            dbConnection = try Connection(fileURL.path, readonly: false)
+        } catch {
+            fatalError("\(error)")
+        }
+    }
     
-    
-        // ############### UPDATE SECTION ############### //
     
 
     
@@ -262,50 +273,8 @@ class DatabaseManager {
         }
     }
     
-    func fetchProductCategories() throws -> [Category] {
-        var categories: [Category] = []
-        
-        let selectQuery = productCategoriesTable
-            .select(
-                productCategoriesTable[id],
-                productCategoriesTable[categoryName]
-            ).order(productCategoriesTable[categoryName])
-        
-        do {
-            for row in try dbConnection.prepare(selectQuery) {
-                let categoryId = row[productCategoriesTable[id]]
-                let categoryName = row[productCategoriesTable[categoryName]]
-                
-                let category = Category(id: categoryId, name: categoryName)
-                categories.append(category)
-            }
-            return categories
-        } catch {
-            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.productCategory)): \(error)")
-        }
-    }
+
     
-    func fetchProductCategoryById(productCategoryToFetch: Int) throws -> Category {
-        var category: Category!
-        
-        let selectQuery = productCategoriesTable
-            .select(
-                productCategoriesTable[id],
-                productCategoriesTable[categoryName]
-            ).filter(productCategoriesTable[id] == productCategoryToFetch)
-        
-        do {
-            for row in try dbConnection.prepare(selectQuery) {
-                let categoryId = row[productCategoriesTable[id]]
-                let categoryName = row[productCategoriesTable[categoryName]]
-                
-                category = Category(id: categoryId, name: categoryName)
-            }
-            return category
-        } catch {
-            throw DatabaseError.runtimeError("\(Constants.errorFetch) (\(Constants.productCategory)): \(error)")
-        }
-    }
     
     // ############### INSERT SECTION ############### //
     

@@ -2,6 +2,9 @@ import Foundation
 
 class Constants {
     
+    //api links
+    public static let openFoodFactsBarHttpLink = "https://world.openfoodfacts.org/api/v3/product/%@.json"
+    
     //formats
     public static let dateFormat_MMMM_yyyy = "MMMM yyyy"
     
@@ -135,7 +138,6 @@ class Constants {
     static let categoryNameColumn = "category_name"
     static let weightOfPieceColumn = "weight_of_piece"
     static let weightOfProductColumn = "weight_of_product"
-    static let amountOfPortionColumn = "amount_of_portion"
     
     // Kategorie produktów
     static let productCategories = [

@@ -11,9 +11,9 @@ class EatHistoryViewController: UIViewController {
         return eatHistoryTable
     }()
     
-    private var eatHistoryGroupedByCategory: [[EatHistoryItem]] {
-        let products = EatHistoryItem.eatHistory.filter { $0.product != nil }
-        let dishes = EatHistoryItem.eatHistory.filter { $0.dish != nil }
+    private var eatHistoryGroupedByCategory: [[EatHistory]] {
+        let products = EatHistory.eatHistory.filter { $0.product != nil }
+        let dishes = EatHistory.eatHistory.filter { $0.dish != nil }
         
         let groupedProducts = Dictionary(grouping: products) { $0.product!.category.name }
         let groupedDishes = Dictionary(grouping: dishes) { $0.dish!.category.name }
@@ -50,7 +50,7 @@ class EatHistoryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = DateUtils.convertDateToMediumFormat(dateToConvert: self.searchDate)
-        EatHistoryItem.reloadEatItemsByDate(searchDate: self.searchDate)
+        EatHistory.reloadEatItemsByDate(searchDate: self.searchDate)
         
         navigationItem.rightBarButtonItems = [self.nextDayButton, self.addToShoppingListButton]
         navigationItem.leftBarButtonItem = self.previousDayButton
@@ -71,7 +71,7 @@ class EatHistoryViewController: UIViewController {
         let addHistoryItemsToShoppingList = UIAlertController(title: Constants.confirm, message: Constants.addToShoppingListMessage, preferredStyle: .alert)
         addHistoryItemsToShoppingList.addAction(UIAlertAction(title: Constants.cancel, style: .cancel, handler: nil))
         addHistoryItemsToShoppingList.addAction(UIAlertAction(title: Constants.add, style: .destructive, handler: { _ in
-            EatHistoryItem.eatHistory.forEach{ historyItem in
+            EatHistory.eatHistory.forEach{ historyItem in
                 if historyItem.dish != nil {
                     ProductAmount.addProductToBuy(dish: historyItem.dish!)
                 } else if historyItem.product != nil {
@@ -94,7 +94,7 @@ class EatHistoryViewController: UIViewController {
     
     private func reloadView() {
         self.title = DateUtils.convertDateToMediumFormat(dateToConvert: self.searchDate)
-        EatHistoryItem.reloadEatItemsByDate(searchDate: self.searchDate)
+        EatHistory.reloadEatItemsByDate(searchDate: self.searchDate)
         eatHistoryTable.reloadData()
         setupUI()
     }
@@ -106,7 +106,7 @@ class EatHistoryViewController: UIViewController {
         var totalFat = 0.0
         var totalProteins = 0.0
         
-        for item in EatHistoryItem.eatHistory {
+        for item in EatHistory.eatHistory {
             if let product = item.product {
                 totalCalories += product.calories * item.amount! / 100
                 totalCarbo += product.carbo * item.amount! / 100
@@ -246,7 +246,7 @@ extension EatHistoryViewController: UITableViewDelegate, UITableViewDataSource {
     
     private func removeEatHistoryItem(at indexPath: IndexPath) {
         let historyItem = eatHistoryGroupedByCategory[indexPath.section][indexPath.row]
-        EatHistoryItem.removeHistoryItem(historyItem: historyItem)
+        EatHistory.removeHistoryItem(historyItem: historyItem)
         reloadView()
     }
 }

@@ -43,7 +43,7 @@ class RecipesViewController: UIViewController {
         super.viewDidLoad()
         self.title = DateUtils.convertDateToMediumFormat(dateToConvert: self.searchMonth)
         self.recipesTable.addGestureRecognizer(longPressRecognizer)
-        EatHistoryItem.reloadEatItemsByDate(searchDate: self.searchMonth)
+        EatHistory.reloadEatItemsByDate(searchDate: self.searchMonth)
         
         navigationItem.rightBarButtonItems = [self.nextMonthButton, addRecipeButton]
         navigationItem.leftBarButtonItem = self.previousMonthButton

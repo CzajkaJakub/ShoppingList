@@ -123,8 +123,8 @@ class ProductsViewController: UIViewController {
                         let passedValueText = amountAlert.textFields?.first?.text!
                         if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
                             
-                            let eatItem = EatHistoryItem(dish: nil, product: product, amount: passedValue, eatDate: self!.selectedDate)
-                            EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
+                            let eatItem = EatHistory(dish: nil, product: product, amount: passedValue, eatDate: self!.selectedDate)
+                            EatHistory.addItemToEatHistory(eatItem: eatItem)
                             
                         } else {
                             Toast.showToast(message: Constants.enteredWrongDoubleValueMessage, parentView: self!.view)

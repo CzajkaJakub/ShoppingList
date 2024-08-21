@@ -2,57 +2,23 @@ import Foundation
 import SQLite
 import UIKit
 
-class EatHistory {
+class EatHistory, DatabaseEntity {
+    
     var id: Int?
     var dish: Dish?
-    var dateTime: Date
-    var amount: Double?
+    var amount: Double
     var product: Product?
+    var eatTimestamp: Double
     
-    init(dish: Dish?, product: Product?, amount: Double?, eatDate: Date) {
-        self.id = nil
-        self.dish = dish
-        self.amount = amount
-        self.product = product
-        self.dateTime = eatDate
+    convenience init(dish: Dish?, product: Product?, amount: Double, eatTimestamp: Double) {
+        self.init(id: nil, dish: dish, product: product, amount: amount, eatTimestamp: eatTimestamp)
     }
     
-    init(id: Int, dateValue: Int, dish: Dish?, product: Product?, amount: Double?) {
+    init(id: Int?, dish: Dish?, product: Product?, amount: Double, eatTimestamp: Double) {
         self.id = id
         self.dish = dish
         self.amount = amount
         self.product = product
-        self.dateTime = DateUtils.convertDoubleToDate(dateNumberValue: dateValue)
-    }
-    
-    static var eatHistory: [EatHistory] = []
-    
-    static func addItemToEatHistory(eatItem: EatHistory) {
-        do {
-            try DatabaseManager.shared.insertToEatHistory(eatItem: eatItem)
-            EatHistory.eatHistory.append(eatItem)
-        } catch {
-            Alert.displayErrorAlert(message: "\(error)")
-        }
-    }
-    
-    static func reloadEatItemsByDate(searchDate: Date) {
-        do {
-            EatHistory.eatHistory = try DatabaseManager.shared.fetchEatHistory(dateFrom: searchDate.startOfDay, dateTo: searchDate.endOfDay)
-        } catch {
-            Alert.displayErrorAlert(message: "\(error)")
-        }
-    }
-    
-    static func removeHistoryItem(historyItem: EatHistory) {
-        if let index = EatHistory.eatHistory.firstIndex(where: { $0.id == historyItem.id }) {
-            
-            do {
-                try DatabaseManager.shared.removeEatHistoryItem(historyItem: historyItem)
-                EatHistory.eatHistory.remove(at: index)
-            } catch {
-                Alert.displayErrorAlert(message: "\(error)")
-            }
-        }
+        self.eatTimestamp = eatTimestamp
     }
 }

@@ -7,6 +7,6 @@
 
 import Foundation
 
-class ProductAmountToBuy: ProductsAmount {
+class ProductAmountToBuy: ProductsAmount, DatabaseEntity {
     
 }

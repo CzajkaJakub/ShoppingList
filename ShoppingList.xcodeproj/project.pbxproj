@@ -7,18 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C0381B42C75D7CF002E7C37 /* ProductDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381B32C75D7CF002E7C37 /* ProductDao.swift */; };
+		0C0381B62C75DA07002E7C37 /* DishCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381B52C75DA07002E7C37 /* DishCategory.swift */; };
+		0C0381B92C75DEC7002E7C37 /* ProductCategoryDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381B82C75DEC7002E7C37 /* ProductCategoryDao.swift */; };
+		0C0381BB2C75DF97002E7C37 /* DishCategoryDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381BA2C75DF97002E7C37 /* DishCategoryDao.swift */; };
+		0C0381BD2C75E197002E7C37 /* DishDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381BC2C75E197002E7C37 /* DishDao.swift */; };
+		0C0381C02C75E9DD002E7C37 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381BF2C75E9DD002E7C37 /* Category.swift */; };
+		0C0381C22C75EB3D002E7C37 /* Nutrients.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381C12C75EB3D002E7C37 /* Nutrients.swift */; };
+		0C0381C42C75EF32002E7C37 /* ProductsAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381C32C75EF32002E7C37 /* ProductsAmount.swift */; };
+		0C0381C62C75EF74002E7C37 /* ProductAmountToBuy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381C52C75EF74002E7C37 /* ProductAmountToBuy.swift */; };
+		0C0381C82C75EFE8002E7C37 /* DishProductAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381C72C75EFE8002E7C37 /* DishProductAmount.swift */; };
+		0C0381CA2C75F063002E7C37 /* ProductAmountToBuyDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381C92C75F063002E7C37 /* ProductAmountToBuyDao.swift */; };
+		0C0381CE2C75F903002E7C37 /* EatHistoryDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381CD2C75F903002E7C37 /* EatHistoryDao.swift */; };
+		0C0381D02C75FC69002E7C37 /* RecipeDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381CF2C75FC69002E7C37 /* RecipeDao.swift */; };
 		0C0554002A5C3A4B00DFECAB /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0553FF2A5C3A4B00DFECAB /* Product.swift */; };
-		0C0554022A5C3AB100DFECAB /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0554012A5C3AB100DFECAB /* Category.swift */; };
+		0C0554022A5C3AB100DFECAB /* ProductCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0554012A5C3AB100DFECAB /* ProductCategory.swift */; };
 		0C0554052A5C3E4E00DFECAB /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0554042A5C3E4E00DFECAB /* Toast.swift */; };
 		0C0624D22A60680D00E5E36F /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 0C0624D12A60680D00E5E36F /* SQLite */; };
 		0C12B5D32AA649F90093A4F4 /* PopupModelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C12B5D22AA649F90093A4F4 /* PopupModelViewController.swift */; };
 		0C3AEDE02A7FF84E000F77A3 /* EatHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3AEDDF2A7FF84E000F77A3 /* EatHistoryViewController.swift */; };
 		0C59DD082AB352F90046830C /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C59DD072AB352F90046830C /* Alert.swift */; };
 		0C5FB0E42A631D5B00B609CF /* Dish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5FB0E32A631D5B00B609CF /* Dish.swift */; };
-		0C5FB0E62A631F2100B609CF /* ProductAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5FB0E52A631F2100B609CF /* ProductAmount.swift */; };
 		0C63C8842A7BBD3200CFDCD2 /* PhotoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C63C8832A7BBD3200CFDCD2 /* PhotoData.swift */; };
 		0C913A422A8BDDF800C8F2E8 /* TableViewComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C913A412A8BDDF800C8F2E8 /* TableViewComponent.swift */; };
 		0C98E2392A7E8E4F00A33054 /* StringUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C98E2382A7E8E4F00A33054 /* StringUtils.swift */; };
+		0C995A3B2C7659D100C7929F /* ProductService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C995A3A2C7659D100C7929F /* ProductService.swift */; };
+		0C995A3D2C765D5800C7929F /* DatabaseEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C995A3C2C765D5800C7929F /* DatabaseEntity.swift */; };
+		0C995A3F2C7666FC00C7929F /* DatabaseSchemaManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C995A3E2C7666FC00C7929F /* DatabaseSchemaManager.swift */; };
+		0C995A412C7668F800C7929F /* DatabaseSchemaHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C995A402C7668F800C7929F /* DatabaseSchemaHelper.swift */; };
+		0C995A432C766F3400C7929F /* ProductCategoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C995A422C766F3400C7929F /* ProductCategoryService.swift */; };
 		0C9AA1532A87CAAB001F8FF4 /* UILabelPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C9AA1522A87CAAB001F8FF4 /* UILabelPadding.swift */; };
 		0CA539F02A9540AD001CDD2F /* DateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA539EF2A9540AD001CDD2F /* DateUtils.swift */; };
 		0CC7D17F2A5AE2E7005DB139 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D17E2A5AE2E7005DB139 /* AppDelegate.swift */; };
@@ -26,7 +43,7 @@
 		0CC7D1862A5AE2E7005DB139 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0CC7D1842A5AE2E7005DB139 /* Main.storyboard */; };
 		0CC7D1882A5AE2E8005DB139 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CC7D1872A5AE2E8005DB139 /* Assets.xcassets */; };
 		0CC7D18B2A5AE2E8005DB139 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0CC7D1892A5AE2E8005DB139 /* LaunchScreen.storyboard */; };
-		0CC7D1962A5AE32D005DB139 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1952A5AE32D005DB139 /* DatabaseManager.swift */; };
+		0CC7D1962A5AE32D005DB139 /* DatabaseSqlManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1952A5AE32D005DB139 /* DatabaseSqlManager.swift */; };
 		0CC7D19A2A5B2CCF005DB139 /* ShoppingListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1992A5B2CCF005DB139 /* ShoppingListViewController.swift */; };
 		0CC7D19C2A5B2CFF005DB139 /* AddProductViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D19B2A5B2CFF005DB139 /* AddProductViewController.swift */; };
 		0CC7D19E2A5B2D0F005DB139 /* ProductsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D19D2A5B2D0F005DB139 /* ProductsViewController.swift */; };
@@ -34,7 +51,8 @@
 		0CC7D1A22A5B2D2F005DB139 /* DishesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */; };
 		0CC7D1A42A5B3360005DB139 /* MainTabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1A32A5B3360005DB139 /* MainTabViewController.swift */; };
 		0CC8D3962A9FD099002B7B0F /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC8D3952A9FD099002B7B0F /* Extensions.swift */; };
-		0CDF372C2A7E729300EB2A88 /* EatHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDF372B2A7E729300EB2A88 /* EatHistoryItem.swift */; };
+		0CCC707F2C7092E30006511B /* FoodFactsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCC707E2C7092E30006511B /* FoodFactsService.swift */; };
+		0CDF372C2A7E729300EB2A88 /* EatHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDF372B2A7E729300EB2A88 /* EatHistory.swift */; };
 		0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE66F732A76738500971742 /* DishDetailViewController.swift */; };
 		0CED2E7C2AB228E10061BB29 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CED2E7B2AB228E10061BB29 /* Constants.swift */; };
 		0CF62CE82AA4D4C7005AFD9D /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF62CE72AA4D4C7005AFD9D /* Recipe.swift */; };
@@ -42,20 +60,40 @@
 		0CF62CEC2AA4E408005AFD9D /* AddRecipeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF62CEB2AA4E408005AFD9D /* AddRecipeViewController.swift */; };
 		0CF6A8E32AA10DF700AEA39D /* ProductSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF6A8E22AA10DF700AEA39D /* ProductSelectionViewController.swift */; };
 		0CF963B22AB983E4003C48EE /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF963B12AB983E4003C48EE /* Error.swift */; };
+		0CFADDD72C6F850400E50AB4 /* BarcodeScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 0CFADDD62C6F850400E50AB4 /* BarcodeScanner */; };
+		0CFADDD92C6F8A0700E50AB4 /* HttpRequestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFADDD82C6F8A0700E50AB4 /* HttpRequestService.swift */; };
+		0CFADDDB2C6F916B00E50AB4 /* FoodFactsProductDto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFADDDA2C6F916B00E50AB4 /* FoodFactsProductDto.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0C0381B32C75D7CF002E7C37 /* ProductDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductDao.swift; sourceTree = "<group>"; };
+		0C0381B52C75DA07002E7C37 /* DishCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishCategory.swift; sourceTree = "<group>"; };
+		0C0381B82C75DEC7002E7C37 /* ProductCategoryDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCategoryDao.swift; sourceTree = "<group>"; };
+		0C0381BA2C75DF97002E7C37 /* DishCategoryDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishCategoryDao.swift; sourceTree = "<group>"; };
+		0C0381BC2C75E197002E7C37 /* DishDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishDao.swift; sourceTree = "<group>"; };
+		0C0381BF2C75E9DD002E7C37 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		0C0381C12C75EB3D002E7C37 /* Nutrients.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nutrients.swift; sourceTree = "<group>"; };
+		0C0381C32C75EF32002E7C37 /* ProductsAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsAmount.swift; sourceTree = "<group>"; };
+		0C0381C52C75EF74002E7C37 /* ProductAmountToBuy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductAmountToBuy.swift; sourceTree = "<group>"; };
+		0C0381C72C75EFE8002E7C37 /* DishProductAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishProductAmount.swift; sourceTree = "<group>"; };
+		0C0381C92C75F063002E7C37 /* ProductAmountToBuyDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductAmountToBuyDao.swift; sourceTree = "<group>"; };
+		0C0381CD2C75F903002E7C37 /* EatHistoryDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistoryDao.swift; sourceTree = "<group>"; };
+		0C0381CF2C75FC69002E7C37 /* RecipeDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeDao.swift; sourceTree = "<group>"; };
 		0C0553FF2A5C3A4B00DFECAB /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
-		0C0554012A5C3AB100DFECAB /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		0C0554012A5C3AB100DFECAB /* ProductCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCategory.swift; sourceTree = "<group>"; };
 		0C0554042A5C3E4E00DFECAB /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 		0C12B5D22AA649F90093A4F4 /* PopupModelViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupModelViewController.swift; sourceTree = "<group>"; };
 		0C3AEDDF2A7FF84E000F77A3 /* EatHistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistoryViewController.swift; sourceTree = "<group>"; };
 		0C59DD072AB352F90046830C /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		0C5FB0E32A631D5B00B609CF /* Dish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dish.swift; sourceTree = "<group>"; };
-		0C5FB0E52A631F2100B609CF /* ProductAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductAmount.swift; sourceTree = "<group>"; };
 		0C63C8832A7BBD3200CFDCD2 /* PhotoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoData.swift; sourceTree = "<group>"; };
 		0C913A412A8BDDF800C8F2E8 /* TableViewComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewComponent.swift; sourceTree = "<group>"; };
 		0C98E2382A7E8E4F00A33054 /* StringUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtils.swift; sourceTree = "<group>"; };
+		0C995A3A2C7659D100C7929F /* ProductService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductService.swift; sourceTree = "<group>"; };
+		0C995A3C2C765D5800C7929F /* DatabaseEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseEntity.swift; sourceTree = "<group>"; };
+		0C995A3E2C7666FC00C7929F /* DatabaseSchemaManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseSchemaManager.swift; sourceTree = "<group>"; };
+		0C995A402C7668F800C7929F /* DatabaseSchemaHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseSchemaHelper.swift; sourceTree = "<group>"; };
+		0C995A422C766F3400C7929F /* ProductCategoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCategoryService.swift; sourceTree = "<group>"; };
 		0C9AA1522A87CAAB001F8FF4 /* UILabelPadding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UILabelPadding.swift; sourceTree = "<group>"; };
 		0CA539EF2A9540AD001CDD2F /* DateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtils.swift; sourceTree = "<group>"; };
 		0CC7D17B2A5AE2E7005DB139 /* ShoppingList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShoppingList.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -65,7 +103,7 @@
 		0CC7D1872A5AE2E8005DB139 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0CC7D18A2A5AE2E8005DB139 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0CC7D18C2A5AE2E8005DB139 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		0CC7D1952A5AE32D005DB139 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
+		0CC7D1952A5AE32D005DB139 /* DatabaseSqlManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseSqlManager.swift; sourceTree = "<group>"; };
 		0CC7D1992A5B2CCF005DB139 /* ShoppingListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListViewController.swift; sourceTree = "<group>"; };
 		0CC7D19B2A5B2CFF005DB139 /* AddProductViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddProductViewController.swift; sourceTree = "<group>"; };
 		0CC7D19D2A5B2D0F005DB139 /* ProductsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsViewController.swift; sourceTree = "<group>"; };
@@ -73,7 +111,8 @@
 		0CC7D1A12A5B2D2F005DB139 /* DishesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishesViewController.swift; sourceTree = "<group>"; };
 		0CC7D1A32A5B3360005DB139 /* MainTabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabViewController.swift; sourceTree = "<group>"; };
 		0CC8D3952A9FD099002B7B0F /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		0CDF372B2A7E729300EB2A88 /* EatHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistoryItem.swift; sourceTree = "<group>"; };
+		0CCC707E2C7092E30006511B /* FoodFactsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodFactsService.swift; sourceTree = "<group>"; };
+		0CDF372B2A7E729300EB2A88 /* EatHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistory.swift; sourceTree = "<group>"; };
 		0CE66F732A76738500971742 /* DishDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishDetailViewController.swift; sourceTree = "<group>"; };
 		0CED2E7B2AB228E10061BB29 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		0CF62CE72AA4D4C7005AFD9D /* Recipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
@@ -81,6 +120,8 @@
 		0CF62CEB2AA4E408005AFD9D /* AddRecipeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRecipeViewController.swift; sourceTree = "<group>"; };
 		0CF6A8E22AA10DF700AEA39D /* ProductSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductSelectionViewController.swift; sourceTree = "<group>"; };
 		0CF963B12AB983E4003C48EE /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
+		0CFADDD82C6F8A0700E50AB4 /* HttpRequestService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpRequestService.swift; sourceTree = "<group>"; };
+		0CFADDDA2C6F916B00E50AB4 /* FoodFactsProductDto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodFactsProductDto.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +129,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0CFADDD72C6F850400E50AB4 /* BarcodeScanner in Frameworks */,
 				0C0624D22A60680D00E5E36F /* SQLite in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -95,15 +137,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C0381B22C75D7BE002E7C37 /* Dao */ = {
+			isa = PBXGroup;
+			children = (
+				0C0381B32C75D7CF002E7C37 /* ProductDao.swift */,
+				0C0381B82C75DEC7002E7C37 /* ProductCategoryDao.swift */,
+				0C0381BC2C75E197002E7C37 /* DishDao.swift */,
+				0C0381CD2C75F903002E7C37 /* EatHistoryDao.swift */,
+				0C0381CF2C75FC69002E7C37 /* RecipeDao.swift */,
+				0C0381BA2C75DF97002E7C37 /* DishCategoryDao.swift */,
+				0C0381C92C75F063002E7C37 /* ProductAmountToBuyDao.swift */,
+			);
+			path = Dao;
+			sourceTree = "<group>";
+		};
+		0C0381BE2C75E9CC002E7C37 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				0C0381BF2C75E9DD002E7C37 /* Category.swift */,
+				0C0381C12C75EB3D002E7C37 /* Nutrients.swift */,
+				0C0381C32C75EF32002E7C37 /* ProductsAmount.swift */,
+				0C995A3C2C765D5800C7929F /* DatabaseEntity.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		0C0553FE2A5C3A1200DFECAB /* Entity */ = {
 			isa = PBXGroup;
 			children = (
+				0C0381BE2C75E9CC002E7C37 /* Shared */,
 				0C0553FF2A5C3A4B00DFECAB /* Product.swift */,
-				0C0554012A5C3AB100DFECAB /* Category.swift */,
+				0C0554012A5C3AB100DFECAB /* ProductCategory.swift */,
 				0C5FB0E32A631D5B00B609CF /* Dish.swift */,
-				0C5FB0E52A631F2100B609CF /* ProductAmount.swift */,
-				0CDF372B2A7E729300EB2A88 /* EatHistoryItem.swift */,
+				0CDF372B2A7E729300EB2A88 /* EatHistory.swift */,
 				0CF62CE72AA4D4C7005AFD9D /* Recipe.swift */,
+				0C0381B52C75DA07002E7C37 /* DishCategory.swift */,
+				0C0381C52C75EF74002E7C37 /* ProductAmountToBuy.swift */,
+				0C0381C72C75EFE8002E7C37 /* DishProductAmount.swift */,
 			);
 			path = Entity;
 			sourceTree = "<group>";
@@ -141,6 +211,15 @@
 				0CF62CE92AA4D8A2005AFD9D /* RecipesViewController.swift */,
 			);
 			path = Details;
+			sourceTree = "<group>";
+		};
+		0C995A392C7659C100C7929F /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				0C995A3A2C7659D100C7929F /* ProductService.swift */,
+				0C995A422C766F3400C7929F /* ProductCategoryService.swift */,
+			);
+			path = Service;
 			sourceTree = "<group>";
 		};
 		0CA88C662A6BEEA200838222 /* Tables */ = {
@@ -184,6 +263,8 @@
 		0CC7D17D2A5AE2E7005DB139 /* ShoppingList */ = {
 			isa = PBXGroup;
 			children = (
+				0CCC707D2C708E370006511B /* Service */,
+				0CCC707C2C708C5B0006511B /* Dto */,
 				0C0554032A5C3E3D00DFECAB /* Shared */,
 				0CC7D1982A5B2B07005DB139 /* Database */,
 				0CC7D1972A5B2AF8005DB139 /* Controllers */,
@@ -219,10 +300,31 @@
 		0CC7D1982A5B2B07005DB139 /* Database */ = {
 			isa = PBXGroup;
 			children = (
+				0C995A392C7659C100C7929F /* Service */,
+				0C0381B22C75D7BE002E7C37 /* Dao */,
 				0C0553FE2A5C3A1200DFECAB /* Entity */,
-				0CC7D1952A5AE32D005DB139 /* DatabaseManager.swift */,
+				0CC7D1952A5AE32D005DB139 /* DatabaseSqlManager.swift */,
+				0C995A3E2C7666FC00C7929F /* DatabaseSchemaManager.swift */,
+				0C995A402C7668F800C7929F /* DatabaseSchemaHelper.swift */,
 			);
 			path = Database;
+			sourceTree = "<group>";
+		};
+		0CCC707C2C708C5B0006511B /* Dto */ = {
+			isa = PBXGroup;
+			children = (
+				0CFADDDA2C6F916B00E50AB4 /* FoodFactsProductDto.swift */,
+			);
+			path = Dto;
+			sourceTree = "<group>";
+		};
+		0CCC707D2C708E370006511B /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				0CFADDD82C6F8A0700E50AB4 /* HttpRequestService.swift */,
+				0CCC707E2C7092E30006511B /* FoodFactsService.swift */,
+			);
+			path = Service;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -243,6 +345,7 @@
 			name = ShoppingList;
 			packageProductDependencies = (
 				0C0624D12A60680D00E5E36F /* SQLite */,
+				0CFADDD62C6F850400E50AB4 /* BarcodeScanner */,
 			);
 			productName = ShoppingList;
 			productReference = 0CC7D17B2A5AE2E7005DB139 /* ShoppingList.app */;
@@ -274,6 +377,7 @@
 			mainGroup = 0CC7D1722A5AE2E7005DB139;
 			packageReferences = (
 				0C0624D02A60680D00E5E36F /* XCRemoteSwiftPackageReference "SQLite" */,
+				0CFADDD52C6F850400E50AB4 /* XCRemoteSwiftPackageReference "BarcodeScanner" */,
 			);
 			productRefGroup = 0CC7D17C2A5AE2E7005DB139 /* Products */;
 			projectDirPath = "";
@@ -303,34 +407,54 @@
 			buildActionMask = 2147483647;
 			files = (
 				0CC8D3962A9FD099002B7B0F /* Extensions.swift in Sources */,
+				0C995A3D2C765D5800C7929F /* DatabaseEntity.swift in Sources */,
+				0C0381B42C75D7CF002E7C37 /* ProductDao.swift in Sources */,
 				0C12B5D32AA649F90093A4F4 /* PopupModelViewController.swift in Sources */,
+				0C995A3F2C7666FC00C7929F /* DatabaseSchemaManager.swift in Sources */,
+				0C0381BD2C75E197002E7C37 /* DishDao.swift in Sources */,
 				0CC7D19A2A5B2CCF005DB139 /* ShoppingListViewController.swift in Sources */,
 				0C0554052A5C3E4E00DFECAB /* Toast.swift in Sources */,
 				0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */,
 				0CED2E7C2AB228E10061BB29 /* Constants.swift in Sources */,
+				0C0381B62C75DA07002E7C37 /* DishCategory.swift in Sources */,
+				0C0381BB2C75DF97002E7C37 /* DishCategoryDao.swift in Sources */,
 				0CC7D1A22A5B2D2F005DB139 /* DishesViewController.swift in Sources */,
 				0C3AEDE02A7FF84E000F77A3 /* EatHistoryViewController.swift in Sources */,
-				0CC7D1962A5AE32D005DB139 /* DatabaseManager.swift in Sources */,
+				0CC7D1962A5AE32D005DB139 /* DatabaseSqlManager.swift in Sources */,
 				0CC7D19E2A5B2D0F005DB139 /* ProductsViewController.swift in Sources */,
 				0CC7D19C2A5B2CFF005DB139 /* AddProductViewController.swift in Sources */,
+				0C995A3B2C7659D100C7929F /* ProductService.swift in Sources */,
 				0C98E2392A7E8E4F00A33054 /* StringUtils.swift in Sources */,
 				0CF963B22AB983E4003C48EE /* Error.swift in Sources */,
+				0C0381CA2C75F063002E7C37 /* ProductAmountToBuyDao.swift in Sources */,
+				0C0381B92C75DEC7002E7C37 /* ProductCategoryDao.swift in Sources */,
+				0CFADDD92C6F8A0700E50AB4 /* HttpRequestService.swift in Sources */,
 				0CC7D17F2A5AE2E7005DB139 /* AppDelegate.swift in Sources */,
 				0CC7D1A02A5B2D22005DB139 /* AddDishViewController.swift in Sources */,
+				0C0381CE2C75F903002E7C37 /* EatHistoryDao.swift in Sources */,
 				0CA539F02A9540AD001CDD2F /* DateUtils.swift in Sources */,
 				0CF6A8E32AA10DF700AEA39D /* ProductSelectionViewController.swift in Sources */,
 				0C0554002A5C3A4B00DFECAB /* Product.swift in Sources */,
+				0CCC707F2C7092E30006511B /* FoodFactsService.swift in Sources */,
 				0CC7D1812A5AE2E7005DB139 /* SceneDelegate.swift in Sources */,
 				0C59DD082AB352F90046830C /* Alert.swift in Sources */,
+				0C0381C62C75EF74002E7C37 /* ProductAmountToBuy.swift in Sources */,
 				0C63C8842A7BBD3200CFDCD2 /* PhotoData.swift in Sources */,
+				0CFADDDB2C6F916B00E50AB4 /* FoodFactsProductDto.swift in Sources */,
 				0CC7D1A42A5B3360005DB139 /* MainTabViewController.swift in Sources */,
 				0CF62CEC2AA4E408005AFD9D /* AddRecipeViewController.swift in Sources */,
+				0C0381C02C75E9DD002E7C37 /* Category.swift in Sources */,
 				0C5FB0E42A631D5B00B609CF /* Dish.swift in Sources */,
+				0C995A412C7668F800C7929F /* DatabaseSchemaHelper.swift in Sources */,
 				0CF62CE82AA4D4C7005AFD9D /* Recipe.swift in Sources */,
-				0CDF372C2A7E729300EB2A88 /* EatHistoryItem.swift in Sources */,
+				0C0381C22C75EB3D002E7C37 /* Nutrients.swift in Sources */,
+				0CDF372C2A7E729300EB2A88 /* EatHistory.swift in Sources */,
+				0C0381D02C75FC69002E7C37 /* RecipeDao.swift in Sources */,
 				0C9AA1532A87CAAB001F8FF4 /* UILabelPadding.swift in Sources */,
-				0C0554022A5C3AB100DFECAB /* Category.swift in Sources */,
-				0C5FB0E62A631F2100B609CF /* ProductAmount.swift in Sources */,
+				0C0554022A5C3AB100DFECAB /* ProductCategory.swift in Sources */,
+				0C0381C82C75EFE8002E7C37 /* DishProductAmount.swift in Sources */,
+				0C995A432C766F3400C7929F /* ProductCategoryService.swift in Sources */,
+				0C0381C42C75EF32002E7C37 /* ProductsAmount.swift in Sources */,
 				0CF62CEA2AA4D8A2005AFD9D /* RecipesViewController.swift in Sources */,
 				0C913A422A8BDDF800C8F2E8 /* TableViewComponent.swift in Sources */,
 			);
@@ -562,6 +686,14 @@
 				minimumVersion = 0.14.1;
 			};
 		};
+		0CFADDD52C6F850400E50AB4 /* XCRemoteSwiftPackageReference "BarcodeScanner" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hyperoslo/BarcodeScanner";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -569,6 +701,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0C0624D02A60680D00E5E36F /* XCRemoteSwiftPackageReference "SQLite" */;
 			productName = SQLite;
+		};
+		0CFADDD62C6F850400E50AB4 /* BarcodeScanner */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0CFADDD52C6F850400E50AB4 /* XCRemoteSwiftPackageReference "BarcodeScanner" */;
+			productName = BarcodeScanner;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

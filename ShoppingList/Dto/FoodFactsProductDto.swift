@@ -1,6 +1,12 @@
+//
+//  FoodFactsService.swift
+//  ShoppingList
+//
+//  Created by jczajka on 17/08/2024.
+//
+
 import Foundation
 
-// MARK: - Full dto Model
 public struct ProductDto: Codable {
     let product: ProductInfo
     
@@ -9,7 +15,6 @@ public struct ProductDto: Codable {
     }
 }
 
-// MARK: - Product Model
 struct ProductInfo: Codable {
     let nutriments: Nutriments?
     let productName: String?
@@ -26,7 +31,6 @@ struct ProductInfo: Codable {
     }
 }
 
-// MARK: - Nutriments Model
 struct Nutriments: Codable {
     let carbohydrates100g: Double?
     let energyKcal100g: Double?
@@ -38,6 +42,5 @@ struct Nutriments: Codable {
         case energyKcal100g = "energy-kcal_100g"
         case fat100g = "fat_100g"
         case proteins100g = "proteins_100g"
-        
     }
 }

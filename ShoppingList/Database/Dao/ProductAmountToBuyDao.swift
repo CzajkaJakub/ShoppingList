@@ -2,14 +2,23 @@
 //  ProductsAmountToBuyDao.swift
 //  ShoppingList
 //
-//  Created by Patrycja on 21/08/2024.
+//  Created by jczajka on 21/08/2024.
 //
 
 import Foundation
 
-class ProductAmountToBuyDao {
+class ProductAmountToBuyDao: DatabaseSchemaHelper {
     
     static var loadedProductsToBuy: [ProductAmountToBuy] = []
+    
+    
+    
+    private let dbManager: DatabaseSqlManager
+    static let shared = ProductAmountToBuyDao()
+
+     init(dbManager: DatabaseSqlManager = .shared) {
+         self.dbManager = dbManager
+     }
     
     static func removeProductToBuy(productToBuy: ProductAmountToBuy) {
         
@@ -35,7 +44,8 @@ class ProductAmountToBuyDao {
     
     static func addProductToBuy(dish: Dish) {
         for productAmount in dish.productAmounts {
-            addProductTuBuy(productAmount: productAmount)
+            let productToBuy = ProductAmountToBuy(product: productAmount.product, amount: productAmount.amount)
+            addProductTuBuy(productAmount: productToBuy)
         }
     }
     
@@ -59,5 +69,4 @@ class ProductAmountToBuyDao {
             Alert.displayErrorAlert(message: "\(error)")
         }
     }
-
 }

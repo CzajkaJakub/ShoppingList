@@ -97,7 +97,7 @@ class DishesViewController: UIViewController {
     
     @objc func datePickerValueChanged(_ sender: UIDatePicker) {
         self.selectedDate = sender.date
-    }
+    } 
     
     @objc func editDishAction(_ gestureRecognizer: UILongPressGestureRecognizer) {
         if gestureRecognizer.state == .began {
@@ -161,8 +161,8 @@ class DishesViewController: UIViewController {
                         let passedValueText = amountAlert.textFields?.first?.text!
                         if let passedValue = StringUtils.convertTextFieldToDouble(stringValue: passedValueText!) {
                             
-                            let eatItem = EatHistoryItem(dish: dish, product: nil, amount: passedValue, eatDate: self!.selectedDate)
-                            EatHistoryItem.addItemToEatHistory(eatItem: eatItem)
+                            let eatItem = EatHistory(dish: dish, product: nil, amount: passedValue, eatDate: self!.selectedDate)
+                            EatHistory.addItemToEatHistory(eatItem: eatItem)
                             
                         } else {
                             Toast.showToast(message: Constants.enteredWrongDoubleValueMessage, parentView: self!.view)

@@ -1,6 +1,7 @@
 import UIKit
+import BarcodeScanner
 
-class AddProductViewController: UIViewController {
+class AddProductViewController: UIViewController, BarcodeScannerCodeDelegate  {
     
     private var imageViewHeightConstraint: NSLayoutConstraint?
     internal var selectOptions: [Category] = []
@@ -91,6 +92,10 @@ class AddProductViewController: UIViewController {
         return UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(selectPhoto))
     }()
     
+    private lazy var readBarCodeButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(readBarCode))
+    }()
+    
     private let selectListTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = Constants.selectCategory
@@ -109,7 +114,7 @@ class AddProductViewController: UIViewController {
         if self.selectedOption == nil { self.selectedOption = Category.productCategories.first }
         self.selectListTextField.text = selectedOption.name
         
-        navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, saveButton]
+        navigationItem.rightBarButtonItems = [selectPhotoButton, clearButton, saveButton, readBarCodeButton]
         
         setupConstraints()
         
@@ -129,7 +134,7 @@ class AddProductViewController: UIViewController {
         stackView.spacing = TableViewComponent.stackViewSpacing
         
         view.addSubview(stackView)
-            
+        
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: TableViewComponent.detailsComponentMargin),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: TableViewComponent.detailsComponentMargin),
@@ -189,6 +194,71 @@ class AddProductViewController: UIViewController {
         imageSourceAlert.addAction(cancelAction)
         
         self.present(imageSourceAlert, animated: true, completion: nil)
+    }
+    
+    @objc private func readBarCode() {
+        let viewController = BarcodeScannerViewController()
+        viewController.codeDelegate = self
+        
+        self.present(viewController, animated: true, completion: nil)
+    }
+    
+    func scanner(_ controller: BarcodeScannerViewController, didCaptureCode code: String, type: String) {
+        
+        FoodFactsService.fetchProductDataByBarCode(barCode: code) { productDto in
+            
+            if let product = productDto {
+                // Ensure UI updates are on the main thread
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    
+                    let product = productDto!.product
+                    
+                    strongSelf.nameTextField.text = product.productName ?? "Unknown Product"
+                    strongSelf.kcalTextField.text = String(product.nutriments?.energyKcal100g ?? 0)
+                    strongSelf.proteinTextField.text = String(product.nutriments?.proteins100g ?? 0)
+                    strongSelf.fatTextField.text = String(product.nutriments?.fat100g ?? 0)
+                    strongSelf.carboTextField.text = String(product.nutriments?.carbohydrates100g ?? 0)
+                    strongSelf.weightOfProductTextField.text = product.productQuantity ?? "Unknown"
+                    
+                    if let imageUrl = product.image{
+                        strongSelf.loadImage(from: imageUrl)
+                    }
+                }
+            } else {
+                // Handle the error
+            }
+        }
+        
+        controller.dismiss(animated: true, completion: nil)
+    }
+    
+    func loadImage(from urlString: String) {
+        guard let url = URL(string: urlString) else {
+            print("Invalid URL")
+            return
+        }
+        
+        // Create a URLSession data task to download the image
+        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            if let error = error {
+                print("Error downloading image: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let data = data, let image = UIImage(data: data) else {
+                print("Error: No data or failed to create image from data")
+                return
+            }
+            
+            // Update the UIImageView on the main thread
+            DispatchQueue.main.async {
+                self?.selectedPhoto = image
+                self?.reloadPhoto()
+            }
+        }
+        
+        task.resume() // Start the task
     }
     
     
