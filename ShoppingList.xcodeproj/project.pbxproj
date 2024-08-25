@@ -17,7 +17,7 @@
 		0C0381C42C75EF32002E7C37 /* ProductsAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381C32C75EF32002E7C37 /* ProductsAmount.swift */; };
 		0C0381C62C75EF74002E7C37 /* ProductAmountToBuy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381C52C75EF74002E7C37 /* ProductAmountToBuy.swift */; };
 		0C0381C82C75EFE8002E7C37 /* DishProductAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381C72C75EFE8002E7C37 /* DishProductAmount.swift */; };
-		0C0381CA2C75F063002E7C37 /* ProductAmountToBuyDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381C92C75F063002E7C37 /* ProductAmountToBuyDao.swift */; };
+		0C0381CA2C75F063002E7C37 /* ShoppingListDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381C92C75F063002E7C37 /* ShoppingListDao.swift */; };
 		0C0381CE2C75F903002E7C37 /* EatHistoryDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381CD2C75F903002E7C37 /* EatHistoryDao.swift */; };
 		0C0381D02C75FC69002E7C37 /* RecipeDao.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0381CF2C75FC69002E7C37 /* RecipeDao.swift */; };
 		0C0554002A5C3A4B00DFECAB /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0553FF2A5C3A4B00DFECAB /* Product.swift */; };
@@ -25,6 +25,10 @@
 		0C0554052A5C3E4E00DFECAB /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0554042A5C3E4E00DFECAB /* Toast.swift */; };
 		0C0624D22A60680D00E5E36F /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 0C0624D12A60680D00E5E36F /* SQLite */; };
 		0C12B5D32AA649F90093A4F4 /* PopupModelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C12B5D22AA649F90093A4F4 /* PopupModelViewController.swift */; };
+		0C1A5A512C7B462900D25979 /* EatHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1A5A502C7B462900D25979 /* EatHistoryService.swift */; };
+		0C1A5A532C7B503900D25979 /* RecipeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1A5A522C7B503900D25979 /* RecipeService.swift */; };
+		0C1A5A552C7B519B00D25979 /* DishCategoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1A5A542C7B519B00D25979 /* DishCategoryService.swift */; };
+		0C1A5A572C7B572E00D25979 /* ShoppingListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1A5A562C7B572E00D25979 /* ShoppingListService.swift */; };
 		0C3AEDE02A7FF84E000F77A3 /* EatHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3AEDDF2A7FF84E000F77A3 /* EatHistoryViewController.swift */; };
 		0C59DD082AB352F90046830C /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C59DD072AB352F90046830C /* Alert.swift */; };
 		0C5FB0E42A631D5B00B609CF /* Dish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5FB0E32A631D5B00B609CF /* Dish.swift */; };
@@ -52,6 +56,7 @@
 		0CC7D1A42A5B3360005DB139 /* MainTabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC7D1A32A5B3360005DB139 /* MainTabViewController.swift */; };
 		0CC8D3962A9FD099002B7B0F /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC8D3952A9FD099002B7B0F /* Extensions.swift */; };
 		0CCC707F2C7092E30006511B /* FoodFactsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCC707E2C7092E30006511B /* FoodFactsService.swift */; };
+		0CCE335D2C79EB100073327B /* DishService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCE335C2C79EB100073327B /* DishService.swift */; };
 		0CDF372C2A7E729300EB2A88 /* EatHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDF372B2A7E729300EB2A88 /* EatHistory.swift */; };
 		0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE66F732A76738500971742 /* DishDetailViewController.swift */; };
 		0CED2E7C2AB228E10061BB29 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CED2E7B2AB228E10061BB29 /* Constants.swift */; };
@@ -76,13 +81,17 @@
 		0C0381C32C75EF32002E7C37 /* ProductsAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsAmount.swift; sourceTree = "<group>"; };
 		0C0381C52C75EF74002E7C37 /* ProductAmountToBuy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductAmountToBuy.swift; sourceTree = "<group>"; };
 		0C0381C72C75EFE8002E7C37 /* DishProductAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishProductAmount.swift; sourceTree = "<group>"; };
-		0C0381C92C75F063002E7C37 /* ProductAmountToBuyDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductAmountToBuyDao.swift; sourceTree = "<group>"; };
+		0C0381C92C75F063002E7C37 /* ShoppingListDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListDao.swift; sourceTree = "<group>"; };
 		0C0381CD2C75F903002E7C37 /* EatHistoryDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistoryDao.swift; sourceTree = "<group>"; };
 		0C0381CF2C75FC69002E7C37 /* RecipeDao.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeDao.swift; sourceTree = "<group>"; };
 		0C0553FF2A5C3A4B00DFECAB /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
 		0C0554012A5C3AB100DFECAB /* ProductCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCategory.swift; sourceTree = "<group>"; };
 		0C0554042A5C3E4E00DFECAB /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
 		0C12B5D22AA649F90093A4F4 /* PopupModelViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupModelViewController.swift; sourceTree = "<group>"; };
+		0C1A5A502C7B462900D25979 /* EatHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistoryService.swift; sourceTree = "<group>"; };
+		0C1A5A522C7B503900D25979 /* RecipeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeService.swift; sourceTree = "<group>"; };
+		0C1A5A542C7B519B00D25979 /* DishCategoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishCategoryService.swift; sourceTree = "<group>"; };
+		0C1A5A562C7B572E00D25979 /* ShoppingListService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListService.swift; sourceTree = "<group>"; };
 		0C3AEDDF2A7FF84E000F77A3 /* EatHistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistoryViewController.swift; sourceTree = "<group>"; };
 		0C59DD072AB352F90046830C /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		0C5FB0E32A631D5B00B609CF /* Dish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dish.swift; sourceTree = "<group>"; };
@@ -112,6 +121,7 @@
 		0CC7D1A32A5B3360005DB139 /* MainTabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabViewController.swift; sourceTree = "<group>"; };
 		0CC8D3952A9FD099002B7B0F /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		0CCC707E2C7092E30006511B /* FoodFactsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodFactsService.swift; sourceTree = "<group>"; };
+		0CCE335C2C79EB100073327B /* DishService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishService.swift; sourceTree = "<group>"; };
 		0CDF372B2A7E729300EB2A88 /* EatHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EatHistory.swift; sourceTree = "<group>"; };
 		0CE66F732A76738500971742 /* DishDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DishDetailViewController.swift; sourceTree = "<group>"; };
 		0CED2E7B2AB228E10061BB29 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -146,7 +156,7 @@
 				0C0381CD2C75F903002E7C37 /* EatHistoryDao.swift */,
 				0C0381CF2C75FC69002E7C37 /* RecipeDao.swift */,
 				0C0381BA2C75DF97002E7C37 /* DishCategoryDao.swift */,
-				0C0381C92C75F063002E7C37 /* ProductAmountToBuyDao.swift */,
+				0C0381C92C75F063002E7C37 /* ShoppingListDao.swift */,
 			);
 			path = Dao;
 			sourceTree = "<group>";
@@ -218,6 +228,11 @@
 			children = (
 				0C995A3A2C7659D100C7929F /* ProductService.swift */,
 				0C995A422C766F3400C7929F /* ProductCategoryService.swift */,
+				0CCE335C2C79EB100073327B /* DishService.swift */,
+				0C1A5A502C7B462900D25979 /* EatHistoryService.swift */,
+				0C1A5A522C7B503900D25979 /* RecipeService.swift */,
+				0C1A5A542C7B519B00D25979 /* DishCategoryService.swift */,
+				0C1A5A562C7B572E00D25979 /* ShoppingListService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -417,16 +432,18 @@
 				0CE66F742A76738500971742 /* DishDetailViewController.swift in Sources */,
 				0CED2E7C2AB228E10061BB29 /* Constants.swift in Sources */,
 				0C0381B62C75DA07002E7C37 /* DishCategory.swift in Sources */,
+				0C1A5A512C7B462900D25979 /* EatHistoryService.swift in Sources */,
 				0C0381BB2C75DF97002E7C37 /* DishCategoryDao.swift in Sources */,
 				0CC7D1A22A5B2D2F005DB139 /* DishesViewController.swift in Sources */,
 				0C3AEDE02A7FF84E000F77A3 /* EatHistoryViewController.swift in Sources */,
 				0CC7D1962A5AE32D005DB139 /* DatabaseSqlManager.swift in Sources */,
 				0CC7D19E2A5B2D0F005DB139 /* ProductsViewController.swift in Sources */,
+				0C1A5A572C7B572E00D25979 /* ShoppingListService.swift in Sources */,
 				0CC7D19C2A5B2CFF005DB139 /* AddProductViewController.swift in Sources */,
 				0C995A3B2C7659D100C7929F /* ProductService.swift in Sources */,
 				0C98E2392A7E8E4F00A33054 /* StringUtils.swift in Sources */,
 				0CF963B22AB983E4003C48EE /* Error.swift in Sources */,
-				0C0381CA2C75F063002E7C37 /* ProductAmountToBuyDao.swift in Sources */,
+				0C0381CA2C75F063002E7C37 /* ShoppingListDao.swift in Sources */,
 				0C0381B92C75DEC7002E7C37 /* ProductCategoryDao.swift in Sources */,
 				0CFADDD92C6F8A0700E50AB4 /* HttpRequestService.swift in Sources */,
 				0CC7D17F2A5AE2E7005DB139 /* AppDelegate.swift in Sources */,
@@ -448,13 +465,16 @@
 				0C995A412C7668F800C7929F /* DatabaseSchemaHelper.swift in Sources */,
 				0CF62CE82AA4D4C7005AFD9D /* Recipe.swift in Sources */,
 				0C0381C22C75EB3D002E7C37 /* Nutrients.swift in Sources */,
+				0C1A5A552C7B519B00D25979 /* DishCategoryService.swift in Sources */,
 				0CDF372C2A7E729300EB2A88 /* EatHistory.swift in Sources */,
 				0C0381D02C75FC69002E7C37 /* RecipeDao.swift in Sources */,
 				0C9AA1532A87CAAB001F8FF4 /* UILabelPadding.swift in Sources */,
 				0C0554022A5C3AB100DFECAB /* ProductCategory.swift in Sources */,
 				0C0381C82C75EFE8002E7C37 /* DishProductAmount.swift in Sources */,
 				0C995A432C766F3400C7929F /* ProductCategoryService.swift in Sources */,
+				0C1A5A532C7B503900D25979 /* RecipeService.swift in Sources */,
 				0C0381C42C75EF32002E7C37 /* ProductsAmount.swift in Sources */,
+				0CCE335D2C79EB100073327B /* DishService.swift in Sources */,
 				0CF62CEA2AA4D8A2005AFD9D /* RecipesViewController.swift in Sources */,
 				0C913A422A8BDDF800C8F2E8 /* TableViewComponent.swift in Sources */,
 			);

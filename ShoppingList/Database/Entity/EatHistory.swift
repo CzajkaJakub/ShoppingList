@@ -2,13 +2,17 @@ import Foundation
 import SQLite
 import UIKit
 
-class EatHistory, DatabaseEntity {
+class EatHistory: DatabaseEntity {
     
     var id: Int?
     var dish: Dish?
     var amount: Double
     var product: Product?
     var eatTimestamp: Double
+    
+    init(id: Int?) {
+        self.id = id
+    }
     
     convenience init(dish: Dish?, product: Product?, amount: Double, eatTimestamp: Double) {
         self.init(id: nil, dish: dish, product: product, amount: amount, eatTimestamp: eatTimestamp)

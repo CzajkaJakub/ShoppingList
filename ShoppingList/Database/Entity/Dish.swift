@@ -12,6 +12,10 @@ class Dish: Nutrients, DatabaseEntity {
     var category: Category
     var description: String?
     var productAmounts: [DishProductAmount]
+        
+    init(id: Int?) {
+        self.id = id
+    }
     
     convenience init(name: String, description: String?, photo: UIImage, archived: Bool, productAmounts: [DishProductAmount], category: Category) {
         let photo = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)

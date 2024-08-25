@@ -11,9 +11,17 @@ class Product: Nutrients, DatabaseEntity {
     var weightOfProduct: Double?
     var category: ProductCategory
     
-    convenience init(name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, weightOfPiece: Double?, weightOfProduct: Double?, category: ProductCategory) {
-        let resizedPhoto = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)
-        self.init(id: nil, name: name, photo: resizedPhoto, kcal: kcal, carbo: carbo, fat: fat, protein: protein, weightOfPiece: weightOfPiece, weightOfProduct: weightOfProduct, category: category)
+    init(id: Int?) {
+        self.id = id
+    }
+    
+    init(name: String, photo: UIImage, kcal: Double, carbo: Double, fat: Double, protein: Double, weightOfPiece: Double?, weightOfProduct: Double?, category: ProductCategory) {
+        self.name = name
+        self.category = category
+        self.weightOfPiece = weightOfPiece
+        self.weightOfProduct = weightOfProduct
+        self.photo = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)
+        super.init(cal: kcal, carbo: carbo, fat: fat, protein: protein)
     }
     
     init(id: Int?, name: String, photo: Blob, kcal: Double, carbo: Double, fat: Double, protein: Double, weightOfPiece: Double?, weightOfProduct: Double?, category: ProductCategory) {

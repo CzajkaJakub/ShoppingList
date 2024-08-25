@@ -6,11 +6,11 @@
 //
 
 import Foundation
+import SQLite
+import SQLite3
+import UIKit
 
 class RecipeDao: DatabaseSchemaHelper {
-    
-    static var loadedRecipes: [Recipe] = []
-    
     
     private let dbManager: DatabaseSqlManager
     static let shared = RecipeDao()
@@ -19,35 +19,41 @@ class RecipeDao: DatabaseSchemaHelper {
          self.dbManager = dbManager
      }
     
-    
-    static func addRecipe(recipe: Recipe) {
+    func insertRecipe(recipe: Recipe) throws -> Int {
+        let insertRecipeQuery = recipeTable.insert(
+            dateTime <- recipe.dateTime,
+            amount <- recipe.amount,
+            photo <- recipe.photo
+        )
         
-        do {
-            try DatabaseManager.shared.insertRecipe(recipe: recipe)
-        } catch {
-            Alert.displayErrorAlert(message: "\(error)")
-        }
+        return try dbManager.insertSql(insertSql: insertRecipeQuery, tableName: Constants.recipeTable)
     }
     
-    static func fetchEatItemsByDate(searchDateFrom: Date, searchDateTo: Date) {
-        
-        do {
-            loadedRecipes = try DatabaseManager.shared.fetchRecipes(dateFrom: searchDateFrom.startOfDay, dateTo: searchDateTo.endOfDay)
-        } catch {
-            Alert.displayErrorAlert(message: "\(error)")
-        }
+    
+    func removeRecipe(recipe: Recipe) throws {
+        let deleteQuery = recipeTable.filter(id == recipe.id!).delete()
+        try dbManager.deleteSql(deleteSql: deleteQuery, tableName: Constants.recipeTable)
     }
     
-    static func removeRecipe(recipe: Recipe) {
+    
+    func fetchRecipes(dateFrom: Date, dateTo: Date) throws -> [Recipe] {
+        var recipes: [Recipe] = []
         
-        if let index = Recipe.recipes.firstIndex(where: { $0.id == recipe.id }) {
+        let selectQuery = recipeTable
+            .select(recipeTable[*])
+            .filter(recipeTable[dateTime] >= DateUtils.convertDateToDoubleValue(dateToConvert: dateFrom) &&
+                    recipeTable[dateTime] <= DateUtils.convertDateToDoubleValue(dateToConvert: dateTo))
+            .order(recipeTable[dateTime])
+        
+        for row in try dbManager.fetchSql(selectSql: selectQuery, tableName: Constants.recipeTable) {
+            let recipeId = row[recipeTable[id]]
+            let dateTime = row[recipeTable[dateTime]]
+            let amount = row[recipeTable[amount]]
+            let photo = row[recipeTable[photo]]
             
-            do {
-                try DatabaseManager.shared.removeRecipe(recipe: recipe)
-                loadedRecipes.remove(at: index)
-            } catch {
-                Alert.displayErrorAlert(message: "\(error)")
-            }
+            let recipe = Recipe(id: recipeId, dateValue: dateTime, amount: amount!, photo: photo)
+            recipes.append(recipe)
         }
+        return recipes
     }
 }

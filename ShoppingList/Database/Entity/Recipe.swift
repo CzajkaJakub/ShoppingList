@@ -2,12 +2,16 @@ import Foundation
 import SQLite
 import UIKit
 
-public class Recipe, DatabaseEntity {
+public class Recipe: DatabaseEntity {
     
     var id: Int?
     var photo: Blob
     var amount: Double
     var dateTime: Double
+    
+    init(id: Int?) {
+        self.id = id
+    }
     
     convenience init(date: Double, amount: Double, photo: UIImage) {
         let photo = try! PhotoData.convertUIImageToResizedBlob(imageToResize: photo)

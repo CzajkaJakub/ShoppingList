@@ -9,10 +9,10 @@ import Foundation
 
 class Nutrients {
     
-    internal var calories: Double
-    internal var carbo: Double
-    internal var fat: Double
-    internal var protein: Double
+    internal var calories: Double?
+    internal var carbo: Double?
+    internal var fat: Double?
+    internal var protein: Double?
 
     init(cal: Double, carbo: Double, fat: Double, protein: Double) {
         self.calories = round(cal * 100) / 100.0

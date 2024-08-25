@@ -20,8 +20,8 @@ class DateUtils {
         return Date(timeIntervalSince1970: timeInterval)
     }
     
-    static func convertDateToIntValue(dateToConvert: Date) -> Int {
-        return Int(dateToConvert.timeIntervalSince1970)
+    static func convertDateToDoubleValue(dateToConvert: Date) -> Double {
+        return Double(dateToConvert.timeIntervalSince1970)
     }
     
     static func convertDateToMediumFormat(dateToConvert: Date) -> String {

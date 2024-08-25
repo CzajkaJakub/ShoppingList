@@ -41,7 +41,8 @@ class ProductCategoryDao: DatabaseSchemaHelper {
     }
     
     func fetchProductCategoryById(productCategoryId: Int) throws -> ProductCategory {
-        
+        var category: ProductCategory!
+
         let selectQuery = productCategoriesTable
             .select(
                 productCategoriesTable[id],
@@ -52,8 +53,10 @@ class ProductCategoryDao: DatabaseSchemaHelper {
             let categoryId = row[productCategoriesTable[id]]
             let categoryName = row[productCategoriesTable[categoryName]]
             
-            return ProductCategory(id: categoryId, name: categoryName)
+            category = ProductCategory(id: categoryId, name: categoryName)
         }
+        
+        return category
     }
 }
 

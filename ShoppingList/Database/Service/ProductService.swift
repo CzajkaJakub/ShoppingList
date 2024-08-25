@@ -14,7 +14,7 @@ class ProductService {
     private let productDao: ProductDao
     private let productCategoryDao: ProductCategoryDao
     
-    private var loadedProducts: [Product] = []
+    var loadedProducts: [Product] = []
     
     init(productDao: ProductDao = .shared, productCategoryDao: ProductCategoryDao = .shared) {
         self.productDao = productDao
@@ -59,19 +59,12 @@ class ProductService {
         }
     }
     
-    
-    
-    
-    
-    
-    
-    
-    static func removeProduct(product: Product) {
+    func removeProduct(product: Product) {
         
         if let index = loadedProducts.firstIndex(where: { $0.id == product.id }) {
             
             do {
-                try DatabaseManager.shared.removeProduct(product: product)
+                try productDao.removeProduct(product: product)
                 loadedProducts.remove(at: index)
             } catch {
                 Alert.displayErrorAlert(message: "\(error)")
@@ -79,12 +72,12 @@ class ProductService {
         }
     }
     
-    static func updateProduct(product: Product) {
+    func updateProduct(product: Product) {
         
         if let index = loadedProducts.firstIndex(where: { $0.id == product.id }) {
             
             do {
-                try DatabaseManager.shared.updateProduct(product: product)
+                try productDao.updateProduct(product: product)
                 loadedProducts[index] = product
             } catch {
                 Alert.displayErrorAlert(message: "\(error)")

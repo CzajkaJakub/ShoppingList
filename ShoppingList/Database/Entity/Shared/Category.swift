@@ -9,19 +9,9 @@ import Foundation
 
 class Category {
     
-    var id: Int?
     var name: String?
     
-    convenience init(id: Int) {
-        self.init(id: id, name: nil)
-    }
-    
-    convenience init(name: String) {
-        self.init(id: nil, name: name)
-    }
-    
-    init(id: Int?, name: String?) {
-        self.id = id
+    init(name: String) {
         self.name = name
     }
 }

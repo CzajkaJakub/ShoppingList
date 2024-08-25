@@ -2,7 +2,7 @@
 //  ProductCategoryService.swift
 //  ShoppingList
 //
-//  Created by Patrycja on 21/08/2024.
+//  Created by jczajka on 21/08/2024.
 //
 
 import Foundation
@@ -12,7 +12,8 @@ class ProductCategoryService {
     static let shared = ProductCategoryService()
 
     private let productCategoryDao: ProductCategoryDao
-    private var loadedProductCategories: [ProductCategory] = []
+    
+    var loadedProductCategories: [ProductCategory] = []
 
     init(productCategoryDao: ProductCategoryDao = .shared) {
         self.productCategoryDao = productCategoryDao
